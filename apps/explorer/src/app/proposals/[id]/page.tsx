@@ -1,12 +1,15 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
+import { formatPercent, formatTimestamp, formatTokenAmount } from "@/lib/formatters";
+import { getServices } from "@/lib/services";
+import type { ProposalStatus, ProposalTally } from "@cosmos-explorer/core";
+import { notFound } from "next/navigation";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -17,7 +20,57 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-function VoteBar({ yes, no, abstain, veto }: { yes: number; no: number; abstain: number; veto: number }) {
+function toStatusLabel(status: ProposalStatus): string {
+  switch (status) {
+    case "deposit":
+      return "Deposit";
+    case "voting":
+      return "Voting";
+    case "passed":
+      return "Passed";
+    case "rejected":
+    case "failed":
+      return "Rejected";
+    default:
+      return "Unknown";
+  }
+}
+
+function toVotePercent(value: string, total: number): number | null {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || total <= 0) {
+    return null;
+  }
+
+  return (parsed / total) * 100;
+}
+
+function getTallyTotal(tally: ProposalTally | null): number {
+  if (!tally) {
+    return 0;
+  }
+
+  return ["yes", "no", "abstain", "noWithVeto"].reduce((sum, key) => {
+    const value = Number(tally[key as keyof ProposalTally] ?? 0);
+    return Number.isFinite(value) ? sum + value : sum;
+  }, 0);
+}
+
+function VoteBar({
+  yes,
+  no,
+  abstain,
+  veto,
+}: {
+  yes: number | null;
+  no: number | null;
+  abstain: number | null;
+  veto: number | null;
+}) {
+  if (yes == null || no == null || abstain == null || veto == null) {
+    return <p className="text-sm text-muted-foreground">No tally data available.</p>;
+  }
+
   return (
     <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
       <div className="bg-green-500" style={{ width: `${yes}%` }} />
@@ -34,18 +87,32 @@ export default async function ProposalDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const { proposalService } = getServices();
+  const proposal = await proposalService.getProposalById(Number(id));
+
+  if (proposal == null) {
+    notFound();
+  }
+
+  const tallyTotal = getTallyTotal(proposal.tally);
+  const yes = proposal.tally ? toVotePercent(proposal.tally.yes, tallyTotal) : null;
+  const no = proposal.tally ? toVotePercent(proposal.tally.no, tallyTotal) : null;
+  const abstain = proposal.tally
+    ? toVotePercent(proposal.tally.abstain, tallyTotal)
+    : null;
+  const veto = proposal.tally
+    ? toVotePercent(proposal.tally.noWithVeto, tallyTotal)
+    : null;
 
   return (
     <div className="space-y-6">
       <div>
         <div className="flex items-center gap-3">
-          <span className="font-mono text-sm text-muted-foreground">#{id}</span>
-          <StatusBadge status="Voting" />
+          <span className="font-mono text-sm text-muted-foreground">#{proposal.id}</span>
+          <StatusBadge status={toStatusLabel(proposal.status)} />
         </div>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight">
-          Enable IBC Connections to Osmosis
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Software Upgrade Proposal</p>
+        <h1 className="mt-2 text-2xl font-bold tracking-tight">{proposal.title}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{proposal.type}</p>
       </div>
 
       <Card>
@@ -54,26 +121,31 @@ export default async function ProposalDetailPage({
         </CardHeader>
         <CardContent className="space-y-0">
           <Row label="Status">
-            <StatusBadge status="Voting" />
+            <StatusBadge status={toStatusLabel(proposal.status)} />
           </Row>
           <Separator />
-          <Row label="Type">SoftwareUpgrade</Row>
-          <Separator />
-          <Row label="Submit Time">Mar 15, 2026 10:00:00 UTC</Row>
-          <Separator />
-          <Row label="Deposit End">Mar 17, 2026 10:00:00 UTC</Row>
-          <Separator />
-          <Row label="Voting Start">Mar 17, 2026 10:00:00 UTC</Row>
-          <Separator />
-          <Row label="Voting End">Mar 29, 2026 10:00:00 UTC</Row>
-          <Separator />
-          <Row label="Total Deposit">
-            <span className="font-mono">500.00 XRP</span>
-            <span className="ml-2 text-muted-foreground">(Min: 500.00 XRP)</span>
-          </Row>
+          <Row label="Type">{proposal.type}</Row>
           <Separator />
           <Row label="Proposer">
-            <span className="font-mono text-xs">cosmos1a2b3c4d5e6f7g8h9i0j</span>
+            <span className="font-mono text-xs break-all">{proposal.proposer}</span>
+          </Row>
+          <Separator />
+          <Row label="Submit Time">{formatTimestamp(proposal.submitTime)}</Row>
+          <Separator />
+          <Row label="Deposit End">{formatTimestamp(proposal.depositEndTime)}</Row>
+          <Separator />
+          <Row label="Voting Start">{formatTimestamp(proposal.votingStartTime)}</Row>
+          <Separator />
+          <Row label="Voting End">{formatTimestamp(proposal.votingEndTime)}</Row>
+          <Separator />
+          <Row label="Bonded Snapshot">
+            {formatTokenAmount(proposal.tally?.bondedTokens, 0)}
+          </Row>
+          <Separator />
+          <Row label="Metadata">
+            <span className="font-mono text-xs break-all">
+              {proposal.metadata || "N/A"}
+            </span>
           </Row>
         </CardContent>
       </Card>
@@ -81,31 +153,31 @@ export default async function ProposalDetailPage({
       <Card>
         <CardHeader>
           <CardTitle>Voting</CardTitle>
-          <CardDescription>Current tally — 83.0% turnout</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <VoteBar yes={62.4} no={8.2} abstain={12.1} veto={0.3} />
-
+          <VoteBar yes={yes} no={no} abstain={abstain} veto={veto} />
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground">Yes</p>
-              <p className="mt-1 text-xl font-bold text-green-400">62.4%</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">30,098,400 XRP</p>
+              <p className="mt-1 text-xl font-bold text-green-400">
+                {formatPercent(yes)}
+              </p>
             </div>
             <div className="rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground">No</p>
-              <p className="mt-1 text-xl font-bold text-red-400">8.2%</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">3,956,400 XRP</p>
+              <p className="mt-1 text-xl font-bold text-red-400">
+                {formatPercent(no)}
+              </p>
             </div>
             <div className="rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground">Abstain</p>
-              <p className="mt-1 text-xl font-bold">12.1%</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">5,836,200 XRP</p>
+              <p className="mt-1 text-xl font-bold">{formatPercent(abstain)}</p>
             </div>
             <div className="rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground">No with Veto</p>
-              <p className="mt-1 text-xl font-bold text-yellow-400">0.3%</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">144,720 XRP</p>
+              <p className="mt-1 text-xl font-bold text-yellow-400">
+                {formatPercent(veto)}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -116,27 +188,14 @@ export default async function ProposalDetailPage({
           <CardTitle>Description</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="prose prose-sm prose-invert max-w-none text-sm leading-relaxed text-muted-foreground">
-            <p>
-              This proposal seeks to enable IBC (Inter-Blockchain Communication) connections
-              between our chain and Osmosis, the largest decentralized exchange in the Cosmos
-              ecosystem.
-            </p>
-            <p className="mt-3">
-              Enabling IBC will allow seamless transfer of tokens between chains, improving
-              liquidity and enabling cross-chain DeFi applications. The connection will use
-              the standard IBC-Go v7 implementation with the following parameters:
-            </p>
-            <ul className="mt-3 list-disc space-y-1 pl-5">
-              <li>Connection: connection-0</li>
-              <li>Channel: channel-0 (transfer)</li>
-              <li>Client: 07-tendermint-0</li>
-              <li>Trusting period: 14 days</li>
-            </ul>
-            <p className="mt-3">
-              The upgrade is planned for block height 490,000 (estimated March 30, 2026).
-              All validators must upgrade their nodes before this block height.
-            </p>
+          <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+            <p>{proposal.description || "No description available."}</p>
+            <div>
+              <p className="mb-2 font-medium text-foreground">Content</p>
+              <pre className="max-w-full overflow-x-auto rounded-md bg-muted p-3 text-xs">
+                {JSON.stringify(proposal.content, null, 2)}
+              </pre>
+            </div>
           </div>
         </CardContent>
       </Card>

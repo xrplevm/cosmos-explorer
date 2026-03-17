@@ -7,7 +7,6 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { Avatar, AvatarFallback } from "@cosmos-explorer/ui/avatar";
 import { Separator } from "@cosmos-explorer/ui/separator";
-import { Badge } from "@cosmos-explorer/ui/badge";
 import {
   Table,
   TableBody,
@@ -17,23 +16,15 @@ import {
   TableRow,
 } from "@cosmos-explorer/ui/table";
 import { StatusBadge } from "@/components/status-badge";
+import {
+  formatHash,
+  formatNumber,
+  formatPercent,
+  formatTimestamp,
+} from "@/lib/formatters";
+import { getServices } from "@/lib/services";
 import Link from "next/link";
-
-const delegators = [
-  { address: "cosmos1a2b...x9y0", amount: "125,000.00 XRP", share: "2.95%" },
-  { address: "cosmos1c4d...t5s4", amount: "98,500.00 XRP", share: "2.33%" },
-  { address: "cosmos1e6f...p1o0", amount: "75,200.00 XRP", share: "1.78%" },
-  { address: "cosmos1g8h...n9m8", amount: "50,000.00 XRP", share: "1.18%" },
-  { address: "cosmos1i0j...l7k6", amount: "42,300.00 XRP", share: "1.00%" },
-];
-
-const recentBlocks = [
-  { height: 482910, txs: 12, time: "6s ago" },
-  { height: 482895, txs: 8, time: "1m 36s ago" },
-  { height: 482880, txs: 15, time: "3m 12s ago" },
-  { height: 482862, txs: 3, time: "5m 6s ago" },
-  { height: 482841, txs: 21, time: "7m 18s ago" },
-];
+import { notFound } from "next/navigation";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -44,25 +35,48 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+function toStatusLabel(status: string): string {
+  switch (status) {
+    case "active":
+      return "Active";
+    case "inactive":
+      return "Inactive";
+    case "jailed":
+      return "Jailed";
+    default:
+      return "Unknown";
+  }
+}
+
 export default async function ValidatorDetailPage({
   params,
 }: {
   params: Promise<{ address: string }>;
 }) {
   const { address } = await params;
+  const { validatorService } = getServices();
+  const validator = await validatorService.getValidatorByAddress(address);
+
+  if (validator == null) {
+    notFound();
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Avatar className="h-12 w-12">
-          <AvatarFallback className="text-lg">Co</AvatarFallback>
+          <AvatarFallback className="text-lg">
+            {validator.moniker.slice(0, 2)}
+          </AvatarFallback>
         </Avatar>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">Cosmostation</h1>
-            <StatusBadge status="Active" />
+            <h1 className="text-2xl font-bold tracking-tight">{validator.moniker}</h1>
+            <StatusBadge status={toStatusLabel(validator.status)} />
           </div>
-          <p className="mt-0.5 font-mono text-xs text-muted-foreground">{address}</p>
+          <p className="mt-0.5 font-mono text-xs text-muted-foreground">
+            {validator.address}
+          </p>
         </div>
       </div>
 
@@ -70,37 +84,55 @@ export default async function ValidatorDetailPage({
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Voting Power</CardDescription>
-            <CardTitle className="text-xl">4,230,000 XRP</CardTitle>
+            <CardTitle className="text-xl">
+              {validator.votingPower.toLocaleString()}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">8.78% of total</p>
+            <p className="text-xs text-muted-foreground">
+              {formatPercent(validator.votingPowerPercent)}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Commission</CardDescription>
-            <CardTitle className="text-xl">5.00%</CardTitle>
+            <CardTitle className="text-xl">
+              {formatPercent(
+                validator.commission == null ? null : validator.commission * 100
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">Max: 20.00%</p>
+            <p className="text-xs text-muted-foreground">
+              Max rate: {formatPercent(validator.maxRate == null ? null : validator.maxRate * 100)}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Uptime</CardDescription>
-            <CardTitle className="text-xl">99.98%</CardTitle>
+            <CardDescription>Missed Blocks</CardDescription>
+            <CardTitle className="text-xl">
+              {formatNumber(validator.missedBlocksCounter)}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">Last 10,000 blocks</p>
+            <p className="text-xs text-muted-foreground">
+              Tombstoned: {validator.tombstoned ? "Yes" : "No"}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Delegators</CardDescription>
-            <CardTitle className="text-xl">1,247</CardTitle>
+            <CardDescription>Latest Status Height</CardDescription>
+            <CardTitle className="text-xl">
+              {formatNumber(validator.latestStatusHeight)}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">+12 this week</p>
+            <p className="text-xs text-muted-foreground">
+              Jailed: {validator.jailed ? "Yes" : "No"}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -111,100 +143,85 @@ export default async function ValidatorDetailPage({
         </CardHeader>
         <CardContent className="space-y-0">
           <Row label="Operator Address">
-            <span className="font-mono text-xs break-all">{address}</span>
+            <span className="font-mono text-xs break-all">{validator.address}</span>
           </Row>
           <Separator />
-          <Row label="Self-Bonded">
-            <span className="font-mono">250,000.00 XRP</span>
-            <span className="ml-2 text-muted-foreground">(5.91%)</span>
-          </Row>
-          <Separator />
-          <Row label="Commission Rate">
-            <span>5.00%</span>
-            <span className="ml-2 text-muted-foreground">(Max: 20.00%, Max Change: 1.00%/day)</span>
-          </Row>
-          <Separator />
-          <Row label="Min Self Delegation">
-            <span className="font-mono">1.00 XRP</span>
+          <Row label="Self Delegate Address">
+            {validator.selfDelegateAddress ? (
+              <Link
+                href={`/account/${validator.selfDelegateAddress}`}
+                className="font-mono text-xs break-all text-primary hover:underline"
+              >
+                {validator.selfDelegateAddress}
+              </Link>
+            ) : (
+              <span className="text-muted-foreground">N/A</span>
+            )}
           </Row>
           <Separator />
           <Row label="Website">
-            <span className="text-primary">https://cosmostation.io</span>
+            {validator.website ? (
+              <a
+                href={validator.website}
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary hover:underline"
+              >
+                {validator.website}
+              </a>
+            ) : (
+              <span className="text-muted-foreground">N/A</span>
+            )}
           </Row>
           <Separator />
           <Row label="Description">
             <span className="text-muted-foreground">
-              Cosmostation is a leading validator and wallet provider in the Cosmos ecosystem.
+              {validator.details || "No validator description available."}
             </span>
           </Row>
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Delegators</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Address</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-right">Share</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {delegators.map((d) => (
-                  <TableRow key={d.address}>
-                    <TableCell className="font-mono text-xs">
-                      <Link href={`/account/${d.address}`} className="text-primary hover:underline">
-                        {d.address}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm">{d.amount}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">{d.share}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Proposed Blocks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Proposed Blocks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Height</TableHead>
+                  <TableHead>Hash</TableHead>
                   <TableHead>Txs</TableHead>
                   <TableHead className="text-right">Time</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentBlocks.map((b) => (
-                  <TableRow key={b.height}>
+                {validator.recentBlocks.map((block) => (
+                  <TableRow key={block.hash}>
                     <TableCell className="font-mono text-sm">
-                      <Link href={`/blocks/${b.height}`} className="text-primary hover:underline">
-                        #{b.height.toLocaleString()}
+                      <Link
+                        href={`/blocks/${block.height}`}
+                        className="text-primary hover:underline"
+                      >
+                        #{block.height.toLocaleString()}
                       </Link>
                     </TableCell>
-                    <TableCell>{b.txs}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">{b.time}</TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {formatHash(block.hash)}
+                    </TableCell>
+                    <TableCell>{block.txs}</TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {formatTimestamp(block.timestamp)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,15 +1,19 @@
 import { cache } from "react";
 
 import {
+  CallistoAccountService,
   CallistoBlockService,
   CallistoChainStatsService,
+  CallistoProposalService,
   CallistoTransactionService,
   CallistoValidatorService,
 } from "@cosmos-explorer/callisto";
 import type {
+  IAccountService,
   IBlockService,
   IChainStatsService,
   IPriceService,
+  IProposalService,
   ITransactionService,
   IValidatorService,
 } from "@cosmos-explorer/core";
@@ -22,6 +26,8 @@ export type Services = {
   priceService: IPriceService;
   validatorService: IValidatorService;
   chainStatsService: IChainStatsService;
+  proposalService: IProposalService;
+  accountService: IAccountService;
 };
 
 import { getChainConfig } from "./config";
@@ -39,7 +45,18 @@ export const getServices = cache((): Services => {
   const blockService = new CallistoBlockService(fetcher);
   const transactionService = new CallistoTransactionService(fetcher);
   const priceService = new PriceService(fetcher);
-  const validatorService = new CallistoValidatorService(fetcher);
+  const validatorService = new CallistoValidatorService(
+    fetcher,
+    config.network.primaryToken.denom
+  );
+  const proposalService = new CallistoProposalService(
+    fetcher,
+    config.network.primaryToken.denom
+  );
+  const accountService = new CallistoAccountService(
+    fetcher,
+    config.network.primaryToken.denom
+  );
   const chainStatsService = new CallistoChainStatsService(
     fetcher,
     blockService,
@@ -53,5 +70,7 @@ export const getServices = cache((): Services => {
     priceService,
     validatorService,
     chainStatsService,
+    proposalService,
+    accountService,
   };
 });
