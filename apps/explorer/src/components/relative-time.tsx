@@ -17,7 +17,7 @@ function computeRelativeTime(timestamp: string): string {
 }
 
 export function RelativeTime({ timestamp }: { timestamp: string }) {
-  const [text, setText] = useState(() => computeRelativeTime(timestamp));
+  const [text, setText] = useState("");
 
   useEffect(() => {
     setText(computeRelativeTime(timestamp));
