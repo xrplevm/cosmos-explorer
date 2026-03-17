@@ -12,7 +12,35 @@ importers:
         specifier: ^2
         version: 2.8.17
 
-  apps/docs:
+  apps/explorer:
+    dependencies:
+      '@cosmos-explorer/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      next:
+        specifier: ^15
+        version: 15.5.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: ^19
+        version: 19.2.4
+      react-dom:
+        specifier: ^19
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      '@types/node':
+        specifier: ^22
+        version: 22.19.15
+      '@types/react':
+        specifier: ^19
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.3(@types/react@19.2.14)
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  apps/playground:
     dependencies:
       '@cosmos-explorer/ui':
         specifier: workspace:*
@@ -58,35 +86,33 @@ importers:
         specifier: ^5
         version: 5.9.3
 
-  apps/explorer:
+  packages/adapters/callisto:
     dependencies:
       '@cosmos-explorer/core':
         specifier: workspace:*
-        version: link:../../packages/core
-      next:
-        specifier: ^15
-        version: 15.5.12(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react:
-        specifier: ^19
-        version: 19.2.4
-      react-dom:
-        specifier: ^19
-        version: 19.2.4(react@19.2.4)
+        version: link:../../core
+      '@cosmos-explorer/utils':
+        specifier: workspace:*
+        version: link:../../utils
     devDependencies:
-      '@types/node':
-        specifier: ^22
-        version: 22.19.15
-      '@types/react':
-        specifier: ^19
-        version: 19.2.14
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.2.3(@types/react@19.2.14)
       typescript:
         specifier: ^5
         version: 5.9.3
 
   packages/core:
+    devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/price:
+    dependencies:
+      '@cosmos-explorer/core':
+        specifier: workspace:*
+        version: link:../core
+      '@cosmos-explorer/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       typescript:
         specifier: ^5

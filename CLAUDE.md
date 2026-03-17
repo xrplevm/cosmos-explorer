@@ -50,7 +50,7 @@ packages/adapters/xrplevm  → Extends HasuraAdapter for XRP EVM specifics
 packages/hooks         → React hooks consuming IChainDataSource via context
 packages/ui            → Shadcn design system + domain components (raw TSX, no build)
 apps/explorer          → Next.js 15 + React 19 App Router
-apps/docs              → UI component playground (Next.js, port 3001)
+apps/playground        → UI component playground (Next.js, port 3001)
 ```
 
 All packages are `"private": true` and use `"type": "module"`. Internal deps use `workspace:*`.
@@ -77,7 +77,7 @@ GraphQL types are **contained inside adapter packages** and never exported. Adap
   @source "../../../../packages/ui/src";
   @import "@cosmos-explorer/ui/styles";
   ```
-- **Adding a component:** create `packages/ui/src/components/ui/{name}.tsx`, add a subpath export in `package.json`, re-export from `src/index.ts`, and add a playground page in `apps/docs/src/app/components/{name}/page.tsx` + register in `apps/docs/src/lib/registry.ts`.
+- **Adding a component:** create `packages/ui/src/components/ui/{name}.tsx`, add a subpath export in `package.json`, re-export from `src/index.ts`, and add a playground page in `apps/playground/src/app/components/{name}/page.tsx` + register in `apps/playground/src/lib/registry.ts`.
 - **Radix + cva pattern.** Components use `@radix-ui/*` primitives, `class-variance-authority` for variants, and import `cn` from `../../lib/utils`.
 
 ### Per-chain theming

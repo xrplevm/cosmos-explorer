@@ -71,8 +71,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@cosmos-explorer/ui/ca
 1. Create `src/components/ui/{name}.tsx` following the Radix + cva pattern
 2. Add a subpath export in `package.json`
 3. Re-export from `src/index.ts`
-4. Add a playground page at `apps/docs/src/app/components/{name}/page.tsx`
-5. Register it in `apps/docs/src/lib/registry.ts`
+4. Add a playground page at `apps/playground/src/app/components/{name}/page.tsx`
+5. Register it in `apps/playground/src/lib/registry.ts`
 
 ## Theming
 
