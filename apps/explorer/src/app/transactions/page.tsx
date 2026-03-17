@@ -26,9 +26,9 @@ const transactions = [
 export default function TransactionsPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
-        <Input placeholder="Search by hash..." className="w-72" />
+        <Input placeholder="Search by hash..." className="w-full sm:w-72" />
       </div>
 
       <Card>
@@ -36,6 +36,7 @@ export default function TransactionsPage() {
           <CardTitle>All Transactions</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -84,6 +85,7 @@ export default function TransactionsPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

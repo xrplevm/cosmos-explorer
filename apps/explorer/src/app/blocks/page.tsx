@@ -26,9 +26,9 @@ const blocks = [
 export default function BlocksPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Blocks</h1>
-        <Input placeholder="Search by height..." className="w-72" />
+        <Input placeholder="Search by height..." className="w-full sm:w-72" />
       </div>
 
       <Card>
@@ -36,6 +36,7 @@ export default function BlocksPage() {
           <CardTitle>Latest Blocks</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -74,6 +75,7 @@ export default function BlocksPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

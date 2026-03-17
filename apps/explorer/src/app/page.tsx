@@ -64,6 +64,7 @@ export default function OverviewPage() {
             <CardDescription>Latest blocks on the network</CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -90,6 +91,7 @@ export default function OverviewPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
 
@@ -99,6 +101,7 @@ export default function OverviewPage() {
             <CardDescription>Latest transactions on the network</CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -123,6 +126,7 @@ export default function OverviewPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

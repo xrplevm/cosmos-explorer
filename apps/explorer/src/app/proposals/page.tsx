@@ -122,7 +122,7 @@ export default function ProposalsPage() {
                   </div>
                   <StatusBadge status={p.status} />
                 </div>
-                <CardDescription className="flex items-center gap-4 pt-1">
+                <CardDescription className="flex flex-wrap items-center gap-2 sm:gap-4 pt-1">
                   <span>{p.type}</span>
                   <Separator orientation="vertical" className="h-3" />
                   <span>Submitted {p.submitted}</span>

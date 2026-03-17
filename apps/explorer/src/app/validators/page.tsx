@@ -28,9 +28,9 @@ const validators = [
 export default function ValidatorsPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Validators</h1>
-        <Input placeholder="Search validators..." className="w-72" />
+        <Input placeholder="Search validators..." className="w-full sm:w-72" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -65,6 +65,7 @@ export default function ValidatorsPage() {
           <CardTitle>Validator Set</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -98,6 +99,7 @@ export default function ValidatorsPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

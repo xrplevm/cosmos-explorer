@@ -10,8 +10,8 @@ import { StatusBadge } from "@/components/status-badge";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-4 py-3">
-      <span className="w-40 shrink-0 text-sm text-muted-foreground">{label}</span>
+    <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
+      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
       <div className="text-sm">{children}</div>
     </div>
   );
@@ -86,7 +86,7 @@ export default async function ProposalDetailPage({
         <CardContent className="space-y-4">
           <VoteBar yes={62.4} no={8.2} abstain={12.1} veto={0.3} />
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="rounded-lg border border-border p-3">
               <p className="text-xs text-muted-foreground">Yes</p>
               <p className="mt-1 text-xl font-bold text-green-400">62.4%</p>

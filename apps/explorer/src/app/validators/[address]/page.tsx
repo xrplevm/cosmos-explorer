@@ -37,8 +37,8 @@ const recentBlocks = [
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-4 py-3">
-      <span className="w-44 shrink-0 text-sm text-muted-foreground">{label}</span>
+    <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
+      <span className="sm:w-44 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
       <div className="text-sm">{children}</div>
     </div>
   );
@@ -66,7 +66,7 @@ export default async function ValidatorDetailPage({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Voting Power</CardDescription>
@@ -146,6 +146,7 @@ export default async function ValidatorDetailPage({
             <CardTitle>Top Delegators</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -168,6 +169,7 @@ export default async function ValidatorDetailPage({
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
 
@@ -176,6 +178,7 @@ export default async function ValidatorDetailPage({
             <CardTitle>Proposed Blocks</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -198,6 +201,7 @@ export default async function ValidatorDetailPage({
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

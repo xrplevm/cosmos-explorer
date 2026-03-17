@@ -24,12 +24,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Sidebar />
-          <div className="pl-60">
-            <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm">
-              <div />
+          <div className="md:pl-60">
+            <header className="sticky top-0 z-20 flex h-14 items-center justify-end border-b border-border bg-background/80 px-4 pl-14 backdrop-blur-sm md:px-6 md:pl-6">
               <ThemeToggle />
             </header>
-            <main className="p-6">{children}</main>
+            <main className="p-4 md:p-6">{children}</main>
           </div>
         </ThemeProvider>
       </body>
