@@ -1,20 +1,20 @@
-import {
-  type AccountDelegation,
-  type AccountOverview,
-  type AccountReward,
-  type Block,
-  type BlockDetail,
-  type ProposalDetail,
-  type ProposalStatus,
-  type ProposalSummary,
-  type TokenAmount,
-  type TransactionDetail,
-  type TransactionSummary,
-  type Validator,
-  type ValidatorCount,
-  type ValidatorDetail,
-  type ValidatorSet,
-} from '@cosmos-explorer/core';
+import type {
+  AccountDelegation,
+  AccountOverview,
+  AccountReward,
+  Block,
+  BlockDetail,
+  ProposalDetail,
+  ProposalStatus,
+  ProposalSummary,
+  TokenAmount,
+  TransactionDetail,
+  TransactionSummary,
+  Validator,
+  ValidatorCount,
+  ValidatorDetail,
+  ValidatorSet,
+} from "@cosmos-explorer/core";
 
 import type {
   AccountDelegationsResponse,
@@ -31,7 +31,7 @@ import type {
   ValidatorCountResponse,
   ValidatorDetailsResponse,
   ValidatorsResponse,
-} from './types';
+} from "./types";
 
 function toNumber(value: unknown, fallback = 0): number {
   const parsed = Number(value);
@@ -43,12 +43,12 @@ function toOptionalNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function toStringValue(value: unknown, fallback = ''): string {
-  return typeof value === 'string' ? value : fallback;
+function toStringValue(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value : fallback;
 }
 
 function toBoolean(value: unknown, fallback = false): boolean {
-  return typeof value === 'boolean' ? value : fallback;
+  return typeof value === "boolean" ? value : fallback;
 }
 
 function getMessageTypes(messages: unknown): string[] {
@@ -58,19 +58,19 @@ function getMessageTypes(messages: unknown): string[] {
 
   return messages
     .map((message) => {
-      if (!message || typeof message !== 'object') {
-        return '';
+      if (!message || typeof message !== "object") {
+        return "";
       }
 
-      const type = (message as { ['@type']?: unknown })['@type'];
-      return typeof type === 'string' ? type : '';
+      const type = (message as { ["@type"]?: unknown })["@type"];
+      return typeof type === "string" ? type : "";
     })
     .filter(Boolean);
 }
 
 function summarizeMessageTypes(types: string[]): string {
   if (types.length === 0) {
-    return 'Unknown';
+    return "Unknown";
   }
 
   const uniqueTypes = Array.from(new Set(types));
@@ -83,21 +83,21 @@ function summarizeMessageTypes(types: string[]): string {
 }
 
 function formatMessageType(type: string): string {
-  const shortType = type.split('.').pop()?.split('/').pop() ?? type;
-  return shortType.replace(/^Msg/, '') || 'Unknown';
+  const shortType = type.split(".").pop()?.split("/").pop() ?? type;
+  return shortType.replace(/^Msg/, "") || "Unknown";
 }
 
 function getPrimaryMessageType(messages: unknown): string {
   return summarizeMessageTypes(getMessageTypes(messages));
 }
 
-function mapBlockRow(block: LatestBlocksResponse['blocks'][number]): Block {
+function mapBlockRow(block: LatestBlocksResponse["blocks"][number]): Block {
   return {
     height: toNumber(block.height),
     txs: block.txs ?? 0,
     hash: block.hash,
     timestamp: toStringValue(block.timestamp),
-    proposer: block.validator?.validatorInfo?.operatorAddress ?? '',
+    proposer: block.validator?.validatorInfo?.operatorAddress ?? "",
   };
 }
 
@@ -106,7 +106,7 @@ export function mapBlocks(response: LatestBlocksResponse): Block[] {
 }
 
 function mapTransactionRow(
-  transaction: LatestTransactionsResponse['transactions'][number]
+  transaction: LatestTransactionsResponse["transactions"][number],
 ): TransactionSummary {
   const types = getMessageTypes(transaction.messages);
 
@@ -120,11 +120,15 @@ function mapTransactionRow(
   };
 }
 
-export function mapTransactions(response: LatestTransactionsResponse): TransactionSummary[] {
+export function mapTransactions(
+  response: LatestTransactionsResponse,
+): TransactionSummary[] {
   return response.transactions.map(mapTransactionRow);
 }
 
-export function mapBlockDetail(response: BlockDetailsResponse): BlockDetail | null {
+export function mapBlockDetail(
+  response: BlockDetailsResponse,
+): BlockDetail | null {
   const block = response.block[0];
 
   if (!block) {
@@ -134,14 +138,17 @@ export function mapBlockDetail(response: BlockDetailsResponse): BlockDetail | nu
   return {
     overview: mapBlockRow(block),
     signatures: response.preCommits
-      .map((preCommit) => preCommit.validator?.validatorInfo?.operatorAddress ?? '')
+      .map(
+        (preCommit) =>
+          preCommit.validator?.validatorInfo?.operatorAddress ?? "",
+      )
       .filter(Boolean),
     transactions: response.transactions.map(mapTransactionRow),
   };
 }
 
 export function mapTransactionDetail(
-  response: TransactionDetailsResponse
+  response: TransactionDetailsResponse,
 ): TransactionDetail | null {
   const transaction = response.transaction[0];
 
@@ -164,23 +171,28 @@ export function mapTransactionDetail(
   };
 }
 
-export function mapValidatorCount(response: ValidatorCountResponse): ValidatorCount {
+export function mapValidatorCount(
+  response: ValidatorCountResponse,
+): ValidatorCount {
   return {
     active: response.activeTotal.aggregate?.count ?? 0,
     total: response.total.aggregate?.count ?? 0,
   };
 }
 
-function mapMessages(messages: unknown): TransactionDetail['messages'] {
+function mapMessages(messages: unknown): TransactionDetail["messages"] {
   if (!Array.isArray(messages)) {
     return [];
   }
 
   return messages.map((message) => {
     const type =
-      message && typeof message === 'object'
-        ? toStringValue((message as { ['@type']?: unknown })['@type'], 'Unknown')
-        : 'Unknown';
+      message && typeof message === "object"
+        ? toStringValue(
+            (message as { ["@type"]?: unknown })["@type"],
+            "Unknown",
+          )
+        : "Unknown";
 
     return {
       type: formatMessageType(type),
@@ -200,18 +212,20 @@ function mapTokenAmount(value: unknown, denom: string): TokenAmount | null {
   };
 }
 
-function normalizeCoins(coins: unknown): Array<{ denom: string; amount: string }> {
+function normalizeCoins(
+  coins: unknown,
+): Array<{ denom: string; amount: string }> {
   if (!Array.isArray(coins)) {
     return [];
   }
 
   return coins.flatMap((coin) => {
-    if (!coin || typeof coin !== 'object') {
+    if (!coin || typeof coin !== "object") {
       return [];
     }
 
     const denom = toStringValue((coin as { denom?: unknown }).denom);
-    const amount = String((coin as { amount?: unknown }).amount ?? '');
+    const amount = String((coin as { amount?: unknown }).amount ?? "");
 
     if (!denom || !amount) {
       return [];
@@ -225,7 +239,10 @@ export function mapCoinList(coins: unknown): TokenAmount[] {
   return normalizeCoins(coins);
 }
 
-function getPrimaryCoinAmount(coins: unknown, denom: string): TokenAmount | null {
+function getPrimaryCoinAmount(
+  coins: unknown,
+  denom: string,
+): TokenAmount | null {
   const coin = normalizeCoins(coins).find((item) => item.denom === denom);
 
   if (!coin) {
@@ -238,38 +255,50 @@ function getPrimaryCoinAmount(coins: unknown, denom: string): TokenAmount | null
   };
 }
 
-function mapValidatorStatus(status: number, jailed: boolean): Validator['status'] {
+function mapValidatorStatus(
+  status: number,
+  jailed: boolean,
+): Validator["status"] {
   if (jailed) {
-    return 'jailed';
+    return "jailed";
   }
 
   if (status === 3) {
-    return 'active';
+    return "active";
   }
 
   if (status > 0) {
-    return 'inactive';
+    return "inactive";
   }
 
-  return 'unknown';
+  return "unknown";
 }
 
 export function mapValidatorSet(
   response: ValidatorsResponse,
-  denom: string
+  denom: string,
 ): ValidatorSet {
   const items = response.validator
     .filter((row) => row.validatorInfo?.operatorAddress)
     .map((row) => {
-      const votingPower = toOptionalNumber(row.validatorVotingPowers[0]?.votingPower) ?? 0;
-      const commission = toOptionalNumber(row.validatorCommissions[0]?.commission);
+      const votingPower =
+        toOptionalNumber(row.validatorVotingPowers[0]?.votingPower) ?? 0;
+      const commission = toOptionalNumber(
+        row.validatorCommissions[0]?.commission,
+      );
       const statusRow = row.validatorStatuses[0];
       const signingInfo = row.validatorSigningInfos[0];
 
       return {
-        address: row.validatorInfo?.operatorAddress ?? '',
-        moniker: row.validatorDescriptions[0]?.moniker ?? row.validatorInfo?.operatorAddress ?? '',
-        status: mapValidatorStatus(statusRow?.status ?? 0, toBoolean(statusRow?.jailed)),
+        address: row.validatorInfo?.operatorAddress ?? "",
+        moniker:
+          row.validatorDescriptions[0]?.moniker ??
+          row.validatorInfo?.operatorAddress ??
+          "",
+        status: mapValidatorStatus(
+          statusRow?.status ?? 0,
+          toBoolean(statusRow?.jailed),
+        ),
         jailed: toBoolean(statusRow?.jailed),
         tombstoned: toBoolean(signingInfo?.tombstoned),
         votingPower,
@@ -280,13 +309,19 @@ export function mapValidatorSet(
     })
     .sort((left, right) => right.votingPower - left.votingPower);
 
-  const totalVotingPower = items.reduce((sum, item) => sum + item.votingPower, 0);
+  const totalVotingPower = items.reduce(
+    (sum, item) => sum + item.votingPower,
+    0,
+  );
   const itemsWithPercent = items.map((item) => ({
     ...item,
-    votingPowerPercent: totalVotingPower === 0 ? 0 : (item.votingPower / totalVotingPower) * 100,
+    votingPowerPercent:
+      totalVotingPower === 0 ? 0 : (item.votingPower / totalVotingPower) * 100,
   }));
 
-  const active = itemsWithPercent.filter((item) => item.status === 'active').length;
+  const active = itemsWithPercent.filter(
+    (item) => item.status === "active",
+  ).length;
   const total = itemsWithPercent.length;
   const commissionItems = itemsWithPercent
     .map((item) => item.commission)
@@ -294,7 +329,8 @@ export function mapValidatorSet(
   const averageCommission =
     commissionItems.length === 0
       ? null
-      : commissionItems.reduce((sum, value) => sum + value, 0) / commissionItems.length;
+      : commissionItems.reduce((sum, value) => sum + value, 0) /
+        commissionItems.length;
 
   return {
     items: itemsWithPercent,
@@ -309,7 +345,7 @@ export function mapValidatorSet(
 
 export function mapValidatorDetail(
   response: ValidatorDetailsResponse,
-  validatorSet: ValidatorSet
+  validatorSet: ValidatorSet,
 ): ValidatorDetail | null {
   const detailRow = response.validator[0];
 
@@ -317,37 +353,37 @@ export function mapValidatorDetail(
     return null;
   }
 
-  const base =
-    validatorSet.items.find(
-      (item) => item.address === detailRow.validatorInfo?.operatorAddress
-    ) ?? {
-      address: detailRow.validatorInfo.operatorAddress,
-      moniker:
-        detailRow.validatorDescriptions[0]?.moniker ??
-        detailRow.validatorInfo.operatorAddress,
-      status: mapValidatorStatus(
-        detailRow.validatorStatuses[0]?.status ?? 0,
-        toBoolean(detailRow.validatorStatuses[0]?.jailed)
-      ),
-      jailed: toBoolean(detailRow.validatorStatuses[0]?.jailed),
-      tombstoned: toBoolean(detailRow.validatorSigningInfos[0]?.tombstoned),
-      votingPower:
-        toOptionalNumber(detailRow.validatorVotingPowers[0]?.votingPower) ?? 0,
-      votingPowerPercent: 0,
-      commission: toOptionalNumber(detailRow.validatorCommissions[0]?.commission),
-      missedBlocksCounter: toNumber(
-        detailRow.validatorSigningInfos[0]?.missedBlocksCounter
-      ),
-    };
+  const base = validatorSet.items.find(
+    (item) => item.address === detailRow.validatorInfo?.operatorAddress,
+  ) ?? {
+    address: detailRow.validatorInfo.operatorAddress,
+    moniker:
+      detailRow.validatorDescriptions[0]?.moniker ??
+      detailRow.validatorInfo.operatorAddress,
+    status: mapValidatorStatus(
+      detailRow.validatorStatuses[0]?.status ?? 0,
+      toBoolean(detailRow.validatorStatuses[0]?.jailed),
+    ),
+    jailed: toBoolean(detailRow.validatorStatuses[0]?.jailed),
+    tombstoned: toBoolean(detailRow.validatorSigningInfos[0]?.tombstoned),
+    votingPower:
+      toOptionalNumber(detailRow.validatorVotingPowers[0]?.votingPower) ?? 0,
+    votingPowerPercent: 0,
+    commission: toOptionalNumber(detailRow.validatorCommissions[0]?.commission),
+    missedBlocksCounter: toNumber(
+      detailRow.validatorSigningInfos[0]?.missedBlocksCounter,
+    ),
+  };
 
   return {
     ...base,
-    selfDelegateAddress:
-      detailRow.validatorInfo.selfDelegateAddress ?? '',
+    selfDelegateAddress: detailRow.validatorInfo.selfDelegateAddress ?? "",
     maxRate: toOptionalNumber(detailRow.validatorInfo.maxRate),
     website: detailRow.validatorDescriptions[0]?.website ?? null,
     details: detailRow.validatorDescriptions[0]?.details ?? null,
-    latestStatusHeight: toOptionalNumber(detailRow.validatorStatuses[0]?.height),
+    latestStatusHeight: toOptionalNumber(
+      detailRow.validatorStatuses[0]?.height,
+    ),
     recentBlocks: response.blocks.map((block) => ({
       height: toNumber(block.height),
       txs: block.txs ?? 0,
@@ -357,7 +393,9 @@ export function mapValidatorDetail(
   };
 }
 
-export function mapAverageBlockTime(response: AverageBlockTimeResponse): number | null {
+export function mapAverageBlockTime(
+  response: AverageBlockTimeResponse,
+): number | null {
   const row = response.averageBlockTime[0];
   if (!row) {
     return null;
@@ -366,50 +404,53 @@ export function mapAverageBlockTime(response: AverageBlockTimeResponse): number 
   return toOptionalNumber(row.averageTime);
 }
 
-export function mapPrimaryCoin(coins: unknown, denom: string): TokenAmount | null {
+export function mapPrimaryCoin(
+  coins: unknown,
+  denom: string,
+): TokenAmount | null {
   return getPrimaryCoinAmount(coins, denom);
 }
 
 function mapProposalStatus(value: string | null | undefined): ProposalStatus {
   switch (value) {
-    case 'PROPOSAL_STATUS_DEPOSIT_PERIOD':
-      return 'deposit';
-    case 'PROPOSAL_STATUS_VOTING_PERIOD':
-      return 'voting';
-    case 'PROPOSAL_STATUS_PASSED':
-      return 'passed';
-    case 'PROPOSAL_STATUS_REJECTED':
-      return 'rejected';
-    case 'PROPOSAL_STATUS_FAILED':
-      return 'failed';
+    case "PROPOSAL_STATUS_DEPOSIT_PERIOD":
+      return "deposit";
+    case "PROPOSAL_STATUS_VOTING_PERIOD":
+      return "voting";
+    case "PROPOSAL_STATUS_PASSED":
+      return "passed";
+    case "PROPOSAL_STATUS_REJECTED":
+      return "rejected";
+    case "PROPOSAL_STATUS_FAILED":
+      return "failed";
     default:
-      return 'unknown';
+      return "unknown";
   }
 }
 
 function mapProposalType(content: unknown): string {
   if (!Array.isArray(content) || content.length === 0) {
-    return 'Unknown';
+    return "Unknown";
   }
 
   const first = content[0];
-  if (!first || typeof first !== 'object') {
-    return 'Unknown';
+  if (!first || typeof first !== "object") {
+    return "Unknown";
   }
 
   return formatMessageType(
-    toStringValue((first as { ['@type']?: unknown })['@type'], 'Unknown')
+    toStringValue((first as { ["@type"]?: unknown })["@type"], "Unknown"),
   );
 }
 
 function mapProposalSummaryRow(
-  proposal: ProposalsResponse['proposals'][number]
+  proposal: ProposalsResponse["proposals"][number],
 ): ProposalSummary {
   return {
     id: proposal.proposalId,
-    title: proposal.title ?? '',
-    description: proposal.description ?? '',
-    proposer: proposal.proposer ?? '',
+    title: proposal.title ?? "",
+    description: proposal.description ?? "",
+    proposer: proposal.proposer ?? "",
     status: mapProposalStatus(proposal.status),
     type: mapProposalType(proposal.content),
     submitTime: proposal.submitTime ?? null,
@@ -423,7 +464,7 @@ export function mapProposals(response: ProposalsResponse): ProposalSummary[] {
 
 export function mapProposalDetail(
   response: ProposalDetailsResponse,
-  denom: string
+  denom: string,
 ): ProposalDetail | null {
   const proposal = response.proposal[0];
   if (!proposal) {
@@ -435,9 +476,9 @@ export function mapProposalDetail(
 
   return {
     id: proposal.proposalId,
-    title: proposal.title ?? '',
-    description: proposal.description ?? '',
-    proposer: proposal.proposer ?? '',
+    title: proposal.title ?? "",
+    description: proposal.description ?? "",
+    proposer: proposal.proposer ?? "",
     status: mapProposalStatus(proposal.status),
     type: mapProposalType(proposal.content),
     submitTime: proposal.submitTime ?? null,
@@ -448,10 +489,10 @@ export function mapProposalDetail(
     votingStartTime: proposal.votingStartTime ?? null,
     tally: tallyRow
       ? {
-          yes: String(tallyRow.yes ?? '0'),
-          no: String(tallyRow.no ?? '0'),
-          abstain: String(tallyRow.abstain ?? '0'),
-          noWithVeto: String(tallyRow.noWithVeto ?? '0'),
+          yes: String(tallyRow.yes ?? "0"),
+          no: String(tallyRow.no ?? "0"),
+          abstain: String(tallyRow.abstain ?? "0"),
+          noWithVeto: String(tallyRow.noWithVeto ?? "0"),
           bondedTokens:
             bondedTokens == null
               ? null
@@ -463,28 +504,28 @@ export function mapProposalDetail(
 
 export function mapAccountRewards(
   response: AccountRewardsResponse,
-  primaryDenom: string
+  primaryDenom: string,
 ): AccountReward[] {
   return response.delegationRewards.map((reward) => ({
-    validatorAddress: reward.validatorAddress ?? '',
+    validatorAddress: reward.validatorAddress ?? "",
     amount: getPrimaryCoinAmount(reward.coins, primaryDenom),
   }));
 }
 
 export function mapAccountDelegations(
   response: AccountDelegationsResponse,
-  primaryDenom: string
+  primaryDenom: string,
 ): AccountDelegation[] {
   const items = response.delegations?.delegations ?? [];
 
   return items.map((delegation) => ({
-    validatorAddress: delegation.validator_address ?? '',
+    validatorAddress: delegation.validator_address ?? "",
     amount: getPrimaryCoinAmount(delegation.coins, primaryDenom),
   }));
 }
 
 export function mapAccountTransactions(
-  response: AccountMessagesResponse
+  response: AccountMessagesResponse,
 ): TransactionSummary[] {
   return response.messagesByAddress.flatMap((message) => {
     const transaction = message.transaction;
@@ -506,7 +547,7 @@ export function mapAccountTransactions(
 }
 
 export function mapWithdrawalAddress(
-  response: AccountWithdrawalAddressResponse
+  response: AccountWithdrawalAddressResponse,
 ): string | null {
   return response.withdrawalAddress?.address ?? null;
 }
@@ -527,11 +568,11 @@ export function buildAccountOverview(params: {
     balances: mapCoinList(params.balances),
     delegationBalance: getPrimaryCoinAmount(
       params.delegationBalance,
-      params.primaryDenom
+      params.primaryDenom,
     ),
     unbondingBalance: getPrimaryCoinAmount(
       params.unbondingBalance,
-      params.primaryDenom
+      params.primaryDenom,
     ),
     rewards: params.rewards,
     delegations: params.delegations,
