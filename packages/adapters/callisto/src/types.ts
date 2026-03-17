@@ -10,6 +10,10 @@ export type LatestBlocksResponse = {
       validatorInfo?: {
         operatorAddress: string;
       } | null;
+      validatorDescriptions?: Array<{
+        moniker?: string | null;
+        identity?: string | null;
+      }> | null;
     } | null;
   }>;
 };
@@ -80,6 +84,7 @@ export type ValidatorsResponse = {
     }>;
     validatorDescriptions: Array<{
       moniker?: string | null;
+      identity?: string | null;
     }>;
     validatorSigningInfos: Array<{
       missedBlocksCounter: Scalar;
@@ -112,6 +117,7 @@ export type ValidatorDetailsResponse = {
     }>;
     validatorDescriptions: Array<{
       moniker?: string | null;
+      identity?: string | null;
       details?: string | null;
       website?: string | null;
     }>;

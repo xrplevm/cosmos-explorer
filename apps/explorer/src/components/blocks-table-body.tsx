@@ -20,8 +20,8 @@ export function BlocksTableBody({ blocks }: { blocks: Block[] }) {
       setNewKeys(new Set(fresh));
       prevTopHash.current = blocks[0].hash;
 
-      const timeout = setTimeout(() => setNewKeys(new Set()), 1500);
-      return () => clearTimeout(timeout);
+      const timeout = setTimeout(() => { setNewKeys(new Set()); }, 1500);
+      return () => { clearTimeout(timeout); };
     }
   }, [blocks]);
 
@@ -48,14 +48,22 @@ export function BlocksTableBody({ blocks }: { blocks: Block[] }) {
                 key: "proposer",
                 content: (
                   <div className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-                      {block.proposer.charAt(0).toUpperCase()}
-                    </div>
+                    {block.proposerAvatarUrl ? (
+                      <img
+                        src={block.proposerAvatarUrl}
+                        alt={block.proposerMoniker ?? block.proposer}
+                        className="h-7 w-7 shrink-0 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                        {(block.proposerMoniker ?? block.proposer).charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <Link
                       href={`/validators/${block.proposer}`}
                       className="text-sm text-primary hover:underline truncate max-w-[120px]"
                     >
-                      {block.proposer}
+                      {block.proposerMoniker ?? block.proposer}
                     </Link>
                   </div>
                 ),

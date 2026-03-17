@@ -10,6 +10,7 @@ export type ValidatorStatus = 'active' | 'inactive' | 'jailed' | 'unknown';
 export interface Validator {
   address: string;
   moniker: string;
+  avatarUrl: string | null;
   status: ValidatorStatus;
   jailed: boolean;
   tombstoned: boolean;

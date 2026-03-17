@@ -54,8 +54,19 @@ export default async function BlocksPage() {
                   </TableCell>
                   <TableCell>{block.txs}</TableCell>
                   <TableCell>
-                    <Link href={`/validators/${block.proposer}`} className="hover:text-primary">
-                      {block.proposer}
+                    <Link href={`/validators/${block.proposer}`} className="flex items-center gap-2 hover:text-primary">
+                      {block.proposerAvatarUrl ? (
+                        <img
+                          src={block.proposerAvatarUrl}
+                          alt={block.proposerMoniker ?? block.proposer}
+                          className="h-6 w-6 shrink-0 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                          {(block.proposerMoniker ?? block.proposer).charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span className="truncate max-w-[150px]">{block.proposerMoniker ?? block.proposer}</span>
                     </Link>
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">

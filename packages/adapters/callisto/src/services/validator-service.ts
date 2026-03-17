@@ -4,9 +4,14 @@ import {
   type ValidatorDetail,
   type ValidatorSet,
 } from '@cosmos-explorer/core';
-import { type Fetcher } from '@cosmos-explorer/utils';
+import { type Fetcher, resolveKeybaseAvatars } from '@cosmos-explorer/utils';
 
-import { mapValidatorCount, mapValidatorDetail, mapValidatorSet } from '../mappers';
+import {
+  mapValidatorCount,
+  mapValidatorDetail,
+  mapValidatorSet,
+  type RawValidatorSet,
+} from '../mappers';
 import {
   VALIDATOR_COUNT_QUERY,
   VALIDATOR_DETAILS_QUERY,
@@ -17,6 +22,19 @@ import type {
   ValidatorDetailsResponse,
   ValidatorsResponse,
 } from '../types';
+
+async function resolveSetAvatars(raw: RawValidatorSet): Promise<ValidatorSet> {
+  const identities = raw.items.map((v) => v._identity);
+  const avatarMap = await resolveKeybaseAvatars(identities);
+
+  return {
+    ...raw,
+    items: raw.items.map(({ _identity, ...v }) => ({
+      ...v,
+      avatarUrl: _identity ? avatarMap.get(_identity) ?? null : null,
+    })),
+  };
+}
 
 export class CallistoValidatorService implements IValidatorService {
   constructor(
@@ -39,25 +57,37 @@ export class CallistoValidatorService implements IValidatorService {
       operationName: 'Validators',
     });
 
-    return mapValidatorSet(response, this.primaryDenom);
+    const rawSet = mapValidatorSet(response, this.primaryDenom);
+    return resolveSetAvatars(rawSet);
   }
 
   async getValidatorByAddress(address: string): Promise<ValidatorDetail | null> {
-    const [validatorSet, detailResponse] = await Promise.all([
-      this.getValidatorSet(),
-      this.fetcher.graphql<
-        ValidatorDetailsResponse,
-        { address: string; limit: number }
-      >({
-        query: VALIDATOR_DETAILS_QUERY,
-        variables: {
-          address,
-          limit: 10,
-        },
-        operationName: 'ValidatorDetails',
-      }),
-    ]);
+    const response = await this.fetcher.graphql<ValidatorsResponse>({
+      query: VALIDATORS_QUERY,
+      operationName: 'Validators',
+    });
 
-    return mapValidatorDetail(detailResponse, validatorSet);
+    const rawSet = mapValidatorSet(response, this.primaryDenom);
+
+    const detailResponse = await this.fetcher.graphql<
+      ValidatorDetailsResponse,
+      { address: string; limit: number }
+    >({
+      query: VALIDATOR_DETAILS_QUERY,
+      variables: { address, limit: 10 },
+      operationName: 'ValidatorDetails',
+    });
+
+    const rawDetail = mapValidatorDetail(detailResponse, rawSet);
+    if (!rawDetail) return null;
+
+    const identities = [rawDetail._identity];
+    const avatarMap = await resolveKeybaseAvatars(identities);
+    const { _identity, ...detail } = rawDetail;
+
+    return {
+      ...detail,
+      avatarUrl: _identity ? avatarMap.get(_identity) ?? null : null,
+    };
   }
 }

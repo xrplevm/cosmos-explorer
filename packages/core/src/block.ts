@@ -6,6 +6,8 @@ export interface Block {
   txs: number;
   timestamp: string;
   proposer: string;
+  proposerMoniker: string | null;
+  proposerAvatarUrl: string | null;
 }
 
 export interface BlockDetail {

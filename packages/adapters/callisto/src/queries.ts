@@ -9,6 +9,10 @@ export const LATEST_BLOCKS_QUERY = `
         validatorInfo: validator_info {
           operatorAddress: operator_address
         }
+        validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
+          moniker
+          identity
+        }
       }
     }
   }
@@ -24,6 +28,10 @@ export const BLOCKS_QUERY = `
       validator {
         validatorInfo: validator_info {
           operatorAddress: operator_address
+        }
+        validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
+          moniker
+          identity
         }
       }
     }
@@ -149,8 +157,9 @@ export const VALIDATORS_QUERY = `
         status
         jailed
       }
-      validatorDescriptions: validator_descriptions {
+      validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
         moniker
+        identity
       }
       validatorSigningInfos: validator_signing_infos(order_by: { height: desc }, limit: 1) {
         missedBlocksCounter: missed_blocks_counter
@@ -179,6 +188,7 @@ export const VALIDATOR_DETAILS_QUERY = `
       }
       validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
         moniker
+        identity
         details
         website
       }

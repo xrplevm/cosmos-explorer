@@ -24,7 +24,7 @@ export function RelativeTime({ timestamp }: { timestamp: string }) {
     const interval = setInterval(() => {
       setText(computeRelativeTime(timestamp));
     }, 1000);
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); };
   }, [timestamp]);
 
   return <>{text}</>;

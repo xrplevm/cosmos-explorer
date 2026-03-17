@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
-import { Avatar, AvatarFallback } from "@cosmos-explorer/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@cosmos-explorer/ui/avatar";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import {
   Table,
@@ -65,6 +65,7 @@ export default async function ValidatorDetailPage({
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Avatar className="h-12 w-12">
+          {validator.avatarUrl && <AvatarImage src={validator.avatarUrl} alt={validator.moniker} />}
           <AvatarFallback className="text-lg">
             {validator.moniker.slice(0, 2)}
           </AvatarFallback>
@@ -176,7 +177,7 @@ export default async function ValidatorDetailPage({
           <Separator />
           <Row label="Description">
             <span className="text-muted-foreground">
-              {validator.details || "No validator description available."}
+              {validator.details ?? "No validator description available."}
             </span>
           </Row>
         </CardContent>

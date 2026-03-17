@@ -91,17 +91,24 @@ function getPrimaryMessageType(messages: unknown): string {
   return summarizeMessageTypes(getMessageTypes(messages));
 }
 
-function mapBlockRow(block: LatestBlocksResponse["blocks"][number]): Block {
+export type RawBlock = Block & { _identity: string | null };
+export type RawValidator = Validator & { _identity: string | null };
+
+function mapBlockRow(block: LatestBlocksResponse["blocks"][number]): RawBlock {
+  const desc = block.validator?.validatorDescriptions?.[0];
   return {
     height: toNumber(block.height),
     txs: block.txs ?? 0,
     hash: block.hash,
     timestamp: toStringValue(block.timestamp),
     proposer: block.validator?.validatorInfo?.operatorAddress ?? "",
+    proposerMoniker: desc?.moniker ?? null,
+    proposerAvatarUrl: null,
+    _identity: desc?.identity ?? null,
   };
 }
 
-export function mapBlocks(response: LatestBlocksResponse): Block[] {
+export function mapBlocks(response: LatestBlocksResponse): RawBlock[] {
   return response.blocks.map(mapBlockRow);
 }
 
@@ -274,10 +281,12 @@ function mapValidatorStatus(
   return "unknown";
 }
 
+export type RawValidatorSet = Omit<ValidatorSet, 'items'> & { items: RawValidator[] };
+
 export function mapValidatorSet(
   response: ValidatorsResponse,
   denom: string,
-): ValidatorSet {
+): RawValidatorSet {
   const items = response.validator
     .filter((row) => row.validatorInfo?.operatorAddress)
     .map((row) => {
@@ -295,6 +304,8 @@ export function mapValidatorSet(
           row.validatorDescriptions[0]?.moniker ??
           row.validatorInfo?.operatorAddress ??
           "",
+        avatarUrl: null,
+        _identity: row.validatorDescriptions[0]?.identity ?? null,
         status: mapValidatorStatus(
           statusRow?.status ?? 0,
           toBoolean(statusRow?.jailed),
@@ -305,7 +316,7 @@ export function mapValidatorSet(
         votingPowerPercent: 0,
         commission,
         missedBlocksCounter: toNumber(signingInfo?.missedBlocksCounter),
-      } satisfies Validator;
+      };
     })
     .sort((left, right) => right.votingPower - left.votingPower);
 
@@ -343,23 +354,28 @@ export function mapValidatorSet(
   };
 }
 
+export type RawValidatorDetail = ValidatorDetail & { _identity: string | null };
+
 export function mapValidatorDetail(
   response: ValidatorDetailsResponse,
-  validatorSet: ValidatorSet,
-): ValidatorDetail | null {
+  validatorSet: RawValidatorSet,
+): RawValidatorDetail | null {
   const detailRow = response.validator[0];
 
   if (!detailRow?.validatorInfo?.operatorAddress) {
     return null;
   }
 
-  const base = validatorSet.items.find(
+  const found = validatorSet.items.find(
     (item) => item.address === detailRow.validatorInfo?.operatorAddress,
-  ) ?? {
+  );
+  const base = found ?? {
     address: detailRow.validatorInfo.operatorAddress,
     moniker:
       detailRow.validatorDescriptions[0]?.moniker ??
       detailRow.validatorInfo.operatorAddress,
+    avatarUrl: null,
+    _identity: detailRow.validatorDescriptions[0]?.identity ?? null,
     status: mapValidatorStatus(
       detailRow.validatorStatuses[0]?.status ?? 0,
       toBoolean(detailRow.validatorStatuses[0]?.jailed),

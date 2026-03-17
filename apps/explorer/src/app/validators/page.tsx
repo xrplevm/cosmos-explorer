@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
-import { Avatar, AvatarFallback } from "@cosmos-explorer/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@cosmos-explorer/ui/avatar";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatPercent,
@@ -98,6 +98,7 @@ export default async function ValidatorsPage() {
                   <TableCell>
                     <Link href={`/validators/${v.address}`} className="flex items-center gap-3 hover:text-primary">
                       <Avatar className="h-7 w-7">
+                        {v.avatarUrl && <AvatarImage src={v.avatarUrl} alt={v.moniker} />}
                         <AvatarFallback className="text-xs">{v.moniker.slice(0, 2)}</AvatarFallback>
                       </Avatar>
                       <span className="font-medium">{v.moniker}</span>

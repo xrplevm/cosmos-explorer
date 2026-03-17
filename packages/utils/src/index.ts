@@ -21,3 +21,4 @@ export {
   type FetcherOptions,
   type GraphQlRequest,
 } from './fetcher';
+export { resolveKeybaseAvatar, resolveKeybaseAvatars } from './keybase';
