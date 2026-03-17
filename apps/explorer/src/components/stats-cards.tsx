@@ -18,7 +18,10 @@ import { getServices } from "@/lib/services";
 export async function StatsCards() {
   const config = getChainConfig();
   const { chainStatsService } = getServices();
-  const stats = await chainStatsService.getChainStats({ priceDenom: config.network.primaryToken.denom });
+  const stats = await chainStatsService.getChainStats({
+    priceDenom: config.network.primaryToken.denom,
+  });
+  const hasPrice = stats.price?.priceUsd != null;
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -52,13 +55,13 @@ export async function StatsCards() {
         <CardHeader className="pb-2">
           <CardDescription>Price</CardDescription>
           <CardTitle className="text-2xl">
-            {formatPrice(stats.price?.priceUsd)}
+            {hasPrice ? formatPrice(stats.price?.priceUsd) : "Unavailable"}
           </CardTitle>
         </CardHeader>
         <CardContent className="text-xs text-muted-foreground">
-          {stats.price?.timestamp
+          {hasPrice && stats.price?.timestamp
             ? `Updated ${formatTimestamp(stats.price.timestamp)}`
-            : "Latest available market price"}
+            : "No indexed price data available"}
         </CardContent>
       </Card>
 

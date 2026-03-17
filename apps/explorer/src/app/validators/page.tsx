@@ -10,22 +10,30 @@ import {
 } from "@cosmos-explorer/ui/table";
 import { Avatar, AvatarFallback } from "@cosmos-explorer/ui/avatar";
 import { StatusBadge } from "@/components/status-badge";
+import {
+  formatPercent,
+  formatTokenAmount,
+} from "@/lib/formatters";
+import { getServices } from "@/lib/services";
 import Link from "next/link";
 
-const validators = [
-  { rank: 1, moniker: "Cosmostation", address: "cosmosvaloper1clp", votingPower: "4,230,000 XRP", commission: "5.00%", uptime: "99.98%", status: "Active" },
-  { rank: 2, moniker: "Figment", address: "cosmosvaloper1fg2", votingPower: "3,890,000 XRP", commission: "8.00%", uptime: "99.95%", status: "Active" },
-  { rank: 3, moniker: "Chorus One", address: "cosmosvaloper1ch3", votingPower: "3,450,000 XRP", commission: "7.50%", uptime: "99.92%", status: "Active" },
-  { rank: 4, moniker: "Binance Staking", address: "cosmosvaloper1bn4", votingPower: "3,210,000 XRP", commission: "10.00%", uptime: "99.99%", status: "Active" },
-  { rank: 5, moniker: "Kraken", address: "cosmosvaloper1kr5", votingPower: "2,980,000 XRP", commission: "10.00%", uptime: "99.97%", status: "Active" },
-  { rank: 6, moniker: "Everstake", address: "cosmosvaloper1ev6", votingPower: "2,750,000 XRP", commission: "5.00%", uptime: "99.90%", status: "Active" },
-  { rank: 7, moniker: "Polychain Labs", address: "cosmosvaloper1pl7", votingPower: "2,340,000 XRP", commission: "0.00%", uptime: "99.88%", status: "Active" },
-  { rank: 8, moniker: "Staked", address: "cosmosvaloper1st8", votingPower: "2,120,000 XRP", commission: "10.00%", uptime: "99.85%", status: "Active" },
-  { rank: 9, moniker: "P2P Validator", address: "cosmosvaloper1p29", votingPower: "1,890,000 XRP", commission: "8.00%", uptime: "98.50%", status: "Active" },
-  { rank: 10, moniker: "Retired Node", address: "cosmosvaloper1rt0", votingPower: "150,000 XRP", commission: "100%", uptime: "0.00%", status: "Jailed" },
-];
+function toStatusLabel(status: string): string {
+  switch (status) {
+    case "active":
+      return "Active";
+    case "inactive":
+      return "Inactive";
+    case "jailed":
+      return "Jailed";
+    default:
+      return "Unknown";
+  }
+}
 
-export default function ValidatorsPage() {
+export default async function ValidatorsPage() {
+  const { validatorService } = getServices();
+  const validatorSet = await validatorService.getValidatorSet();
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -39,7 +47,7 @@ export default function ValidatorsPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">150</p>
+            <p className="text-2xl font-bold">{validatorSet.count.active.toLocaleString()}</p>
           </CardContent>
         </Card>
         <Card>
@@ -47,7 +55,7 @@ export default function ValidatorsPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Bonded</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">48.2M XRP</p>
+            <p className="text-2xl font-bold">{formatTokenAmount(validatorSet.bonded, 0)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -55,7 +63,13 @@ export default function ValidatorsPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Avg Commission</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">7.3%</p>
+            <p className="text-2xl font-bold">
+              {formatPercent(
+                validatorSet.averageCommission == null
+                  ? null
+                  : validatorSet.averageCommission * 100
+              )}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -74,13 +88,13 @@ export default function ValidatorsPage() {
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Voting Power</TableHead>
                 <TableHead className="text-right">Commission</TableHead>
-                <TableHead className="text-right">Uptime</TableHead>
+                <TableHead className="text-right">Missed Blocks</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {validators.map((v) => (
+              {validatorSet.items.map((v, index) => (
                 <TableRow key={v.address}>
-                  <TableCell className="text-muted-foreground">{v.rank}</TableCell>
+                  <TableCell className="text-muted-foreground">{index + 1}</TableCell>
                   <TableCell>
                     <Link href={`/validators/${v.address}`} className="flex items-center gap-3 hover:text-primary">
                       <Avatar className="h-7 w-7">
@@ -90,11 +104,15 @@ export default function ValidatorsPage() {
                     </Link>
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={v.status} />
+                    <StatusBadge status={toStatusLabel(v.status)} />
                   </TableCell>
-                  <TableCell className="text-right font-mono text-sm">{v.votingPower}</TableCell>
-                  <TableCell className="text-right">{v.commission}</TableCell>
-                  <TableCell className="text-right">{v.uptime}</TableCell>
+                  <TableCell className="text-right font-mono text-sm">
+                    {v.votingPower.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {formatPercent(v.commission == null ? null : v.commission * 100)}
+                  </TableCell>
+                  <TableCell className="text-right">{v.missedBlocksCounter.toLocaleString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

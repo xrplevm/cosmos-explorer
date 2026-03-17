@@ -7,9 +7,9 @@ import {
 } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
-import { mapAverageBlockTime } from '../home-mappers';
-import { AVERAGE_BLOCK_TIME_QUERY } from '../home-queries';
-import type { AverageBlockTimeResponse } from '../home-types';
+import { mapAverageBlockTime } from '../mappers';
+import { AVERAGE_BLOCK_TIME_QUERY } from '../queries';
+import type { AverageBlockTimeResponse } from '../types';
 
 export class CallistoChainStatsService implements IChainStatsService {
   constructor(
@@ -20,7 +20,8 @@ export class CallistoChainStatsService implements IChainStatsService {
   ) {}
 
   async getChainStats(input: { priceDenom: string }): Promise<ChainStats> {
-    const [latestBlock, averageBlockTime, price, validators] = await Promise.all([
+    const [latestBlockResult, averageBlockTimeResult, priceResult, validatorsResult] =
+      await Promise.allSettled([
       this.blockService.getLatestBlock(),
       this.getAverageBlockTime(),
       this.priceService.getCurrentPrice(input.priceDenom),
@@ -28,10 +29,17 @@ export class CallistoChainStatsService implements IChainStatsService {
     ]);
 
     return {
-      latestBlock,
-      averageBlockTime,
-      price,
-      validators,
+      latestBlock:
+        latestBlockResult.status === 'fulfilled' ? latestBlockResult.value : null,
+      averageBlockTime:
+        averageBlockTimeResult.status === 'fulfilled'
+          ? averageBlockTimeResult.value
+          : null,
+      price: priceResult.status === 'fulfilled' ? priceResult.value : null,
+      validators:
+        validatorsResult.status === 'fulfilled'
+          ? validatorsResult.value
+          : { active: 0, total: 0 },
     };
   }
 

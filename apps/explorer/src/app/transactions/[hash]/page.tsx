@@ -6,7 +6,10 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
+import { formatTimestamp } from "@/lib/formatters";
+import { getServices } from "@/lib/services";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -23,6 +26,12 @@ export default async function TransactionDetailPage({
   params: Promise<{ hash: string }>;
 }) {
   const { hash } = await params;
+  const { transactionService } = getServices();
+  const transaction = await transactionService.getTransactionByHash(hash);
+
+  if (transaction == null) {
+    notFound();
+  }
 
   return (
     <div className="space-y-6">
@@ -41,50 +50,45 @@ export default async function TransactionDetailPage({
           </Row>
           <Separator />
           <Row label="Status">
-            <StatusBadge status="Success" />
+            <StatusBadge status={transaction.success ? "Success" : "Failed"} />
           </Row>
           <Separator />
           <Row label="Block">
-            <Link href="/blocks/482910" className="font-mono text-primary hover:underline">
-              #482,910
+            <Link href={`/blocks/${transaction.height}`} className="font-mono text-primary hover:underline">
+              #{transaction.height.toLocaleString()}
             </Link>
           </Row>
           <Separator />
           <Row label="Timestamp">
-            <span>Mar 17, 2026 14:23:45 UTC</span>
-            <span className="ml-2 text-muted-foreground">(12s ago)</span>
+            <span>{formatTimestamp(transaction.timestamp)}</span>
           </Row>
           <Separator />
           <Row label="Type">
-            <span>Transfer</span>
-          </Row>
-          <Separator />
-          <Row label="From">
-            <Link href="/account/cosmos1a2b3c4d5e6f7g8h9i0j" className="font-mono text-xs text-primary hover:underline">
-              cosmos1a2b3c4d5e6f7g8h9i0jk1l2m3n4o5p6q7r8s9t0
-            </Link>
-          </Row>
-          <Separator />
-          <Row label="To">
-            <Link href="/account/cosmos1z8w7v6u5t4s3r2q1p0o" className="font-mono text-xs text-primary hover:underline">
-              cosmos1z8w7v6u5t4s3r2q1p0on9m8l7k6j5i4h3g2f1e0
-            </Link>
-          </Row>
-          <Separator />
-          <Row label="Amount">
-            <span className="font-mono">1,250.00 XRP</span>
+            <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
           </Row>
           <Separator />
           <Row label="Fee">
-            <span className="font-mono text-muted-foreground">0.005 XRP</span>
+            <span className="font-mono text-muted-foreground">
+              {JSON.stringify(transaction.fee)}
+            </span>
           </Row>
           <Separator />
           <Row label="Gas Used / Wanted">
-            <span className="font-mono">78,432 / 100,000</span>
+            <span className="font-mono">
+              {transaction.gasUsed.toLocaleString()} / {transaction.gasWanted.toLocaleString()}
+            </span>
           </Row>
           <Separator />
           <Row label="Memo">
-            <span className="text-muted-foreground italic">Payment for services</span>
+            <span className="text-muted-foreground italic">
+              {transaction.memo || "No memo"}
+            </span>
+          </Row>
+          <Separator />
+          <Row label="Messages">
+            <pre className="max-w-full overflow-x-auto text-xs">
+              {JSON.stringify(transaction.messages, null, 2)}
+            </pre>
           </Row>
         </CardContent>
       </Card>

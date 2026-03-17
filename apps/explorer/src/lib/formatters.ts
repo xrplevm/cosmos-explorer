@@ -1,3 +1,5 @@
+import type { TokenAmount } from "@cosmos-explorer/core";
+
 export function formatTimestamp(value: string | null | undefined): string {
   if (value == null || value.length === 0) {
     return "N/A";
@@ -18,6 +20,36 @@ export function formatBlockTime(value: number | null): string {
 
 export function formatPrice(value: number | null | undefined): string {
   return value == null ? "N/A" : `$${value.toFixed(4)}`;
+}
+
+export function formatNumber(value: number | null | undefined): string {
+  return value == null ? "N/A" : value.toLocaleString();
+}
+
+export function formatPercent(
+  value: number | null | undefined,
+  fractionDigits = 2
+): string {
+  return value == null ? "N/A" : `${value.toFixed(fractionDigits)}%`;
+}
+
+export function formatTokenAmount(
+  value: TokenAmount | null | undefined,
+  fractionDigits = 2
+): string {
+  if (value == null) {
+    return "N/A";
+  }
+
+  const amount = Number(value.amount);
+
+  if (!Number.isFinite(amount)) {
+    return `${value.amount} ${value.denom}`;
+  }
+
+  return `${amount.toLocaleString(undefined, {
+    maximumFractionDigits: fractionDigits,
+  })} ${value.denom}`;
 }
 
 export function formatHash(hash: string): string {

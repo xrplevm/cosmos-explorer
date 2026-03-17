@@ -15,15 +15,10 @@ import {
   TableRow,
 } from "@cosmos-explorer/ui/table";
 import { StatusBadge } from "@/components/status-badge";
+import { formatHash, formatTimestamp } from "@/lib/formatters";
+import { getServices } from "@/lib/services";
 import Link from "next/link";
-
-const blockTxs = [
-  { hash: "0xA1B2C3D4...O5P6", type: "Transfer", status: "Success", amount: "1,250.00 XRP" },
-  { hash: "0xB2C3D4E5...P6Q7", type: "Delegate", status: "Success", amount: "500.00 XRP" },
-  { hash: "0xC3D4E5F6...Q7R8", type: "Swap", status: "Success", amount: "89.50 XRP" },
-  { hash: "0xD4E5F6G7...R8S9", type: "Transfer", status: "Failed", amount: "2,100.00 XRP" },
-  { hash: "0xE5F6G7H8...S9T0", type: "IBC Transfer", status: "Success", amount: "340.75 XRP" },
-];
+import { notFound } from "next/navigation";
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -40,6 +35,12 @@ export default async function BlockDetailPage({
   params: Promise<{ height: string }>;
 }) {
   const { height } = await params;
+  const { blockService } = getServices();
+  const detail = await blockService.getBlockByHeight(Number(height));
+
+  if (detail == null) {
+    notFound();
+  }
 
   return (
     <div className="space-y-6">
@@ -58,28 +59,25 @@ export default async function BlockDetailPage({
           </Row>
           <Separator />
           <Row label="Block Hash">
-            <span className="font-mono text-xs break-all">
-              0xAB12CD34EF56GH78IJ90KL12MN34OP56QR78ST90UV12WX34
-            </span>
+            <span className="font-mono text-xs break-all">{detail.overview.hash}</span>
           </Row>
           <Separator />
           <Row label="Timestamp">
-            <span>Mar 17, 2026 14:23:39 UTC</span>
-            <span className="ml-2 text-muted-foreground">(6s ago)</span>
+            <span>{formatTimestamp(detail.overview.timestamp)}</span>
           </Row>
           <Separator />
           <Row label="Proposer">
-            <Link href="/validators/cosmosvaloper1abc" className="text-primary hover:underline">
-              Validator A
+            <Link href={`/validators/${detail.overview.proposer}`} className="text-primary hover:underline">
+              {detail.overview.proposer}
             </Link>
           </Row>
           <Separator />
           <Row label="Transactions">
-            <span>{blockTxs.length} transactions</span>
+            <span>{detail.transactions.length} transactions</span>
           </Row>
           <Separator />
-          <Row label="Gas Used / Limit">
-            <span className="font-mono">1,245,320 / 10,000,000</span>
+          <Row label="Pre-commits">
+            <span className="font-mono">{detail.signatures.length.toLocaleString()}</span>
           </Row>
         </CardContent>
       </Card>
@@ -96,24 +94,26 @@ export default async function BlockDetailPage({
                 <TableHead>Tx Hash</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">Messages</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {blockTxs.map((tx) => (
+              {detail.transactions.map((tx) => (
                 <TableRow key={tx.hash}>
                   <TableCell className="font-mono text-xs">
                     <Link href={`/transactions/${tx.hash}`} className="text-primary hover:underline">
-                      {tx.hash}
+                      {formatHash(tx.hash)}
                     </Link>
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline">{tx.type}</Badge>
                   </TableCell>
                   <TableCell>
-                    <StatusBadge status={tx.status} />
+                    <StatusBadge status={tx.success ? "Success" : "Failed"} />
                   </TableCell>
-                  <TableCell className="text-right font-mono text-sm">{tx.amount}</TableCell>
+                  <TableCell className="text-right font-mono text-sm">
+                    {tx.messageCount}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

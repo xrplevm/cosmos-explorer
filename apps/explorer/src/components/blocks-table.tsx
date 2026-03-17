@@ -19,47 +19,61 @@ import { formatTimestamp } from "@/lib/formatters";
 import { getServices } from "@/lib/services";
 
 export async function BlocksTable() {
-  const { blockService } = getServices();
-  const blocks = await blockService.getLatestBlocks(10);
+  try {
+    const { blockService } = getServices();
+    const blocks = await blockService.getLatestBlocks(10);
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Latest Blocks</CardTitle>
-        <CardDescription>Most recently indexed blocks</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Height</TableHead>
-                <TableHead>Txs</TableHead>
-                <TableHead>Proposer</TableHead>
-                <TableHead className="text-right">Time</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {blocks.map((block) => (
-                <TableRow key={block.hash}>
-                  <TableCell className="font-mono text-sm">
-                    #{block.height.toLocaleString()}
-                  </TableCell>
-                  <TableCell>{block.txs}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {block.proposer}
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
-                    {formatTimestamp(block.timestamp)}
-                  </TableCell>
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Latest Blocks</CardTitle>
+          <CardDescription>Most recently indexed blocks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Height</TableHead>
+                  <TableHead>Txs</TableHead>
+                  <TableHead>Proposer</TableHead>
+                  <TableHead className="text-right">Time</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
-  );
+              </TableHeader>
+              <TableBody>
+                {blocks.map((block) => (
+                  <TableRow key={block.hash}>
+                    <TableCell className="font-mono text-sm">
+                      #{block.height.toLocaleString()}
+                    </TableCell>
+                    <TableCell>{block.txs}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {block.proposer}
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      {formatTimestamp(block.timestamp)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  } catch {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Latest Blocks</CardTitle>
+          <CardDescription>Most recently indexed blocks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Blocks are temporarily unavailable.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 }
 
 export function BlocksTableSkeleton() {

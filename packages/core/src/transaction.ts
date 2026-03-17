@@ -28,4 +28,7 @@ export type TransactionDetail = {
 
 export interface ITransactionService {
   getLatestTransactions(limit: number): Promise<TransactionSummary[]>;
+  getTransactions(params?: { limit?: number; offset?: number }): Promise<TransactionSummary[]>;
+  getTransactionsByBlock(height: number): Promise<TransactionSummary[]>;
+  getTransactionByHash(hash: string): Promise<TransactionDetail | null>;
 }

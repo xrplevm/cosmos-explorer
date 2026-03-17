@@ -30,4 +30,9 @@ export type MarketSummary = {
 
 export interface IPriceService {
   getCurrentPrice(denom: string): Promise<Price | null>;
+  getPriceHistory(
+    denom: string,
+    params?: { limit?: number }
+  ): Promise<PricePoint[]>;
+  getMarketSummary(denom: string): Promise<MarketSummary>;
 }
