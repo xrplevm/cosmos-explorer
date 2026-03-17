@@ -23,7 +23,7 @@ cosmos-explorer/
 │   ├── ui/                        # Shadcn design system + domain components
 │   ├── hooks/                     # React hooks consuming IChainDataSource
 │   ├── adapters/
-│   │   ├── hasura/                # Generic BDJuno/Hasura GraphQL adapter
+│   │   ├── callisto/              # Generic Callisto/Hasura-backed GraphQL adapter
 │   │   └── xrplevm/               # XRP EVM sidechain overrides
 │   └── utils/                     # Pure format helpers (token, address, time)
 ├── turbo.json
@@ -41,7 +41,7 @@ core (no deps)
   ↑
 config   utils
   ↑         ↑
-adapters/hasura
+adapters/callisto
   ↑
 adapters/xrplevm
   ↑
@@ -61,39 +61,61 @@ apps/storybook ← ui, core
 
 Pure TypeScript interfaces. Zero dependencies. Every other package depends on this.
 
-**Interfaces:**
+**Naming rule:**
 
-- `IBlock`, `IBlockDetail`
-- `ITransactionSummary`, `ITransactionDetail`, `IMessage`
-- `IValidator`, `IValidatorDetail`, `ValidatorStatus`
-- `IAccount`, `IDelegation`, `IRedelegation`
-- `IChainStats`
-- `IProposal`, `ITallyResult`, `ProposalStatus`
-- `ITokenAmount`, `ITokenPrice`
+- service interfaces keep the `I` prefix
+- domain model types do not use the `I` prefix
+
+Examples:
+
+- service interfaces: `IChainDataSource`, `IPriceService`
+- domain types: `Block`, `Transaction`, `Price`, `Validator`
+
+**Interfaces and types:**
+
+- `Block`, `BlockDetail`
+- `TransactionSummary`, `TransactionDetail`, `Message`
+- `Validator`, `ValidatorDetail`, `ValidatorStatus`
+- `Account`, `Delegation`, `Redelegation`
+- `ChainStats`
+- `Proposal`, `TallyResult`, `ProposalStatus`
+- `TokenAmount`, `TokenPrice`
 - `IChainDataSource` — the central seam between UI and backend
 - `PaginationParams`, `PaginatedResult<T>`, `UnsubscribeFn`, `SearchResult`
+
+**Domain error types (also in `packages/core/src/errors.ts`):**
+
+`core` holds only the structural definitions — no runtime behavior:
+
+```typescript
+enum AppErrorCode {
+  NOT_FOUND, NETWORK_ERROR, INVALID_INPUT, RATE_LIMIT, UPSTREAM_ERROR, UNKNOWN
+}
+
+type AppError = Error & { code: AppErrorCode; statusCode: number }
+```
 
 **`IChainDataSource` methods:**
 
 ```
-getBlocks(params)                      → PaginatedResult<IBlock>
-getBlockByHeight(height)               → IBlockDetail | null
+getBlocks(params)                      → PaginatedResult<Block>
+getBlockByHeight(height)               → BlockDetail | null
 getLatestBlocks(limit, onData)         → UnsubscribeFn
 
-getTransactions(params)                → PaginatedResult<ITransactionSummary>
-getTransactionByHash(hash)             → ITransactionDetail | null
-getTransactionsByBlock(height)         → ITransactionSummary[]
+getTransactions(params)                → PaginatedResult<TransactionSummary>
+getTransactionByHash(hash)             → TransactionDetail | null
+getTransactionsByBlock(height)         → TransactionSummary[]
 
-getValidators()                        → IValidator[]
-getValidatorByAddress(address)         → IValidatorDetail | null
+getValidators()                        → Validator[]
+getValidatorByAddress(address)         → ValidatorDetail | null
 
-getAccount(address)                    → IAccount | null
+getAccount(address)                    → Account | null
 
-getChainStats()                        → IChainStats
+getChainStats()                        → ChainStats
 subscribeToChainStats(onData)          → UnsubscribeFn
 
-getProposals(params)                   → PaginatedResult<IProposal>
-getProposalById(id)                    → IProposal | null
+getProposals(params)                   → PaginatedResult<Proposal>
+getProposalById(id)                    → Proposal | null
 
 search(query)                          → SearchResult
 ```
@@ -108,7 +130,7 @@ Chain configuration schema — Zod-validated at app startup.
 
 ```typescript
 {
-  adapterType: string;           // "hasura" | "xrplevm" | ...
+  adapterType: string;           // "callisto" | "xrplevm" | ...
   network: {
     chainId, chainName, chainEnv
     bech32Prefix, validatorPrefix, consensusPrefix
@@ -138,24 +160,50 @@ Chain configuration schema — Zod-validated at app startup.
 
 Pure functions, no React, no external state. Only depends on `core` types.
 
-- `formatToken(amount: ITokenAmount)` — handles exponent math, locale formatting
+- `formatToken(amount: TokenAmount)` — handles exponent math, locale formatting
 - `formatAddress(address, options?)` — truncation, bech32 prefix detection
 - `formatTimestamp(iso, format?)` — relative time, locale date, countdown
 - `formatHash(hash, chars?)` — truncation helper
 - `formatNumber(n)` — large numbers with commas / abbreviations
 
+**Error scaffolding (also in `packages/utils/src/errors.ts`):**
+
+All error behavior lives here. `utils` is the single source of truth for creating, checking, and displaying errors.
+
+```typescript
+// factory
+createAppError(message, { code, statusCode?, cause? }): AppError
+
+// domain factories
+notFound(resource, identifier?)   → 404
+networkError(message?, cause?)    → 503
+invalidInput(message)             → 400
+rateLimit()                       → 429
+upstreamError(message, cause?)    → 502
+
+// type guards
+isAppError(error): error is AppError
+hasErrorCode(error, code): error is AppError
+isNotFoundError(e), isNetworkError(e), isInvalidInputError(e), isRateLimitError(e), isUpstreamError(e)
+
+// display
+formatErrorMessage(e): string   // user-safe, never exposes internals
+```
+
+Errors are checked by code, not by class. Adapters import factories from `utils`. Hooks surface them. UI displays them. Error handling is always present — never deferred.
+
 ---
 
-### `packages/adapters/hasura`
+### `packages/adapters/callisto`
 
-Implements `IChainDataSource` against a Hasura/BDJuno GraphQL backend.
+Implements `IChainDataSource` against the Callisto-backed GraphQL backend.
 
 **Structure:**
 
 ```
 src/
 ├── client.ts              # Apollo Client factory (HTTP + WebSocket)
-├── adapter.ts             # HasuraAdapter class
+├── adapter.ts             # CallistoAdapter class
 ├── queries/
 │   ├── blocks.graphql
 │   ├── transactions.graphql
@@ -172,11 +220,13 @@ src/
 
 Mappers translate raw GraphQL response types into core interfaces. GraphQL types never leave this package.
 
+Raw Apollo/HTTP errors are caught inside the adapter and re-thrown as domain errors using the factories from `packages/utils`. A shared `mapApolloError(e)` utility inside the adapter handles this translation (network errors → `networkError()`, 429 → `rateLimit()`, etc.).
+
 ---
 
 ### `packages/adapters/xrplevm`
 
-Extends `HasuraAdapter`. Overrides only what differs for the XRP EVM sidechain:
+Extends `CallistoAdapter`. Overrides only what differs for the XRP EVM sidechain:
 
 - `search()` — detects `0x...` EVM transaction hashes and routes to EVM explorer
 - Any XRP EVM-specific field mappings
@@ -243,12 +293,16 @@ src/
 │   │   ├── TimestampCell.tsx
 │   │   ├── MessageTypeBadge.tsx
 │   │   └── SearchBar.tsx
-│   └── layout/
-│       ├── AppLayout.tsx
-│       ├── Sidebar.tsx
-│       ├── TopBar.tsx
-│       ├── Footer.tsx
-│       └── PageContainer.tsx
+│   ├── layout/
+│   │   ├── AppLayout.tsx
+│   │   ├── Sidebar.tsx
+│   │   ├── TopBar.tsx
+│   │   ├── Footer.tsx
+│   │   └── PageContainer.tsx
+│   └── error/
+│       ├── ErrorBoundary.tsx   # Class component, wraps page sections
+│       ├── ErrorState.tsx      # "Something went wrong" with retry button
+│       └── NotFoundState.tsx   # 404-style empty state
 └── styles/
     ├── globals.css         # Shadcn CSS variables + base styles
     └── theme.ts            # applyChainTheme() — runtime CSS variable injection
@@ -307,7 +361,7 @@ Next.js 16 + React 19 App Router. Wires all packages together.
 src/
 ├── app/
 │   ├── layout.tsx                # Loads config → creates adapter → provides context + theme
-│   ├── page.tsx                  # Dashboard (chain stats + latest blocks/txs)
+│   ├── page.tsx                  # Dashboard: 4 top cards + latest blocks (50%) + latest txs (50%)
 │   ├── blocks/
 │   │   ├── page.tsx
 │   │   └── [height]/page.tsx
@@ -332,7 +386,7 @@ src/
 
 ```typescript
 const ADAPTER_REGISTRY = {
-  hasura:  (config) => new HasuraAdapter(createApolloClient(...)),
+  callisto: (config) => new CallistoAdapter(createApolloClient(...)),
   xrplevm: (config) => new XrplevmAdapter(createApolloClient(...), config.network),
 }
 
@@ -343,6 +397,67 @@ export function createAdapter(config: ChainConfig): IChainDataSource {
 
 ---
 
+## Dashboard Requirements
+
+The home page layout should be:
+
+- top row: `4` cards
+  - latest block
+  - average block time
+  - price
+  - active validators
+- second row:
+  - latest blocks table on the left (`50%`)
+  - latest transactions table on the right (`50%`)
+
+This means the data layer must provide at least:
+
+- latest block height
+- average block time
+- current price
+- active validator count
+- latest blocks feed
+- latest transactions feed
+
+The detailed legacy source mapping for those items is documented in:
+
+- `docs/governance-explorer-blocks-transactions-accounts.md`
+- `docs/price-api-design.md`
+- `docs/home-dashboard-data-contract.md`
+- `docs/hasura-structure.md`
+
+The working implementation plan for the home page is split into:
+
+- `docs/home.md`
+- `docs/blocks.md`
+- `docs/transactions.md`
+- `docs/price.md`
+- `docs/validators.md`
+
+## Home Implementation Plan
+
+The home page should be implemented as the first complete vertical slice.
+
+### Home scope
+
+- `4` top cards
+- latest blocks table
+- latest transactions table
+
+### Recommended order
+
+1. finalize core domain types for the home page
+2. finalize adapter methods needed for the home page
+3. implement Hasura queries and mappers
+4. implement hooks for stats, blocks, and transactions
+5. implement the home page UI and layout
+6. add loading, empty, and error states
+7. verify responsive behavior
+
+Plain indexed reads for blocks and transactions should stay adapter-level by default, not become separate app HTTP APIs.
+
+---
+
 ## Data Flow
 
 ```
@@ -350,11 +465,11 @@ chain.json
     ↓ loadChainConfig() + Zod validation
 ChainConfig
     ↓ createAdapter()
-HasuraAdapter  (implements IChainDataSource)
+CallistoAdapter  (implements IChainDataSource)
     ↓ DataSourceProvider
 useBlocks() / useValidators() / useChainStats() / ...
     ↓
-BlocksTable({ blocks: IBlock[] })   ← only core interface types
+BlocksTable({ blocks: Block[] })   ← only core domain types
 ```
 
 ---
@@ -368,7 +483,7 @@ React Context + custom hooks only. No Zustand/Redux.
 | `IChainDataSource` | `DataSourceContext` (all hooks) |
 | `ChainConfig` | `ChainConfigContext` (branding, feature flags, token config) |
 | Theme preference | `next-themes` |
-| `IChainStats` | `ChainStatsContext` in root layout (shared by top bar + dashboard) |
+| `ChainStats` | `ChainStatsContext` in root layout (shared by top bar + dashboard) |
 | Page-local data | Hook state per page |
 
 ---
@@ -377,8 +492,8 @@ React Context + custom hooks only. No Zustand/Redux.
 
 1. Copy `apps/explorer/` → `apps/new-chain-explorer/`
 2. Update `chain.json` — endpoints, token config, bech32 prefix, branding CSS variables, feature flags
-3. If the chain runs BDJuno: set `"adapterType": "hasura"` — done
-4. If the chain has custom endpoints: add `packages/adapters/new-chain/` extending `HasuraAdapter`, override only differing methods
+3. If the chain runs through Callisto: set `"adapterType": "callisto"` — done
+4. If the chain has custom endpoints: add `packages/adapters/new-chain/` extending `CallistoAdapter`, override only differing methods
 5. Register the adapter in the app's `bootstrap/adapter.ts`
 
 **No changes to `core`, `ui`, or `hooks`.**
@@ -395,11 +510,11 @@ React Context + custom hooks only. No Zustand/Redux.
 - [ ] `packages/utils` — token, address, timestamp, hash formatters
 
 ### Phase 2 — Adapter
-- [ ] `packages/adapters/hasura` — Apollo client factory
+- [ ] `packages/adapters/callisto` — Apollo client factory
 - [ ] All `.graphql` query files
 - [ ] Mapper functions (raw GraphQL → core interfaces)
-- [ ] `HasuraAdapter` implementing all `IChainDataSource` methods
-- [ ] `packages/adapters/xrplevm` extending `HasuraAdapter`
+- [ ] `CallistoAdapter` implementing all `IChainDataSource` methods
+- [ ] `packages/adapters/xrplevm` extending `CallistoAdapter`
 - [ ] Unit tests for mappers
 
 ### Phase 3 — Design System

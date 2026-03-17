@@ -1,3 +1,1 @@
-// @cosmos-explorer/core — pure TypeScript interfaces
-// Bootstrap placeholder — add interfaces here
-export {};
+export { AppErrorCode, type AppError } from './errors.js';

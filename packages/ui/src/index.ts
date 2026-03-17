@@ -17,3 +17,8 @@ export { Skeleton } from "./components/ui/skeleton";
 export { Sheet, SheetPortal, SheetOverlay, SheetTrigger, SheetClose, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription } from "./components/ui/sheet";
 export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartStyle, useChart, type ChartConfig } from "./components/ui/chart";
 export { cn } from "./lib/utils";
+
+// Error components
+export { ErrorBoundary } from "./components/error/ErrorBoundary";
+export { ErrorState } from "./components/error/ErrorState";
+export { NotFoundState } from "./components/error/NotFoundState";
