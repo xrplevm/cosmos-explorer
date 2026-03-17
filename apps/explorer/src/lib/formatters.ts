@@ -57,5 +57,24 @@ export function formatHash(hash: string): string {
     return hash;
   }
 
-  return `${hash.slice(0, 8)}...${hash.slice(-6)}`;
+  return `${hash.slice(0, 6)}...${hash.slice(-5)}`;
+}
+
+export function formatRelativeTime(value: string | null | undefined): string {
+  if (value == null || value.length === 0) {
+    return "N/A";
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  const now = Date.now();
+  const diff = Math.floor((now - date.getTime()) / 1000);
+
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
 }

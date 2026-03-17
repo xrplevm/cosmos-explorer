@@ -10,7 +10,8 @@ import {
 } from "@cosmos-explorer/ui/table";
 import Link from "next/link";
 
-import { formatHash, formatTimestamp } from "@/lib/formatters";
+import { formatHash } from "@/lib/formatters";
+import { RelativeTime } from "@/components/relative-time";
 import { getServices } from "@/lib/services";
 
 export default async function BlocksPage() {
@@ -58,7 +59,7 @@ export default async function BlocksPage() {
                     </Link>
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">
-                    {formatTimestamp(block.timestamp)}
+                    <RelativeTime timestamp={block.timestamp} />
                   </TableCell>
                 </TableRow>
               ))}

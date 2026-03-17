@@ -1,7 +1,7 @@
+import Link from "next/link";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
@@ -16,19 +16,25 @@ import {
 } from "@cosmos-explorer/ui/table";
 
 import { StatusBadge } from "@/components/status-badge";
-import { formatHash, formatTimestamp } from "@/lib/formatters";
+import { formatHash } from "@/lib/formatters";
 import { getServices } from "@/lib/services";
+import { RelativeTime } from "@/components/relative-time";
 
 export async function TransactionsTable() {
   try {
     const { transactionService } = getServices();
-    const transactions = await transactionService.getLatestTransactions(10);
+    const transactions = await transactionService.getLatestTransactions(7);
 
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Latest Transactions</CardTitle>
-          <CardDescription>Most recently indexed transactions</CardDescription>
+          <Link
+            href="/transactions"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            See More
+          </Link>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -43,18 +49,23 @@ export async function TransactionsTable() {
               </TableHeader>
               <TableBody>
                 {transactions.map((transaction) => (
-                  <TableRow key={transaction.hash}>
-                    <TableCell className="font-mono text-xs">
-                      {formatHash(transaction.hash)}
+                  <TableRow key={transaction.hash} className="h-[50px]">
+                    <TableCell>
+                      <Link
+                        href={`/transactions/${transaction.hash}`}
+                        className="font-mono text-sm text-primary hover:underline"
+                      >
+                        {formatHash(transaction.hash)}
+                      </Link>
                     </TableCell>
-                    <TableCell>{transaction.type}</TableCell>
+                    <TableCell className="text-sm">{transaction.type}</TableCell>
                     <TableCell>
                       <StatusBadge
                         status={transaction.success ? "Success" : "Failed"}
                       />
                     </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {formatTimestamp(transaction.timestamp)}
+                    <TableCell className="text-right text-sm text-muted-foreground">
+                      <RelativeTime timestamp={transaction.timestamp} />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -67,9 +78,14 @@ export async function TransactionsTable() {
   } catch {
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Latest Transactions</CardTitle>
-          <CardDescription>Most recently indexed transactions</CardDescription>
+          <Link
+            href="/transactions"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            See More
+          </Link>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
@@ -84,13 +100,13 @@ export async function TransactionsTable() {
 export function TransactionsTableSkeleton() {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-row items-center justify-between">
         <Skeleton className="h-6 w-44" />
-        <Skeleton className="h-4 w-56" />
+        <Skeleton className="h-4 w-16" />
       </CardHeader>
       <CardContent className="space-y-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-10 w-full" />
+        {Array.from({ length: 7 }).map((_, i) => (
+          <Skeleton key={i} className="h-[50px] w-full" />
         ))}
       </CardContent>
     </Card>
