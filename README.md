@@ -1,177 +1,127 @@
 # Cosmos Explorer
 
-A modular, customizable blockchain explorer for Cosmos chains. Built with Next.js 16, React 19, Turborepo, and Shadcn/ui.
+Cosmos Explorer is a Turborepo monorepo for a chain explorer UI and the service packages that feed it. The current app target in this repository is the XRPL EVM Sidechain testnet explorer.
 
-## Features
-
-- Chain-agnostic architecture — deploy for any Cosmos chain by editing a single `chain.json`
-- Per-chain theming via CSS variable overrides (no rebuild required)
-- Real-time block and stats updates via GraphQL subscriptions
-- Blocks, transactions, validators, accounts, and governance pages
-- Design system with Storybook for isolated component development
-
-## Stack
+## Current Stack
 
 | Layer | Technology |
-|-------|-----------|
+|---|---|
 | Monorepo | Turborepo + pnpm |
-| App | Next.js 16 (App Router) + React 19 |
-| UI | Shadcn/ui + Tailwind CSS v4 |
-| Components | Storybook 8 (Vite) |
-| Data | GraphQL / Hasura (BDJuno) |
-| Language | TypeScript 5 |
+| Apps | Next.js 15 + React 19 |
+| UI | Tailwind CSS v4 + shadcn/ui |
+| Contracts | TypeScript domain contracts in `packages/core` |
+| Chain data | Callisto / Hasura GraphQL |
+| Price data | Separate price package |
 
-## Monorepo Structure
+## Repository Layout
 
-```
+```text
 apps/
-  explorer/       Next.js app for a specific chain deployment
-  storybook/      Component explorer and visual testing
+  explorer/      Main Next.js explorer app
+  playground/    UI playground app
 
 packages/
-  core/           TypeScript interfaces only — the contract layer
-  config/         ChainConfig schema with Zod validation
-  ui/             Shadcn design system + domain components + charts
-  hooks/          React hooks consuming IChainDataSource
-  utils/          Pure format helpers (tokens, addresses, timestamps)
   adapters/
-    hasura/       IChainDataSource implementation for BDJuno/Hasura
-    xrplevm/      XRP EVM sidechain adapter (extends hasura)
+    callisto/    Callisto-backed chain services
+  config/        Chain config schema and validation
+  core/          Domain types and service interfaces
+  price/         Price service implementation
+  ui/            Shared UI components
+  utils/         Shared helpers, errors, fetcher
+
+docs/            Architecture and migration notes
+plan.md          Implementation plan
 ```
+
+## Architecture
+
+The repo is split by domain and service boundaries.
+
+- `packages/core` contains transport-independent contracts only.
+- `packages/utils` contains shared runtime helpers such as the base fetcher and error handling.
+- `packages/adapters/callisto` translates GraphQL responses into core domain types.
+- `packages/price` is separate from Callisto because price is not treated as a Callisto-specific concern.
+- `apps/explorer` composes services on the server in `src/lib/services.ts` and renders pages from those services.
+
+Current connected explorer pages include:
+
+- `/`
+- `/blocks`
+- `/blocks/[height]`
+- `/transactions`
+- `/transactions/[hash]`
+- `/validators`
+- `/validators/[address]`
+- `/account/[address]`
+- `/proposals`
+- `/proposals/[id]`
 
 ## Getting Started
 
-**Prerequisites:** Node.js 20+, pnpm 9+
+Prerequisites:
+
+- Node.js 20+
+- pnpm 9+
+
+Install and run:
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Start all apps in development mode
 pnpm dev
+```
 
-# Start only the explorer
-pnpm --filter @cosmos-explorer/explorer dev
+Useful commands:
 
-# Start only Storybook
-pnpm --filter @cosmos-explorer/storybook dev
+```bash
+pnpm dev:explorer
+pnpm dev:playground
+pnpm build
+pnpm typecheck
+pnpm lint
+pnpm clean
+```
+
+Package-specific examples:
+
+```bash
+pnpm --filter @cosmos-explorer/core build
+pnpm --filter @cosmos-explorer/callisto typecheck
+pnpm --filter @cosmos-explorer/explorer typecheck
 ```
 
 ## Chain Configuration
 
-Each explorer deployment is configured by `apps/explorer/src/chain.json`. This file controls endpoints, token display, bech32 prefixes, branding colors, and feature flags.
+The active explorer instance is configured by [apps/explorer/chain.json](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/apps/explorer/chain.json).
 
-```json
-{
-  "adapterType": "hasura",
-  "network": {
-    "chainId": "examplechain-1",
-    "chainName": "Example Chain",
-    "chainEnv": "mainnet",
-    "bech32Prefix": "cosmos",
-    "validatorPrefix": "cosmosvaloper",
-    "consensusPrefix": "cosmosvalcons",
-    "primaryToken": {
-      "denom": "uatom",
-      "displayDenom": "ATOM",
-      "exponent": 6
-    },
-    "endpoints": {
-      "graphqlHttp": "https://hasura.example.com/v1/graphql",
-      "graphqlWs": "wss://hasura.example.com/v1/graphql"
-    }
-  },
-  "branding": {
-    "title": "Example Chain Explorer",
-    "logoPath": "/logo.svg",
-    "cssVariables": {
-      "light": { "primary": "220 90% 50%" },
-      "dark":  { "primary": "220 90% 65%" }
-    }
-  },
-  "features": {
-    "proposals": true,
-    "accounts": true,
-    "validatorIdentity": true,
-    "evmSearch": false
-  }
-}
-```
+Current config highlights:
 
-CSS variable values use the oklch/HSL format expected by Shadcn (e.g. `"220 90% 50%"`). Changes take effect without a rebuild.
+- `adapterType`: `callisto`
+- chain: `XRPL EVM Sidechain`
+- environment: `testnet`
+- GraphQL endpoint: `https://governance.testnet.xrplevm.org/v1/graphql`
 
-## Deploying for a New Chain
+## Turbo Notes
 
-1. Copy `apps/explorer/` to a new directory (e.g. `apps/osmosis-explorer/`)
-2. Update `chain.json` with the new chain's endpoints, token config, and branding
-3. If the chain runs BDJuno, set `"adapterType": "hasura"` — no other changes needed
-4. If the chain requires custom data fetching, create `packages/adapters/new-chain/` extending `HasuraAdapter` and override only the methods that differ
-5. Register the new adapter in `apps/new-chain-explorer/src/bootstrap/adapter.ts`
+Tasks are package tasks, not root implementation scripts. Root scripts delegate to Turbo only.
 
-No changes to `packages/core`, `packages/ui`, or `packages/hooks` are required.
+- `build` depends on `^build`
+- `typecheck` depends on `^build`
+- `lint` depends on `^build`
+- `dev` is persistent and uncached
 
-## Architecture
+In practice, if a downstream package reads another package’s built output, build `core` first or run the normal Turbo pipeline.
 
-### The Interface Layer (`packages/core`)
+## Development Rules
 
-All data flows through `IChainDataSource` — a single TypeScript interface that every adapter implements. The UI never imports from an adapter directly.
+- Keep `packages/core` free of UI concerns.
+- Keep GraphQL transport shapes inside adapter packages.
+- Map external responses into domain types before they cross package boundaries.
+- Prefer package-local scripts with `pnpm --filter ...`.
+- Use `rg` for search.
+- Use `apply_patch` for file edits.
 
-```
-chain.json → ChainConfig → adapter factory → IChainDataSource
-                                                    ↓
-                                          DataSourceProvider (React context)
-                                                    ↓
-                                    useBlocks() / useValidators() / ...
-                                                    ↓
-                                    BlocksTable({ blocks: IBlock[] })
-```
+## Related Docs
 
-### Adapter Pattern
-
-Adapters translate backend-specific types (GraphQL responses) into core interfaces. GraphQL types never leave the adapter package.
-
-```
-HasuraAdapter implements IChainDataSource
-    ↑ extends
-XrplevmAdapter  (overrides search() for 0x EVM tx hashes)
-```
-
-### Per-Chain Theming
-
-`packages/ui` uses Shadcn CSS variables. `applyChainTheme()` injects the `cssVariables` from `chain.json` into `:root` and `.dark` at app startup. The default theme is dark; `.light` class overrides are provided for light mode.
-
-## Development
-
-```bash
-# Build all packages (required before typecheck/lint)
-pnpm build
-
-# Type-check everything
-pnpm typecheck
-
-# Lint everything
-pnpm lint
-
-# Clean all build artifacts
-pnpm clean
-
-# Build a single package
-pnpm --filter @cosmos-explorer/core build
-```
-
-Turbo caches build outputs. `typecheck` and `lint` both `dependsOn: ["^build"]`, so upstream packages must be compiled first.
-
-## Pages
-
-| Route | Description |
-|-------|-------------|
-| `/` | Dashboard — chain stats, latest blocks, latest transactions |
-| `/blocks` | Paginated block list with real-time updates |
-| `/blocks/[height]` | Block detail — transactions, signers |
-| `/transactions` | Paginated transaction list |
-| `/transactions/[hash]` | Transaction detail — messages, logs, gas |
-| `/validators` | Active validator set with voting power |
-| `/validators/[address]` | Validator detail — delegations, performance |
-| `/accounts/[address]` | Account balances, delegations, rewards |
-| `/proposals` | Governance proposals |
-| `/proposals/[id]` | Proposal detail with tally |
+- [plan.md](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/plan.md)
+- [docs/home.md](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/docs/home.md)
+- [docs/hasura-structure.md](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/docs/hasura-structure.md)

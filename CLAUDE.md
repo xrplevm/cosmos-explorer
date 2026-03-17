@@ -1,95 +1,88 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file gives repository-specific guidance for Claude Code and similar coding agents.
 
 ## Commands
 
 ```bash
-# Install dependencies (run from root)
 pnpm install
-
-# Develop all apps/packages in parallel
 pnpm dev
-
-# Develop a single app
-pnpm --filter @cosmos-explorer/explorer dev
-pnpm dev:playground  # UI component playground on port 3001
-
-# Build everything (respects Turbo dependency order)
+pnpm dev:explorer
+pnpm dev:playground
 pnpm build
-
-# Build a single package
-pnpm --filter @cosmos-explorer/core build
-
-# Type-check all packages
 pnpm typecheck
-
-# Lint all packages
 pnpm lint
-
-# Clean all build artifacts
 pnpm clean
 ```
 
-Turbo caches build outputs. Run `pnpm build` before `pnpm typecheck` or `pnpm lint` — both tasks `dependsOn: ["^build"]` so upstream packages must be compiled first.
+Targeted commands:
 
-`apps/explorer` dev server uses Turbopack (`next dev --turbopack`).
-
-## Architecture
-
-This is a Turborepo + pnpm monorepo. See `plan.md` for the full design rationale.
-
-### Package layout
-
-```
-packages/core          → Pure TS interfaces, zero runtime deps
-packages/config        → ChainConfig schema (Zod-validated)
-packages/utils         → Pure format helpers (token, address, time)
-packages/adapters/hasura   → IChainDataSource impl against BDJuno/Hasura GraphQL
-packages/adapters/xrplevm  → Extends HasuraAdapter for XRP EVM specifics
-packages/hooks         → React hooks consuming IChainDataSource via context
-packages/ui            → Shadcn design system + domain components (raw TSX, no build)
-apps/explorer          → Next.js 15 + React 19 App Router
-apps/playground        → UI component playground (Next.js, port 3001)
+```bash
+pnpm --filter @cosmos-explorer/core build
+pnpm --filter @cosmos-explorer/utils build
+pnpm --filter @cosmos-explorer/callisto typecheck
+pnpm --filter @cosmos-explorer/explorer typecheck
 ```
 
-All packages are `"private": true` and use `"type": "module"`. Internal deps use `workspace:*`.
+Turbo config is in [turbo.json](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/turbo.json). `typecheck` and `lint` depend on `^build`.
 
-### The central abstraction: `IChainDataSource`
+## Actual Package Layout
 
-Defined in `packages/core`, this interface is the only contract between the UI layer and any backend. The UI (hooks, components, pages) never imports from an adapter directly — it receives an `IChainDataSource` instance via `DataSourceProvider` context.
+```text
+apps/explorer          Next.js explorer app
+apps/playground        Next.js playground app
 
-Adding a new chain means: new `chain.json` config + optionally a new adapter class. No changes to `core`, `ui`, or `hooks`.
+packages/core          Domain types and service interfaces
+packages/config        Chain config schema
+packages/utils         Shared helpers, fetcher, errors
+packages/adapters/callisto
+                       Callisto-backed chain services
+packages/price         Price service implementation
+packages/ui            Shared UI components
+```
 
-### Dependency rule
+Older references to `hooks`, `hasura`, `xrplevm adapter`, or a single `IChainDataSource` contract are outdated for this repo state.
 
-GraphQL types are **contained inside adapter packages** and never exported. Adapter mappers translate raw Hasura responses into core interfaces before they cross the package boundary. If you find a GraphQL type referenced outside of `packages/adapters/*`, that's a violation of this rule.
+## Architecture Rules
 
-### `packages/ui` design system
+### Core
 
-- **No build step.** Components are raw TSX files exported via subpath exports (e.g. `@cosmos-explorer/ui/button`). Consuming apps must add `@cosmos-explorer/ui` to `transpilePackages` in `next.config.ts`.
-- **Tailwind v4 CSS-first config.** Theme lives in `packages/ui/src/styles/globals.css` using `@theme` blocks with oklch colors. No `tailwind.config.ts`.
-- **Dark-mode-first.** Dark colors are the default `@theme` values; `.light` class overrides them. `next-themes` with `attribute="class"` handles toggling.
-- **Consuming apps must import Tailwind themselves** and add `@source` to scan UI package files:
-  ```css
-  @import "tailwindcss";
-  @import "tw-animate-css";
-  @source "../../../../packages/ui/src";
-  @import "@cosmos-explorer/ui/styles";
-  ```
-- **Adding a component:** create `packages/ui/src/components/ui/{name}.tsx`, add a subpath export in `package.json`, re-export from `src/index.ts`, and add a playground page in `apps/playground/src/app/components/{name}/page.tsx` + register in `apps/playground/src/lib/registry.ts`.
-- **Radix + cva pattern.** Components use `@radix-ui/*` primitives, `class-variance-authority` for variants, and import `cn` from `../../lib/utils`.
+- `packages/core` must stay transport-agnostic.
+- Do not put page-level, home-level, or UI-specific types in `core`.
+- Domain types should be named plainly: `Block`, `TransactionSummary`, `Price`, `ProposalDetail`.
+- Service interfaces keep the `I` prefix: `IBlockService`, `IProposalService`, `IAccountService`.
 
-### Per-chain theming
+### Adapters
 
-`ChainBrandingConfig.cssVariables` in `chain.json` holds oklch CSS variable overrides (e.g. `"primary": "0.646 0.222 41.116"`). These can be injected into `:root` at app startup — no rebuild required to change colors.
+- GraphQL queries, transport types, and mappers live inside `packages/adapters/callisto`.
+- External transport shapes must be mapped to `core` types before crossing package boundaries.
+- `packages/price` stays outside the Callisto adapter unless the data source genuinely becomes Callisto-specific.
 
-### TypeScript config
+### Explorer app
 
-All packages extend `tsconfig.base.json` at the root. The base uses `"moduleResolution": "bundler"` and `"composite": true` for project references. Each package sets its own `outDir` and `rootDir`.
+- Service composition happens in [apps/explorer/src/lib/services.ts](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/apps/explorer/src/lib/services.ts).
+- Pages should consume services, not raw GraphQL.
+- Prefer server-side reads over adding client hooks unless there is a concrete need.
 
-New packages added to `packages/adapters/*` must also be listed in `pnpm-workspace.yaml` under `packages/adapters/*` (already covered by the wildcard).
+## Working Conventions
 
-### Mock data
+- Prefer `rg` and `rg --files` for search.
+- Use `apply_patch` for manual file edits.
+- Avoid destructive git commands unless explicitly requested.
+- Do not revert unrelated user changes.
+- Build or typecheck the smallest affected package set first, then verify the app package if the change crosses boundaries.
 
-`packages/core/src/mocks/` contains factory functions (`mockBlock()`, `mockTransaction()`, etc.) that return objects satisfying core interfaces. These are used in both Storybook stories and unit tests. Keep them in sync with interface changes.
+## Current Explorer Data Boundaries
+
+- Blocks, transactions, validators, proposals, and accounts are connected through the Callisto service layer.
+- Price is fetched through `packages/price`.
+- The home overview reads composed stats from the service layer.
+- Upstream price data may be missing even when the app wiring is correct.
+
+## Useful Files
+
+- [apps/explorer/chain.json](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/apps/explorer/chain.json)
+- [apps/explorer/src/lib/services.ts](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/apps/explorer/src/lib/services.ts)
+- [packages/core/src/index.ts](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/packages/core/src/index.ts)
+- [packages/adapters/callisto/src/index.ts](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/packages/adapters/callisto/src/index.ts)
+- [plan.md](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/plan.md)
