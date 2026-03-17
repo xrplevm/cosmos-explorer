@@ -1,9 +1,9 @@
 import { type IPriceService, type Price } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
-import { mapPrice } from './mappers.js';
-import { CURRENT_PRICE_QUERY } from './queries.js';
-import type { CurrentPriceResponse } from './types.js';
+import { mapPrice } from './mappers';
+import { CURRENT_PRICE_QUERY } from './queries';
+import type { CurrentPriceResponse } from './types';
 
 export class PriceService implements IPriceService {
   constructor(private readonly fetcher: Fetcher) {}

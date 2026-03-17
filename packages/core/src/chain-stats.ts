@@ -1,6 +1,6 @@
-import type { Block } from './block.js';
-import type { Price } from './price.js';
-import type { ValidatorCount } from './validator.js';
+import type { Block } from './block';
+import type { Price } from './price';
+import type { ValidatorCount } from './validator';
 
 export type ChainStats = {
   latestBlock: Block | null;

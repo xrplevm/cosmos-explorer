@@ -9,6 +9,14 @@
     ],
     "module": "ESNext",
     "jsx": "preserve",
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+      "react",
+      "react-dom",
+      "node"
+    ],
     "incremental": true,
     "plugins": [
       {
@@ -17,6 +25,34 @@
     ],
     "baseUrl": ".",
     "paths": {
+      "@cosmos-explorer/callisto": [
+        "../../packages/adapters/callisto/src/index.ts"
+      ],
+      "@cosmos-explorer/config": [
+        "../../packages/config/src/index.ts"
+      ],
+      "@cosmos-explorer/core": [
+        "../../packages/core/src/index.ts"
+      ],
+
+      "@cosmos-explorer/price": [
+        "../../packages/price/src/index.ts"
+      ],
+      "@cosmos-explorer/ui": [
+        "../../packages/ui/src/index.ts"
+      ],
+      "@cosmos-explorer/utils": [
+        "../../packages/utils/src/index.ts"
+      ],
+      "react": [
+        "./node_modules/@types/react/index.d.ts"
+      ],
+      "react/jsx-runtime": [
+        "./node_modules/@types/react/jsx-runtime.d.ts"
+      ],
+      "react/jsx-dev-runtime": [
+        "./node_modules/@types/react/jsx-dev-runtime.d.ts"
+      ],
       "@/*": [
         "./src/*"
       ]

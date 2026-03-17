@@ -1,9 +1,9 @@
 import { type IValidatorService, type ValidatorCount } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
-import { mapValidatorCount } from '../home-mappers.js';
-import { VALIDATOR_COUNT_QUERY } from '../home-queries.js';
-import type { ValidatorCountResponse } from '../home-types.js';
+import { mapValidatorCount } from '../home-mappers';
+import { VALIDATOR_COUNT_QUERY } from '../home-queries';
+import type { ValidatorCountResponse } from '../home-types';
 
 export class CallistoValidatorService implements IValidatorService {
   constructor(private readonly fetcher: Fetcher) {}

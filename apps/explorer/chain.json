@@ -1,0 +1,25 @@
+{
+  "adapterType": "callisto",
+  "network": {
+    "chainId": "xrplevm_1440002-1",
+    "chainName": "XRPL EVM Sidechain",
+    "chainEnv": "testnet",
+    "bech32Prefix": "ethm",
+    "primaryToken": {
+      "denom": "axrp",
+      "displayDenom": "XRP",
+      "exponent": 18
+    },
+    "endpoints": {
+      "graphqlHttp": "https://governance.testnet.xrplevm.org/v1/graphql"
+    }
+  },
+  "branding": {
+    "title": "XRPL EVM Explorer"
+  },
+  "features": {
+    "proposals": true,
+    "accounts": true,
+    "evmSearch": false
+  }
+}

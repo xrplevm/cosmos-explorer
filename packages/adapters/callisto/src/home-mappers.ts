@@ -5,7 +5,7 @@ import type {
   LatestBlocksResponse,
   LatestTransactionsResponse,
   ValidatorCountResponse,
-} from './home-types.js';
+} from './home-types';
 
 function toNumber(value: unknown, fallback = 0): number {
   const parsed = Number(value);

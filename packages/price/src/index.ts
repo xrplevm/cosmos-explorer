@@ -1,1 +1,1 @@
-export { PriceService } from './service.js';
+export { PriceService } from './service';

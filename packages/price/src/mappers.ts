@@ -1,6 +1,6 @@
 import { type Price } from '@cosmos-explorer/core';
 
-import type { CurrentPriceResponse } from './types.js';
+import type { CurrentPriceResponse } from './types';
 
 function toOptionalNumber(value: unknown): number | null {
   const parsed = Number(value);

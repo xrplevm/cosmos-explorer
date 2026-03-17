@@ -23,7 +23,7 @@ const nav = [
   { name: "Proposals", href: "/proposals", icon: Vote },
 ];
 
-export function Sidebar() {
+export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -64,7 +64,7 @@ export function Sidebar() {
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded-md bg-primary" />
             <span className="text-sm font-semibold tracking-tight">
-              Cosmos Explorer
+              {title}
             </span>
           </div>
           <Button
@@ -105,7 +105,7 @@ export function Sidebar() {
         <div className="border-t border-border p-4">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-green-500" />
-            <span className="text-xs text-muted-foreground">Mainnet</span>
+            <span className="text-xs text-muted-foreground capitalize">{chainEnv}</span>
           </div>
         </div>
       </aside>

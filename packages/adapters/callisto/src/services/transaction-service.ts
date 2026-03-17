@@ -1,9 +1,9 @@
 import { type ITransactionService, type TransactionSummary } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
-import { mapTransactions } from '../home-mappers.js';
-import { LATEST_TRANSACTIONS_QUERY } from '../home-queries.js';
-import type { LatestTransactionsResponse } from '../home-types.js';
+import { mapTransactions } from '../home-mappers';
+import { LATEST_TRANSACTIONS_QUERY } from '../home-queries';
+import type { LatestTransactionsResponse } from '../home-types';
 
 export class CallistoTransactionService implements ITransactionService {
   constructor(private readonly fetcher: Fetcher) {}

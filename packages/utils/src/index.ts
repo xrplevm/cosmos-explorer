@@ -14,10 +14,10 @@ export {
   isRateLimitError,
   isUpstreamError,
   formatErrorMessage,
-} from './errors.js';
+} from './errors';
 export {
   Fetcher,
   createFetcher,
   type FetcherOptions,
   type GraphQlRequest,
-} from './fetcher.js';
+} from './fetcher';

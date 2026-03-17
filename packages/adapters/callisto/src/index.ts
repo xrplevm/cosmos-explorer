@@ -3,4 +3,4 @@ export {
   CallistoTransactionService,
   CallistoValidatorService,
   CallistoChainStatsService,
-} from './services/index.js';
+} from './services/index';

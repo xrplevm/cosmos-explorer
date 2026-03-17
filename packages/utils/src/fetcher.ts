@@ -1,6 +1,6 @@
 import { type AppError } from '@cosmos-explorer/core';
 
-import { invalidInput, networkError, rateLimit, upstreamError } from './errors.js';
+import { invalidInput, networkError, rateLimit, upstreamError } from './errors';
 
 type GraphQlError = {
   message: string;

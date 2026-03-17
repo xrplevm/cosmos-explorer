@@ -1,9 +1,9 @@
 import { type Block, type IBlockService } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
-import { LATEST_BLOCKS_QUERY } from '../home-queries.js';
-import { mapBlocks } from '../home-mappers.js';
-import type { LatestBlocksResponse } from '../home-types.js';
+import { LATEST_BLOCKS_QUERY } from '../home-queries';
+import { mapBlocks } from '../home-mappers';
+import type { LatestBlocksResponse } from '../home-types';
 
 export class CallistoBlockService implements IBlockService {
   constructor(private readonly fetcher: Fetcher) {}

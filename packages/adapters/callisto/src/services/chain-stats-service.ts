@@ -7,9 +7,9 @@ import {
 } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
-import { mapAverageBlockTime } from '../home-mappers.js';
-import { AVERAGE_BLOCK_TIME_QUERY } from '../home-queries.js';
-import type { AverageBlockTimeResponse } from '../home-types.js';
+import { mapAverageBlockTime } from '../home-mappers';
+import { AVERAGE_BLOCK_TIME_QUERY } from '../home-queries';
+import type { AverageBlockTimeResponse } from '../home-types';
 
 export class CallistoChainStatsService implements IChainStatsService {
   constructor(
