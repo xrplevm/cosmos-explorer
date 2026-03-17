@@ -5,6 +5,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:explorer": "pnpm --filter @cosmos-explorer/explorer dev",
     "dev:playground": "pnpm --filter @cosmos-explorer/playground dev",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
