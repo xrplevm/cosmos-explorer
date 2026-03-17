@@ -1,18 +1,18 @@
 import type { TransactionSummary } from './transaction';
 
-export type Block = {
+export interface Block {
   height: number;
   hash: string;
   txs: number;
   timestamp: string;
   proposer: string;
-};
+}
 
-export type BlockDetail = {
+export interface BlockDetail {
   overview: Block;
   signatures: string[];
   transactions: TransactionSummary[];
-};
+}
 
 export interface IBlockService {
   getLatestBlock(): Promise<Block | null>;

@@ -3,17 +3,17 @@ import type { TransactionSummary } from './transaction';
 
 export type AccountBalance = TokenAmount;
 
-export type AccountDelegation = {
+export interface AccountDelegation {
   validatorAddress: string;
   amount: TokenAmount | null;
-};
+}
 
-export type AccountReward = {
+export interface AccountReward {
   validatorAddress: string;
   amount: TokenAmount | null;
-};
+}
 
-export type AccountOverview = {
+export interface AccountOverview {
   address: string;
   balances: AccountBalance[];
   delegationBalance: TokenAmount | null;
@@ -22,7 +22,7 @@ export type AccountOverview = {
   delegations: AccountDelegation[];
   withdrawalAddress: string | null;
   transactions: TransactionSummary[];
-};
+}
 
 export interface IAccountService {
   getAccountByAddress(address: string): Promise<AccountOverview>;

@@ -1,13 +1,13 @@
 import type { TokenAmount } from './price';
 
-export type ValidatorCount = {
+export interface ValidatorCount {
   active: number;
   total: number;
-};
+}
 
 export type ValidatorStatus = 'active' | 'inactive' | 'jailed' | 'unknown';
 
-export type Validator = {
+export interface Validator {
   address: string;
   moniker: string;
   status: ValidatorStatus;
@@ -17,14 +17,14 @@ export type Validator = {
   votingPowerPercent: number;
   commission: number | null;
   missedBlocksCounter: number;
-};
+}
 
-export type ValidatorSet = {
+export interface ValidatorSet {
   items: Validator[];
   count: ValidatorCount;
   bonded: TokenAmount | null;
   averageCommission: number | null;
-};
+}
 
 export type ValidatorDetail = Validator & {
   selfDelegateAddress: string;
@@ -32,12 +32,12 @@ export type ValidatorDetail = Validator & {
   website: string | null;
   details: string | null;
   latestStatusHeight: number | null;
-  recentBlocks: Array<{
+  recentBlocks: {
     height: number;
     hash: string;
     txs: number;
     timestamp: string;
-  }>;
+  }[];
 };
 
 export interface IValidatorService {

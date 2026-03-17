@@ -29,7 +29,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "lint": "echo 'no lint configured'"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.3",
@@ -54,8 +54,10 @@
     "react-dom": "^19"
   },
   "devDependencies": {
+    "@cosmos-explorer/eslint-config": "workspace:^",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^9",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

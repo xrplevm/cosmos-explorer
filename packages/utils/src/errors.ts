@@ -15,7 +15,7 @@ export function createAppError(message: string, options: AppErrorOptions): AppEr
   error.code = options.code;
   error.statusCode = options.statusCode ?? 500;
   const ErrorWithCapture = Error as typeof Error & {
-    captureStackTrace?: (target: object, constructor: Function) => void;
+    captureStackTrace?: (target: object, constructor: (...args: unknown[]) => unknown) => void;
   };
   ErrorWithCapture.captureStackTrace?.(error, createAppError);
   return error;
@@ -96,6 +96,7 @@ const USER_FACING_MESSAGES: Record<AppErrorCode, string> = {
  */
 export function formatErrorMessage(error: unknown): string {
   if (isAppError(error)) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     return USER_FACING_MESSAGES[error.code] ?? USER_FACING_MESSAGES[AppErrorCode.UNKNOWN];
   }
   return USER_FACING_MESSAGES[AppErrorCode.UNKNOWN];

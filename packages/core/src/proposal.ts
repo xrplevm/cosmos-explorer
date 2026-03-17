@@ -8,7 +8,7 @@ export type ProposalStatus =
   | 'failed'
   | 'unknown';
 
-export type ProposalSummary = {
+export interface ProposalSummary {
   id: number;
   title: string;
   description: string;
@@ -17,15 +17,15 @@ export type ProposalSummary = {
   type: string;
   submitTime: string | null;
   votingEndTime: string | null;
-};
+}
 
-export type ProposalTally = {
+export interface ProposalTally {
   yes: string;
   no: string;
   abstain: string;
   noWithVeto: string;
   bondedTokens: TokenAmount | null;
-};
+}
 
 export type ProposalDetail = ProposalSummary & {
   metadata: string | null;

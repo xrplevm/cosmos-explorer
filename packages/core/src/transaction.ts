@@ -1,18 +1,18 @@
-export type Message = {
+export interface Message {
   type: string;
   value: unknown;
-};
+}
 
-export type TransactionSummary = {
+export interface TransactionSummary {
   hash: string;
   height: number;
   type: string;
   success: boolean;
   timestamp: string;
   messageCount: number;
-};
+}
 
-export type TransactionDetail = {
+export interface TransactionDetail {
   hash: string;
   height: number;
   timestamp: string;
@@ -24,7 +24,7 @@ export type TransactionDetail = {
   error: string;
   messages: Message[];
   logs: unknown;
-};
+}
 
 export interface ITransactionService {
   getLatestTransactions(limit: number): Promise<TransactionSummary[]>;

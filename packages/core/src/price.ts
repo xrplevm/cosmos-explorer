@@ -1,22 +1,22 @@
-export type TokenAmount = {
+export interface TokenAmount {
   amount: string;
   denom: string;
-};
+}
 
-export type Price = {
+export interface Price {
   denom: string;
   priceUsd: number | null;
   marketCapUsd: number | null;
   timestamp: string | null;
-};
+}
 
-export type PricePoint = {
+export interface PricePoint {
   denom: string;
   priceUsd: number;
   timestamp: string;
-};
+}
 
-export type MarketSummary = {
+export interface MarketSummary {
   denom: string;
   priceUsd: number | null;
   marketCapUsd: number | null;
@@ -26,7 +26,7 @@ export type MarketSummary = {
   communityPool: TokenAmount | null;
   apr: number | null;
   updatedAt: string | null;
-};
+}
 
 export interface IPriceService {
   getCurrentPrice(denom: string): Promise<Price | null>;

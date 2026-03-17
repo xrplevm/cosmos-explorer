@@ -59,6 +59,45 @@ pnpm --filter @cosmos-explorer/explorer typecheck
 - Avoid direct GraphQL usage in pages and components.
 - Default to server-side data access unless a client-side requirement is explicit.
 
+## Linting
+
+### Shared config
+
+ESLint is configured via `packages/eslint-config/` with three tiers:
+
+| File | Used by |
+|------|---------|
+| `base.js` | Pure TypeScript packages (`core`, `utils`, `eslint-config`) |
+| `react.js` | React component packages (`ui`) |
+| `next.js` | Next.js apps (`explorer`, `playground`) |
+
+Each package/app has its own `eslint.config.mjs` that spreads the relevant tier.
+
+### Rules applied everywhere
+
+- `@typescript-eslint/strict-type-checked` + `stylistic-type-checked`
+- `consistent-type-imports` — always use `import { type X }`
+- `no-floating-promises` / `no-misused-promises`
+- `prefer-nullish-coalescing`
+
+### Running lint
+
+```bash
+# All packages
+pnpm lint
+
+# Single package
+pnpm --filter @cosmos-explorer/utils lint
+
+# Auto-fix
+pnpm --filter @cosmos-explorer/utils lint --fix
+```
+
+### Key rules
+
+- **Do not set `project`** alongside `projectService: true` — `projectService` auto-discovers `tsconfig.json`; setting both causes a conflict error.
+- `packages/core` is structural only (types/enums, zero runtime). All factories, guards, and formatters live in `packages/utils`.
+
 ## Editing Rules
 
 - Prefer `rg` for search.

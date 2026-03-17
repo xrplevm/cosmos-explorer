@@ -13,13 +13,16 @@
     "build": "../../core/node_modules/.bin/tsc --project tsconfig.json",
     "dev": "../../core/node_modules/.bin/tsc --project tsconfig.json --watch",
     "typecheck": "../../core/node_modules/.bin/tsc --project tsconfig.json --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@cosmos-explorer/core": "workspace:*",
     "@cosmos-explorer/utils": "workspace:*"
   },
   "devDependencies": {
+    "@cosmos-explorer/eslint-config": "workspace:^",
+    "eslint": "^9",
     "typescript": "^5"
   }
 }

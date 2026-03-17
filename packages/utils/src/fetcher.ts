@@ -2,27 +2,27 @@ import { type AppError } from '@cosmos-explorer/core';
 
 import { invalidInput, networkError, rateLimit, upstreamError } from './errors';
 
-type GraphQlError = {
+interface GraphQlError {
   message: string;
-};
+}
 
-type GraphQlResponse<TData> = {
+interface GraphQlResponse<TData> {
   data?: TData;
   errors?: GraphQlError[];
-};
+}
 
-export type FetcherOptions = {
+export interface FetcherOptions {
   baseUrl: string;
   headers?: HeadersInit;
   timeoutMs?: number;
   fetchImpl?: typeof fetch;
-};
+}
 
-export type GraphQlRequest<TVariables> = {
+export interface GraphQlRequest<TVariables> {
   query: string;
   variables?: TVariables;
   operationName?: string;
-};
+}
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 
@@ -46,17 +46,20 @@ export class Fetcher {
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 
-  async postJson<TRequest, TResponse>(path: string, body: TRequest): Promise<TResponse> {
+  async postJson<TResponse>(path: string, body: unknown): Promise<TResponse> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
+    const timeoutId = setTimeout(() => { controller.abort(); }, this.timeoutMs);
 
     try {
+      const headers = new Headers({ 'content-type': 'application/json' });
+      const baseHeaders = this.headers instanceof Headers
+        ? this.headers
+        : new Headers(this.headers as Record<string, string>);
+      baseHeaders.forEach((value, key) => { headers.set(key, value); });
+
       const response = await this.fetchImpl(this.resolveUrl(path), {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          ...this.headers,
-        },
+        headers,
         body: JSON.stringify(body),
         signal: controller.signal,
       });
@@ -80,10 +83,7 @@ export class Fetcher {
       throw invalidInput('GraphQL query is required');
     }
 
-    const response = await this.postJson<
-      GraphQlRequest<TVariables>,
-      GraphQlResponse<TData>
-    >('', request);
+    const response = await this.postJson<GraphQlResponse<TData>>('', request);
 
     if (response.errors?.length) {
       const message = response.errors.map((error) => error.message).join('; ');
@@ -98,11 +98,7 @@ export class Fetcher {
   }
 
   private resolveUrl(path: string): string {
-    if (!path) {
-      return this.baseUrl;
-    }
-
-    return new URL(path, this.baseUrl).toString();
+    return path.length === 0 ? this.baseUrl : new URL(path, this.baseUrl).toString();
   }
 
   private async mapHttpError(response: Response): Promise<AppError> {
@@ -121,7 +117,7 @@ export class Fetcher {
   }
 
   private mapFetchError(error: unknown): AppError {
-    if ((error as { code?: unknown; statusCode?: unknown })?.code) {
+    if ((error as { code?: unknown; statusCode?: unknown }).code) {
       return error as AppError;
     }
 

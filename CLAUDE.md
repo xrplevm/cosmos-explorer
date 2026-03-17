@@ -26,6 +26,16 @@ pnpm --filter @cosmos-explorer/explorer typecheck
 
 Turbo config is in [turbo.json](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/turbo.json). `typecheck` and `lint` depend on `^build`.
 
+## Linting
+
+Shared ESLint 9 flat config lives in `packages/eslint-config/`. Three composable configs:
+
+- `@cosmos-explorer/eslint-config/base` — TypeScript strict rules (`strict-type-checked` + `stylistic-type-checked`), for pure TS packages
+- `@cosmos-explorer/eslint-config/react` — extends base, adds `react-hooks` rules, for `packages/ui` and hooks
+- `@cosmos-explorer/eslint-config/next` — extends react, adds `@next/next` rules, for `apps/*`
+
+Each package has its own `eslint.config.mjs` that spreads the right shared config. `projectService: true` auto-discovers the nearest `tsconfig.json` — do not set `project` alongside it. Run `eslint . --fix` to auto-fix stylistic violations.
+
 ## Actual Package Layout
 
 ```text

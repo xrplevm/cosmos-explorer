@@ -12,6 +12,7 @@
     "clean": "turbo run clean"
   },
   "devDependencies": {
+    "eslint": "^9",
     "turbo": "^2"
   }
 }

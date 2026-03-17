@@ -13,9 +13,12 @@
     "build": "tsc --project tsconfig.json",
     "dev": "tsc --project tsconfig.json --watch",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "lint": "eslint ."
   },
   "devDependencies": {
+    "@cosmos-explorer/eslint-config": "workspace:^",
+    "eslint": "^9",
     "typescript": "^5"
   }
 }
