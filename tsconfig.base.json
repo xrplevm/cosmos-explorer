@@ -4,6 +4,14 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ES2022"],
+    "baseUrl": ".",
+    "paths": {
+      "@cosmos-explorer/core": ["packages/core/src/index.ts"],
+      "@cosmos-explorer/utils": ["packages/utils/src/index.ts"],
+      "@cosmos-explorer/callisto": ["packages/adapters/callisto/src/index.ts"],
+      "@cosmos-explorer/price": ["packages/price/src/index.ts"],
+      "@cosmos-explorer/ui": ["packages/ui/src/index.ts"]
+    },
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

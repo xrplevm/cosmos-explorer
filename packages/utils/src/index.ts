@@ -15,3 +15,9 @@ export {
   isUpstreamError,
   formatErrorMessage,
 } from './errors.js';
+export {
+  Fetcher,
+  createFetcher,
+  type FetcherOptions,
+  type GraphQlRequest,
+} from './fetcher.js';
