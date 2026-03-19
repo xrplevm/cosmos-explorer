@@ -4,6 +4,8 @@ export { Badge, badgeVariants, type BadgeProps } from "./components/ui/badge";
 export { Input } from "./components/ui/input";
 export { Label } from "./components/ui/label";
 export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from "./components/ui/table";
+export { DataTable, DataTableSkeleton, type Column } from "./components/ui/data-table";
+export { AnimatedTableBody } from "./components/ui/animated-table-body";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/tabs";
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectLabel, SelectItem, SelectSeparator, SelectScrollUpButton, SelectScrollDownButton } from "./components/ui/select";
 export { Dialog, DialogPortal, DialogOverlay, DialogTrigger, DialogClose, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "./components/ui/dialog";

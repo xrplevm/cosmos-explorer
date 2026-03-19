@@ -5,13 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
-import { Skeleton } from "@cosmos-explorer/ui/skeleton";
-import {
-  Table,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@cosmos-explorer/ui/table";
+import { DataTableSkeleton } from "@cosmos-explorer/ui/data-table";
 
 import { BlocksTableBody } from "@/components/blocks-table-body";
 import { getServices } from "@/lib/services";
@@ -34,18 +28,7 @@ export async function BlocksTable() {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Height</TableHead>
-                  <TableHead>Proposer</TableHead>
-                  <TableHead>Hash</TableHead>
-                  <TableHead>Txs</TableHead>
-                  <TableHead className="text-right">Time</TableHead>
-                </TableRow>
-              </TableHeader>
-              <BlocksTableBody blocks={blocks} />
-            </Table>
+            <BlocksTableBody blocks={blocks} />
           </div>
         </CardContent>
       </Card>
@@ -71,17 +54,5 @@ export async function BlocksTable() {
 }
 
 export function BlocksTableSkeleton() {
-  return (
-    <Card>
-      <CardHeader className="flex-row items-center justify-between">
-        <Skeleton className="h-6 w-36" />
-        <Skeleton className="h-4 w-16" />
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {Array.from({ length: 7 }).map((_, i) => (
-          <Skeleton key={i} className="h-12 w-full" />
-        ))}
-      </CardContent>
-    </Card>
-  );
+  return <DataTableSkeleton title="Latest Blocks" />;
 }

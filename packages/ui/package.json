@@ -21,6 +21,8 @@
     "./separator": "./src/components/ui/separator.tsx",
     "./sheet": "./src/components/ui/sheet.tsx",
     "./skeleton": "./src/components/ui/skeleton.tsx",
+    "./data-table": "./src/components/ui/data-table.tsx",
+    "./animated-table-body": "./src/components/ui/animated-table-body.tsx",
     "./table": "./src/components/ui/table.tsx",
     "./tabs": "./src/components/ui/tabs.tsx",
     "./tooltip": "./src/components/ui/tooltip.tsx",
@@ -49,6 +51,7 @@
     "tailwind-merge": "^3.0.2"
   },
   "peerDependencies": {
+    "framer-motion": ">=12",
     "lucide-react": ">=0.400.0",
     "react": "^19",
     "react-dom": "^19"
@@ -58,6 +61,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
+    "framer-motion": "^12.38.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

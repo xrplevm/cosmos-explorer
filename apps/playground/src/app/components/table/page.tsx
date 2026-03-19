@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Table,
   TableBody,
@@ -8,6 +10,18 @@ import {
 } from "@cosmos-explorer/ui/table";
 import { Badge } from "@cosmos-explorer/ui/badge";
 import { ComponentPreview } from "@/components/component-preview";
+import { DataTable, DataTableSkeleton } from "@/components/data-table";
+import { AnimatedDataTable } from "@/components/animated-data-table";
+import { useEffect, useRef, useState } from "react";
+import { mockBlocks, formatHash } from "@/lib/mock-data";
+import type { Column } from "@/components/data-table";
+
+type Block = (typeof mockBlocks)[number];
+
+interface TaggedBlock {
+  uid: number;
+  row: Block;
+}
 
 const transactions = [
   { hash: "0xA1B2...C3D4", type: "Transfer", status: "Success", amount: "1,250.00 XRP", time: "12s ago" },
@@ -30,6 +44,85 @@ function StatusBadge({ status }: { status: string }) {
   }
 }
 
+const blockColumns: Column<Block>[] = [
+  {
+    key: "height",
+    header: "Height",
+    render: (row) => (
+      <span className="font-mono text-sm text-primary">
+        {row.height.toLocaleString()}
+      </span>
+    ),
+  },
+  {
+    key: "proposer",
+    header: "Proposer",
+    render: (row) => (
+      <div className="flex items-center gap-2">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+          {row.proposer.charAt(0)}
+        </div>
+        <span className="text-sm text-primary">{row.proposer}</span>
+      </div>
+    ),
+  },
+  {
+    key: "hash",
+    header: "Hash",
+    render: (row) => (
+      <span className="font-mono text-sm text-muted-foreground">
+        {formatHash(row.hash)}
+      </span>
+    ),
+  },
+  {
+    key: "txs",
+    header: "Txs",
+    render: (row) => row.txs,
+  },
+  {
+    key: "time",
+    header: "Time",
+    className: "text-right",
+    render: (row) => (
+      <span className="text-muted-foreground">{row.time}</span>
+    ),
+  },
+];
+
+const taggedColumns: Column<TaggedBlock>[] = blockColumns.map((col) => ({
+  ...col,
+  render: (tagged: TaggedBlock) => col.render(tagged.row),
+}));
+
+function AnimatedDemo() {
+  const counter = useRef(mockBlocks.length);
+  const pointer = useRef(0);
+  const [rows, setRows] = useState<TaggedBlock[]>(
+    mockBlocks.slice(0, 4).map((row, i) => ({ uid: i, row })),
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const idx = pointer.current % mockBlocks.length;
+      pointer.current += 1;
+      const uid = counter.current;
+      counter.current += 1;
+      setRows((prev) => [{ uid, row: mockBlocks[idx] }, ...prev.slice(0, 5)]);
+    }, 4000);
+    return () => { clearInterval(interval); };
+  }, []);
+
+  return (
+    <AnimatedDataTable
+      title="Latest Blocks"
+      columns={taggedColumns}
+      data={rows}
+      rowKey={(tagged) => tagged.uid}
+    />
+  );
+}
+
 export default function TablePage() {
   return (
     <div className="space-y-8">
@@ -41,7 +134,7 @@ export default function TablePage() {
       </div>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Transactions</h2>
+        <h2 className="text-lg font-semibold">Base Table</h2>
         <ComponentPreview>
           <Table>
             <TableHeader>
@@ -65,6 +158,44 @@ export default function TablePage() {
               ))}
             </TableBody>
           </Table>
+        </ComponentPreview>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">DataTable</h2>
+        <p className="text-sm text-muted-foreground">
+          Generic typed table wrapped in a Card with title and column definitions.
+        </p>
+        <ComponentPreview>
+          <div className="w-full">
+            <DataTable
+              title="Latest Blocks"
+              columns={blockColumns}
+              data={mockBlocks}
+              rowKey={(row) => row.height}
+            />
+          </div>
+        </ComponentPreview>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">AnimatedDataTable</h2>
+        <p className="text-sm text-muted-foreground">
+          New rows appear at the top every 2 seconds with enter animations.
+        </p>
+        <ComponentPreview>
+          <div className="w-full">
+            <AnimatedDemo />
+          </div>
+        </ComponentPreview>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-lg font-semibold">DataTableSkeleton</h2>
+        <ComponentPreview>
+          <div className="w-full">
+            <DataTableSkeleton title="Latest Blocks" />
+          </div>
         </ComponentPreview>
       </section>
     </div>
