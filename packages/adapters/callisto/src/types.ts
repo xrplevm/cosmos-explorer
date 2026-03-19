@@ -50,6 +50,14 @@ export type LatestTransactionsResponse = {
   }>;
 };
 
+export type TransactionsWithCountResponse = LatestTransactionsResponse & {
+  total: {
+    aggregate?: {
+      count?: number | null;
+    } | null;
+  };
+};
+
 export type TransactionDetailsResponse = {
   transaction: Array<{
     hash: string;

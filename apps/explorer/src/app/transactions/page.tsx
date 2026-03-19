@@ -9,17 +9,36 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
+import { Pagination, PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination";
 import Link from "next/link";
 import { StatusBadge } from "@/components/status-badge";
 import { formatHash, formatTimestamp } from "@/lib/formatters";
 import { getServices } from "@/lib/services";
 
-export default async function TransactionsPage() {
+const DEFAULT_PAGE_SIZE = 25;
+
+function parsePositiveInt(value: string | string[] | undefined, fallback: number): number {
+  const num = typeof value === "string" ? Number(value) : NaN;
+  return Number.isFinite(num) && num >= 1 ? num : fallback;
+}
+
+export default async function TransactionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const currentPage = parsePositiveInt(params.page, 1);
+  const rawSize = parsePositiveInt(params.pageSize, DEFAULT_PAGE_SIZE);
+  const pageSize = (PAGE_SIZE_OPTIONS as readonly number[]).includes(rawSize) ? rawSize : DEFAULT_PAGE_SIZE;
+  const offset = (currentPage - 1) * pageSize;
+
   const { transactionService } = getServices();
-  const transactions = await transactionService.getTransactions({
-    limit: 50,
-    offset: 0,
+  const { items: transactions, total } = await transactionService.getTransactions({
+    limit: pageSize,
+    offset,
   });
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
     <div className="space-y-6">
@@ -61,7 +80,7 @@ export default async function TransactionsPage() {
                   </TableCell>
                   <TableCell className="text-right font-mono text-sm">{tx.messageCount}</TableCell>
                   <TableCell className="text-right font-mono text-sm">
-                    <Link href={`/blocks/${tx.height}`} className="text-primary hover:underline">
+                    <Link href={`/blocks/${String(tx.height)}`} className="text-primary hover:underline">
                       #{tx.height.toLocaleString()}
                     </Link>
                   </TableCell>
@@ -75,6 +94,13 @@ export default async function TransactionsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        buildHref={(page, size) => `/transactions?page=${String(page)}&pageSize=${String(size)}`}
+      />
     </div>
   );
 }

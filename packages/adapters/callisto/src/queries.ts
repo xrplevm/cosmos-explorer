@@ -100,6 +100,11 @@ export const TRANSACTIONS_QUERY = `
       }
       messages
     }
+    total: transaction_aggregate {
+      aggregate {
+        count
+      }
+    }
   }
 `;
 
