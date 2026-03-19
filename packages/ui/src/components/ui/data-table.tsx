@@ -1,3 +1,4 @@
+import { cn } from "../../lib/utils";
 import {
   Card,
   CardContent,
@@ -72,11 +73,20 @@ export function DataTable<T>({
   );
 }
 
+export interface SkeletonColumn {
+  key: string;
+  header: string;
+  className?: string;
+  width?: string;
+}
+
 export function DataTableSkeleton({
   title,
+  columns,
   rows = 7,
 }: {
   title: string;
+  columns: SkeletonColumn[];
   rows?: number;
 }) {
   return (
@@ -85,10 +95,31 @@ export function DataTableSkeleton({
         <CardTitle>{title}</CardTitle>
         <Skeleton className="h-4 w-16" />
       </CardHeader>
-      <CardContent className="space-y-3">
-        {Array.from({ length: rows }).map((_, i) => (
-          <Skeleton key={i} className="h-[50px] w-full" />
-        ))}
+      <CardContent>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {columns.map((col) => (
+                  <TableHead key={col.key} className={col.className}>
+                    {col.header}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: rows }).map((_, i) => (
+                <TableRow key={i} className="h-[50px]">
+                  {columns.map((col) => (
+                    <TableCell key={col.key} className={col.className}>
+                      <Skeleton className={cn("h-4", col.width ?? "w-20")} />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ComponentPreview } from "@/components/component-preview";
 import { DataTable, DataTableSkeleton } from "@/components/data-table";
 import { AnimatedDataTable } from "@/components/animated-data-table";
-import type { Column } from "@/components/data-table";
+import type { Column, SkeletonColumn } from "@/components/data-table";
 
 interface DataTableShowcaseProps<T> {
   title: string;
@@ -110,7 +110,14 @@ export function DataTableShowcase<T>({
         <h2 className="text-lg font-semibold">Loading skeleton</h2>
         <ComponentPreview>
           <div className="w-full">
-            <DataTableSkeleton title={tableTitle} />
+            <DataTableSkeleton
+              title={tableTitle}
+              columns={columns.map((col) => ({
+                key: col.key,
+                header: col.header,
+                className: col.className,
+              }))}
+            />
           </div>
         </ComponentPreview>
       </section>

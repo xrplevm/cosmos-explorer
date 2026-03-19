@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
-import { DataTableSkeleton } from "@cosmos-explorer/ui/data-table";
+import { DataTableSkeleton, type SkeletonColumn } from "@cosmos-explorer/ui/data-table";
 
 import { TransactionsTableBody } from "@/components/transactions-table-body";
 import { getServices } from "@/lib/services";
@@ -55,6 +55,13 @@ export async function TransactionsTable() {
   }
 }
 
+const txSkeletonColumns: SkeletonColumn[] = [
+  { key: "hash", header: "Hash", width: "w-28" },
+  { key: "type", header: "Type", width: "w-24" },
+  { key: "status", header: "Status", width: "w-16" },
+  { key: "time", header: "Time", className: "text-right", width: "w-20" },
+];
+
 export function TransactionsTableSkeleton() {
-  return <DataTableSkeleton title="Latest Transactions" />;
+  return <DataTableSkeleton title="Latest Transactions" columns={txSkeletonColumns} />;
 }

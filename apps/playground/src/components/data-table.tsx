@@ -1,1 +1,1 @@
-export { DataTable, DataTableSkeleton, type Column } from "@cosmos-explorer/ui/data-table";
+export { DataTable, DataTableSkeleton, type Column, type SkeletonColumn } from "@cosmos-explorer/ui/data-table";

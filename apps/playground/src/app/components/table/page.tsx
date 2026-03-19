@@ -194,7 +194,16 @@ export default function TablePage() {
         <h2 className="text-lg font-semibold">DataTableSkeleton</h2>
         <ComponentPreview>
           <div className="w-full">
-            <DataTableSkeleton title="Latest Blocks" />
+            <DataTableSkeleton
+              title="Latest Blocks"
+              columns={[
+                { key: "height", header: "Height", width: "w-16" },
+                { key: "proposer", header: "Proposer", width: "w-32" },
+                { key: "hash", header: "Hash", width: "w-28" },
+                { key: "txs", header: "Txs", width: "w-8" },
+                { key: "time", header: "Time", className: "text-right", width: "w-20" },
+              ]}
+            />
           </div>
         </ComponentPreview>
       </section>

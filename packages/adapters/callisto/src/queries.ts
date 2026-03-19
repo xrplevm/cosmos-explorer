@@ -35,6 +35,11 @@ export const BLOCKS_QUERY = `
         }
       }
     }
+    total: block_aggregate {
+      aggregate {
+        count
+      }
+    }
   }
 `;
 

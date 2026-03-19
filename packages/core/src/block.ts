@@ -16,9 +16,14 @@ export interface BlockDetail {
   transactions: TransactionSummary[];
 }
 
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+}
+
 export interface IBlockService {
   getLatestBlock(): Promise<Block | null>;
   getLatestBlocks(limit: number): Promise<Block[]>;
-  getBlocks(params?: { limit?: number; offset?: number }): Promise<Block[]>;
+  getBlocks(params?: { limit?: number; offset?: number }): Promise<PaginatedResult<Block>>;
   getBlockByHeight(height: number): Promise<BlockDetail | null>;
 }

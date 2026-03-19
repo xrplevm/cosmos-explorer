@@ -1,9 +1,9 @@
-import { type Block, type IBlockService } from '@cosmos-explorer/core';
+import { type Block, type IBlockService, type PaginatedResult } from '@cosmos-explorer/core';
 import { type Fetcher, resolveKeybaseAvatars } from '@cosmos-explorer/utils';
 
 import { mapBlockDetail, mapBlocks, type RawBlock } from '../mappers';
 import { BLOCK_DETAILS_QUERY, BLOCKS_QUERY, LATEST_BLOCKS_QUERY } from '../queries';
-import type { BlockDetailsResponse, LatestBlocksResponse } from '../types';
+import type { BlockDetailsResponse, BlocksWithCountResponse, LatestBlocksResponse } from '../types';
 
 async function resolveAvatars(rawBlocks: RawBlock[]): Promise<Block[]> {
   const identities = rawBlocks.map((b) => b._identity);
@@ -33,9 +33,9 @@ export class CallistoBlockService implements IBlockService {
     return resolveAvatars(mapBlocks(response));
   }
 
-  async getBlocks(params?: { limit?: number; offset?: number }): Promise<Block[]> {
+  async getBlocks(params?: { limit?: number; offset?: number }): Promise<PaginatedResult<Block>> {
     const response = await this.fetcher.graphql<
-      LatestBlocksResponse,
+      BlocksWithCountResponse,
       { limit: number; offset: number }
     >({
       query: BLOCKS_QUERY,
@@ -46,7 +46,10 @@ export class CallistoBlockService implements IBlockService {
       operationName: 'Blocks',
     });
 
-    return resolveAvatars(mapBlocks(response));
+    const items = await resolveAvatars(mapBlocks(response));
+    const total = response.total.aggregate?.count ?? 0;
+
+    return { items, total };
   }
 
   async getBlockByHeight(height: number) {

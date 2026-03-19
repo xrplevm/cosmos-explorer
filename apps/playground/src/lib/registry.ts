@@ -21,6 +21,7 @@ export const registry: RegistryCategory[] = [
       { name: "Dialog", slug: "dialog", description: "A modal dialog that interrupts the user." },
       { name: "Dropdown Menu", slug: "dropdown-menu", description: "Displays a menu triggered from a button." },
       { name: "Input", slug: "input", description: "Displays a form input field." },
+      { name: "Pagination", slug: "pagination", description: "Page navigation with previous/next arrows and page numbers." },
       { name: "Popover", slug: "popover", description: "Displays rich content in a portal, triggered by a button." },
       { name: "Scroll Area", slug: "scroll-area", description: "Augments native scroll functionality with custom styling." },
       { name: "Select", slug: "select", description: "Displays a list of options for the user to pick from." },

@@ -1,17 +1,17 @@
-import { Skeleton } from "@cosmos-explorer/ui/skeleton";
+import { StatsCardsSkeleton } from "@/components/stats-cards";
+import { BlocksTableSkeleton } from "@/components/blocks-table";
+import { TransactionsTableSkeleton } from "@/components/transactions-table";
 
 export default function Loading() {
   return (
     <div className="space-y-6">
-      <Skeleton className="h-8 w-32" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-28 w-full rounded-xl" />
-        ))}
-      </div>
+      <h1 className="text-2xl font-bold tracking-tight">Overview</h1>
+
+      <StatsCardsSkeleton />
+
       <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-80 w-full rounded-xl" />
-        <Skeleton className="h-80 w-full rounded-xl" />
+        <BlocksTableSkeleton />
+        <TransactionsTableSkeleton />
       </div>
     </div>
   );

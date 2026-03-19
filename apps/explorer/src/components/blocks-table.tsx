@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
-import { DataTableSkeleton } from "@cosmos-explorer/ui/data-table";
+import { DataTableSkeleton, type SkeletonColumn } from "@cosmos-explorer/ui/data-table";
 
 import { BlocksTableBody } from "@/components/blocks-table-body";
 import { getServices } from "@/lib/services";
@@ -53,6 +53,14 @@ export async function BlocksTable() {
   }
 }
 
+const blockSkeletonColumns: SkeletonColumn[] = [
+  { key: "height", header: "Height", width: "w-16" },
+  { key: "proposer", header: "Proposer", width: "w-32" },
+  { key: "hash", header: "Hash", width: "w-28" },
+  { key: "txs", header: "Txs", width: "w-8" },
+  { key: "time", header: "Time", className: "text-right", width: "w-20" },
+];
+
 export function BlocksTableSkeleton() {
-  return <DataTableSkeleton title="Latest Blocks" />;
+  return <DataTableSkeleton title="Latest Blocks" columns={blockSkeletonColumns} />;
 }
