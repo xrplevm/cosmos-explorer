@@ -3,7 +3,6 @@ export {
   type Block,
   type BlockDetail,
   type IBlockService,
-  type PaginatedResult,
 } from './block';
 export {
   type Message,

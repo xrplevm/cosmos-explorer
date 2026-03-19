@@ -18,14 +18,6 @@ export type LatestBlocksResponse = {
   }>;
 };
 
-export type BlocksWithCountResponse = LatestBlocksResponse & {
-  total: {
-    aggregate?: {
-      count?: number | null;
-    } | null;
-  };
-};
-
 export type BlockDetailsResponse = {
   block: LatestBlocksResponse['blocks'];
   transactions: LatestTransactionsResponse['transactions'];
@@ -48,14 +40,6 @@ export type LatestTransactionsResponse = {
     };
     messages: unknown;
   }>;
-};
-
-export type TransactionsWithCountResponse = LatestTransactionsResponse & {
-  total: {
-    aggregate?: {
-      count?: number | null;
-    } | null;
-  };
 };
 
 export type TransactionDetailsResponse = {

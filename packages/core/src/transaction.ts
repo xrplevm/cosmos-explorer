@@ -26,11 +26,9 @@ export interface TransactionDetail {
   logs: unknown;
 }
 
-import type { PaginatedResult } from './block';
-
 export interface ITransactionService {
   getLatestTransactions(limit: number): Promise<TransactionSummary[]>;
-  getTransactions(params?: { limit?: number; offset?: number }): Promise<PaginatedResult<TransactionSummary>>;
+  getTransactions(params?: { limit?: number; offset?: number }): Promise<TransactionSummary[]>;
   getTransactionsByBlock(height: number): Promise<TransactionSummary[]>;
   getTransactionByHash(hash: string): Promise<TransactionDetail | null>;
 }

@@ -34,11 +34,12 @@ export default async function TransactionsPage({
   const offset = (currentPage - 1) * pageSize;
 
   const { transactionService } = getServices();
-  const { items: transactions, total } = await transactionService.getTransactions({
-    limit: pageSize,
+  const allTransactions = await transactionService.getTransactions({
+    limit: pageSize + 1,
     offset,
   });
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const hasNextPage = allTransactions.length > pageSize;
+  const transactions = hasNextPage ? allTransactions.slice(0, pageSize) : allTransactions;
 
   return (
     <div className="space-y-6">
@@ -97,8 +98,8 @@ export default async function TransactionsPage({
 
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
         pageSize={pageSize}
+        hasNextPage={hasNextPage}
         buildHref={(page, size) => `/transactions?page=${String(page)}&pageSize=${String(size)}`}
       />
     </div>

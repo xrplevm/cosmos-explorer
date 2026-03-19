@@ -34,8 +34,9 @@ export default async function BlocksPage({
   const offset = (currentPage - 1) * pageSize;
 
   const { blockService } = getServices();
-  const { items: blocks, total } = await blockService.getBlocks({ limit: pageSize, offset });
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const blocks = await blockService.getBlocks({ limit: pageSize + 1, offset });
+  const hasNextPage = blocks.length > pageSize;
+  const visibleBlocks = hasNextPage ? blocks.slice(0, pageSize) : blocks;
 
   return (
     <div className="space-y-6">
@@ -61,7 +62,7 @@ export default async function BlocksPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {blocks.map((block) => (
+              {visibleBlocks.map((block) => (
                 <TableRow key={block.height}>
                   <TableCell className="font-mono text-sm">
                     <Link href={`/blocks/${String(block.height)}`} className="text-primary hover:underline">
@@ -102,8 +103,8 @@ export default async function BlocksPage({
 
       <Pagination
         currentPage={currentPage}
-        totalPages={totalPages}
         pageSize={pageSize}
+        hasNextPage={hasNextPage}
         buildHref={(page, size) => `/blocks?page=${String(page)}&pageSize=${String(size)}`}
       />
     </div>

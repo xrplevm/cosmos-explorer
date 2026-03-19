@@ -1,4 +1,4 @@
-import { type ITransactionService, type PaginatedResult, type TransactionSummary } from '@cosmos-explorer/core';
+import { type ITransactionService, type TransactionSummary } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
 import { mapTransactionDetail, mapTransactions } from '../mappers';
@@ -11,7 +11,6 @@ import {
 import type {
   LatestTransactionsResponse,
   TransactionDetailsResponse,
-  TransactionsWithCountResponse,
 } from '../types';
 
 export class CallistoTransactionService implements ITransactionService {
@@ -30,9 +29,9 @@ export class CallistoTransactionService implements ITransactionService {
   async getTransactions(params?: {
     limit?: number;
     offset?: number;
-  }): Promise<PaginatedResult<TransactionSummary>> {
+  }): Promise<TransactionSummary[]> {
     const response = await this.fetcher.graphql<
-      TransactionsWithCountResponse,
+      LatestTransactionsResponse,
       { limit: number; offset: number }
     >({
       query: TRANSACTIONS_QUERY,
@@ -43,10 +42,7 @@ export class CallistoTransactionService implements ITransactionService {
       operationName: 'Transactions',
     });
 
-    const items = mapTransactions(response);
-    const total = response.total.aggregate?.count ?? 0;
-
-    return { items, total };
+    return mapTransactions(response);
   }
 
   async getTransactionsByBlock(height: number) {

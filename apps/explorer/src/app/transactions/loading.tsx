@@ -61,9 +61,9 @@ export default function TransactionsLoading() {
           </div>
         </div>
         <div className="flex items-center gap-1">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-9 w-14" />
-          ))}
+          <Skeleton className="h-9 w-24" />
+          <Skeleton className="h-9 w-16" />
+          <Skeleton className="h-9 w-20" />
         </div>
       </nav>
     </div>

@@ -35,11 +35,6 @@ export const BLOCKS_QUERY = `
         }
       }
     }
-    total: block_aggregate {
-      aggregate {
-        count
-      }
-    }
   }
 `;
 
@@ -99,11 +94,6 @@ export const TRANSACTIONS_QUERY = `
         timestamp
       }
       messages
-    }
-    total: transaction_aggregate {
-      aggregate {
-        count
-      }
     }
   }
 `;
