@@ -188,39 +188,43 @@ export default async function ValidatorDetailPage({
           <CardTitle>Recent Proposed Blocks</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Height</TableHead>
-                  <TableHead>Hash</TableHead>
-                  <TableHead>Txs</TableHead>
-                  <TableHead className="text-right">Time</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {validator.recentBlocks.map((block) => (
-                  <TableRow key={block.hash}>
-                    <TableCell className="font-mono text-sm">
-                      <Link
-                        href={`/blocks/${block.height}`}
-                        className="text-primary hover:underline"
-                      >
-                        #{block.height.toLocaleString()}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {formatHash(block.hash)}
-                    </TableCell>
-                    <TableCell>{block.txs}</TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {formatTimestamp(block.timestamp)}
-                    </TableCell>
+          {validator.recentBlocks.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No recent proposed blocks.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Height</TableHead>
+                    <TableHead>Hash</TableHead>
+                    <TableHead>Txs</TableHead>
+                    <TableHead className="text-right">Time</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {validator.recentBlocks.map((block) => (
+                    <TableRow key={block.hash}>
+                      <TableCell className="font-mono text-sm">
+                        <Link
+                          href={`/blocks/${block.height}`}
+                          className="text-primary hover:underline"
+                        >
+                          #{block.height.toLocaleString()}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {formatHash(block.hash)}
+                      </TableCell>
+                      <TableCell>{block.txs}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {formatTimestamp(block.timestamp)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

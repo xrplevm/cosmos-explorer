@@ -124,26 +124,30 @@ export default async function AccountDetailPage({
           <CardTitle>Balances</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Token</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {account.balances.map((balance) => (
-                  <TableRow key={`${balance.denom}-${balance.amount}`}>
-                    <TableCell className="font-medium">{balance.denom}</TableCell>
-                    <TableCell className="text-right font-mono">
-                      {formatTokenAmount(balance, 6)}
-                    </TableCell>
+          {account.balances.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No balances found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Token</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {account.balances.map((balance) => (
+                    <TableRow key={`${balance.denom}-${balance.amount}`}>
+                      <TableCell className="font-medium">{balance.denom}</TableCell>
+                      <TableCell className="text-right font-mono">
+                        {formatTokenAmount(balance, 6)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -152,43 +156,47 @@ export default async function AccountDetailPage({
           <CardTitle>Delegations</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Validator</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-right">Pending Rewards</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {account.delegations.map((delegation) => {
-                  const reward = account.rewards.find(
-                    (item) => item.validatorAddress === delegation.validatorAddress
-                  );
+          {account.delegations.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No delegations found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Validator</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="text-right">Pending Rewards</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {account.delegations.map((delegation) => {
+                    const reward = account.rewards.find(
+                      (item) => item.validatorAddress === delegation.validatorAddress
+                    );
 
-                  return (
-                    <TableRow key={delegation.validatorAddress}>
-                      <TableCell>
-                        <Link
-                          href={`/validators/${delegation.validatorAddress}`}
-                          className="text-primary hover:underline"
-                        >
-                          {delegation.validatorAddress}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-right font-mono">
-                        {formatTokenAmount(delegation.amount, 0)}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-green-400">
-                        {formatTokenAmount(reward?.amount, 6)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
+                    return (
+                      <TableRow key={delegation.validatorAddress}>
+                        <TableCell>
+                          <Link
+                            href={`/validators/${delegation.validatorAddress}`}
+                            className="text-primary hover:underline"
+                          >
+                            {delegation.validatorAddress}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-right font-mono">
+                          {formatTokenAmount(delegation.amount, 0)}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-green-400">
+                          {formatTokenAmount(reward?.amount, 6)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -197,47 +205,51 @@ export default async function AccountDetailPage({
           <CardTitle>Recent Transactions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Tx Hash</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Height</TableHead>
-                  <TableHead className="text-right">Time</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {account.transactions.map((transaction) => (
-                  <TableRow key={transaction.hash}>
-                    <TableCell className="font-mono text-xs">
-                      <Link
-                        href={`/transactions/${transaction.hash}`}
-                        className="text-primary hover:underline"
-                      >
-                        {formatHash(transaction.hash)}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{transaction.type}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge
-                        status={transaction.success ? "Success" : "Failed"}
-                      />
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
-                      {transaction.height.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
-                      {formatTimestamp(transaction.timestamp)}
-                    </TableCell>
+          {account.transactions.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">No transactions found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tx Hash</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Height</TableHead>
+                    <TableHead className="text-right">Time</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {account.transactions.map((transaction) => (
+                    <TableRow key={transaction.hash}>
+                      <TableCell className="font-mono text-xs">
+                        <Link
+                          href={`/transactions/${transaction.hash}`}
+                          className="text-primary hover:underline"
+                        >
+                          {formatHash(transaction.hash)}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{transaction.type}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge
+                          status={transaction.success ? "Success" : "Failed"}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        {transaction.height.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        {formatTimestamp(transaction.timestamp)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

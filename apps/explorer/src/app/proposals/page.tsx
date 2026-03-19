@@ -37,6 +37,13 @@ export default async function ProposalsPage() {
       <h1 className="text-2xl font-bold tracking-tight">Proposals</h1>
 
       <div className="space-y-4">
+        {proposals.length === 0 && (
+          <Card>
+            <CardContent className="py-8">
+              <p className="text-center text-sm text-muted-foreground">No proposals found.</p>
+            </CardContent>
+          </Card>
+        )}
         {proposals.map((proposal) => (
           <Link key={proposal.id} href={`/proposals/${proposal.id}`}>
             <Card className="transition-colors hover:bg-accent/30">

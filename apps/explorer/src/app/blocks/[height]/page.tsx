@@ -87,38 +87,44 @@ export default async function BlockDetailPage({
           <CardTitle>Transactions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tx Hash</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Messages</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {detail.transactions.map((tx) => (
-                <TableRow key={tx.hash}>
-                  <TableCell className="font-mono text-xs">
-                    <Link href={`/transactions/${tx.hash}`} className="text-primary hover:underline">
-                      {formatHash(tx.hash)}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{tx.type}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={tx.success ? "Success" : "Failed"} />
-                  </TableCell>
-                  <TableCell className="text-right font-mono text-sm">
-                    {tx.messageCount}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          </div>
+          {detail.transactions.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No transactions in this block.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tx Hash</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Messages</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {detail.transactions.map((tx) => (
+                    <TableRow key={tx.hash}>
+                      <TableCell className="font-mono text-xs">
+                        <Link href={`/transactions/${tx.hash}`} className="text-primary hover:underline">
+                          {formatHash(tx.hash)}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{tx.type}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={tx.success ? "Success" : "Failed"} />
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        {tx.messageCount}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
