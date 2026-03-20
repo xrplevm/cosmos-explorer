@@ -1,70 +1,70 @@
 import type { TransactionDetailViewProps } from "./types";
 import { getPrimaryMessageType } from "./types";
-import { DefaultTransactionDetail } from "./variants/default";
-import { EthereumTransactionDetail } from "./variants/ethereum";
+import { DefaultTransactionDetail } from "./messages/default";
+import { EthereumTransactionDetail } from "./messages/ethereum";
 // Cosmos SDK - staking
-import { DelegateTransactionDetail } from "./variants/delegate";
-import { UndelegateTransactionDetail } from "./variants/undelegate";
-import { BeginRedelegateTransactionDetail } from "./variants/begin-redelegate";
-import { CreateValidatorTransactionDetail } from "./variants/create-validator";
-import { EditValidatorTransactionDetail } from "./variants/edit-validator";
+import { DelegateTransactionDetail } from "./messages/delegate";
+import { UndelegateTransactionDetail } from "./messages/undelegate";
+import { BeginRedelegateTransactionDetail } from "./messages/begin-redelegate";
+import { CreateValidatorTransactionDetail } from "./messages/create-validator";
+import { EditValidatorTransactionDetail } from "./messages/edit-validator";
 // Cosmos SDK - bank
-import { SendTransactionDetail } from "./variants/send";
-import { MultiSendTransactionDetail } from "./variants/multi-send";
+import { SendTransactionDetail } from "./messages/send";
+import { MultiSendTransactionDetail } from "./messages/multi-send";
 // Cosmos SDK - crisis
-import { VerifyInvariantTransactionDetail } from "./variants/verify-invariant";
+import { VerifyInvariantTransactionDetail } from "./messages/verify-invariant";
 // Cosmos SDK - slashing
-import { UnjailTransactionDetail } from "./variants/unjail";
+import { UnjailTransactionDetail } from "./messages/unjail";
 // Cosmos SDK - distribution
-import { FundCommunityPoolTransactionDetail } from "./variants/fund-community-pool";
-import { SetWithdrawAddressTransactionDetail } from "./variants/set-withdraw-address";
-import { WithdrawDelegatorRewardTransactionDetail } from "./variants/withdraw-delegator-reward";
-import { WithdrawValidatorCommissionTransactionDetail } from "./variants/withdraw-validator-commission";
+import { FundCommunityPoolTransactionDetail } from "./messages/fund-community-pool";
+import { SetWithdrawAddressTransactionDetail } from "./messages/set-withdraw-address";
+import { WithdrawDelegatorRewardTransactionDetail } from "./messages/withdraw-delegator-reward";
+import { WithdrawValidatorCommissionTransactionDetail } from "./messages/withdraw-validator-commission";
 // Cosmos SDK - governance
-import { VoteTransactionDetail } from "./variants/vote";
-import { SubmitProposalTransactionDetail } from "./variants/submit-proposal";
-import { DepositTransactionDetail } from "./variants/deposit";
+import { VoteTransactionDetail } from "./messages/vote";
+import { SubmitProposalTransactionDetail } from "./messages/submit-proposal";
+import { DepositTransactionDetail } from "./messages/deposit";
 // Cosmos SDK - authz
-import { ExecTransactionDetail } from "./variants/exec";
-import { GrantTransactionDetail } from "./variants/grant";
-import { RevokeTransactionDetail } from "./variants/revoke";
+import { ExecTransactionDetail } from "./messages/exec";
+import { GrantTransactionDetail } from "./messages/grant";
+import { RevokeTransactionDetail } from "./messages/revoke";
 // Cosmos SDK - feegrant
-import { GrantAllowanceTransactionDetail } from "./variants/grant-allowance";
-import { RevokeAllowanceTransactionDetail } from "./variants/revoke-allowance";
+import { GrantAllowanceTransactionDetail } from "./messages/grant-allowance";
+import { RevokeAllowanceTransactionDetail } from "./messages/revoke-allowance";
 // Cosmos SDK - vesting
-import { CreateVestingAccountTransactionDetail } from "./variants/create-vesting-account";
-import { CreatePeriodicVestingAccountTransactionDetail } from "./variants/create-periodic-vesting-account";
+import { CreateVestingAccountTransactionDetail } from "./messages/create-vesting-account";
+import { CreatePeriodicVestingAccountTransactionDetail } from "./messages/create-periodic-vesting-account";
 // IBC - client
-import { CreateClientTransactionDetail } from "./variants/create-client";
-import { UpdateClientTransactionDetail } from "./variants/update-client";
-import { UpgradeClientTransactionDetail } from "./variants/upgrade-client";
-import { SubmitMisbehaviourTransactionDetail } from "./variants/submit-misbehaviour";
+import { CreateClientTransactionDetail } from "./messages/create-client";
+import { UpdateClientTransactionDetail } from "./messages/update-client";
+import { UpgradeClientTransactionDetail } from "./messages/upgrade-client";
+import { SubmitMisbehaviourTransactionDetail } from "./messages/submit-misbehaviour";
 // IBC - channel
-import { RecvPacketTransactionDetail } from "./variants/recv-packet";
-import { AcknowledgementTransactionDetail } from "./variants/acknowledgement";
-import { ChannelCloseConfirmTransactionDetail } from "./variants/channel-close-confirm";
-import { ChannelCloseInitTransactionDetail } from "./variants/channel-close-init";
-import { ChannelOpenAckTransactionDetail } from "./variants/channel-open-ack";
-import { ChannelOpenConfirmTransactionDetail } from "./variants/channel-open-confirm";
-import { ChannelOpenInitTransactionDetail } from "./variants/channel-open-init";
-import { ChannelOpenTryTransactionDetail } from "./variants/channel-open-try";
-import { TimeoutTransactionDetail } from "./variants/timeout";
-import { TimeoutOnCloseTransactionDetail } from "./variants/timeout-on-close";
+import { RecvPacketTransactionDetail } from "./messages/recv-packet";
+import { AcknowledgementTransactionDetail } from "./messages/acknowledgement";
+import { ChannelCloseConfirmTransactionDetail } from "./messages/channel-close-confirm";
+import { ChannelCloseInitTransactionDetail } from "./messages/channel-close-init";
+import { ChannelOpenAckTransactionDetail } from "./messages/channel-open-ack";
+import { ChannelOpenConfirmTransactionDetail } from "./messages/channel-open-confirm";
+import { ChannelOpenInitTransactionDetail } from "./messages/channel-open-init";
+import { ChannelOpenTryTransactionDetail } from "./messages/channel-open-try";
+import { TimeoutTransactionDetail } from "./messages/timeout";
+import { TimeoutOnCloseTransactionDetail } from "./messages/timeout-on-close";
 // IBC - connection
-import { ConnectionOpenAckTransactionDetail } from "./variants/connection-open-ack";
-import { ConnectionOpenConfirmTransactionDetail } from "./variants/connection-open-confirm";
-import { ConnectionOpenInitTransactionDetail } from "./variants/connection-open-init";
-import { ConnectionOpenTryTransactionDetail } from "./variants/connection-open-try";
+import { ConnectionOpenAckTransactionDetail } from "./messages/connection-open-ack";
+import { ConnectionOpenConfirmTransactionDetail } from "./messages/connection-open-confirm";
+import { ConnectionOpenInitTransactionDetail } from "./messages/connection-open-init";
+import { ConnectionOpenTryTransactionDetail } from "./messages/connection-open-try";
 // IBC - transfer
-import { TransferTransactionDetail } from "./variants/transfer";
+import { TransferTransactionDetail } from "./messages/transfer";
 // Custom
-import { SoftwareUpgradeTransactionDetail } from "./variants/software-upgrade";
-import { RemoveValidatorTransactionDetail } from "./variants/remove-validator";
-import { AddValidatorTransactionDetail } from "./variants/add-validator";
-import { UpdateParamsTransactionDetail } from "./variants/update-params";
+import { SoftwareUpgradeTransactionDetail } from "./messages/software-upgrade";
+import { RemoveValidatorTransactionDetail } from "./messages/remove-validator";
+import { AddValidatorTransactionDetail } from "./messages/add-validator";
+import { UpdateParamsTransactionDetail } from "./messages/update-params";
 
 /**
- * Dispatches to a type-specific detail view. Add a `case` and import from `./variants/<type>`.
+ * Dispatches to a type-specific detail view. Add a `case` and import from `./messages/<type>`.
  */
 export function TransactionDetailRoot(props: TransactionDetailViewProps) {
   const type = getPrimaryMessageType(props.transaction);

@@ -1,67 +1,67 @@
 export { TransactionDetailRoot } from "./transaction-detail-root";
-export { DefaultTransactionDetail } from "./variants/default";
-export { EthereumTransactionDetail } from "./variants/ethereum";
-export { EthereumTransactionDataSection } from "./variants/ethereum/ethereum-transaction-data-section";
+export { DefaultTransactionDetail } from "./messages/default";
+export { EthereumTransactionDetail } from "./messages/ethereum";
+export { EthereumTransactionDataSection } from "./messages/ethereum/ethereum-transaction-data-section";
 // Staking
-export { DelegateTransactionDetail } from "./variants/delegate";
-export { UndelegateTransactionDetail } from "./variants/undelegate";
-export { BeginRedelegateTransactionDetail } from "./variants/begin-redelegate";
-export { CreateValidatorTransactionDetail } from "./variants/create-validator";
-export { EditValidatorTransactionDetail } from "./variants/edit-validator";
+export { DelegateTransactionDetail } from "./messages/delegate";
+export { UndelegateTransactionDetail } from "./messages/undelegate";
+export { BeginRedelegateTransactionDetail } from "./messages/begin-redelegate";
+export { CreateValidatorTransactionDetail } from "./messages/create-validator";
+export { EditValidatorTransactionDetail } from "./messages/edit-validator";
 // Bank
-export { SendTransactionDetail } from "./variants/send";
-export { MultiSendTransactionDetail } from "./variants/multi-send";
+export { SendTransactionDetail } from "./messages/send";
+export { MultiSendTransactionDetail } from "./messages/multi-send";
 // Crisis
-export { VerifyInvariantTransactionDetail } from "./variants/verify-invariant";
+export { VerifyInvariantTransactionDetail } from "./messages/verify-invariant";
 // Slashing
-export { UnjailTransactionDetail } from "./variants/unjail";
+export { UnjailTransactionDetail } from "./messages/unjail";
 // Distribution
-export { FundCommunityPoolTransactionDetail } from "./variants/fund-community-pool";
-export { SetWithdrawAddressTransactionDetail } from "./variants/set-withdraw-address";
-export { WithdrawDelegatorRewardTransactionDetail } from "./variants/withdraw-delegator-reward";
-export { WithdrawValidatorCommissionTransactionDetail } from "./variants/withdraw-validator-commission";
+export { FundCommunityPoolTransactionDetail } from "./messages/fund-community-pool";
+export { SetWithdrawAddressTransactionDetail } from "./messages/set-withdraw-address";
+export { WithdrawDelegatorRewardTransactionDetail } from "./messages/withdraw-delegator-reward";
+export { WithdrawValidatorCommissionTransactionDetail } from "./messages/withdraw-validator-commission";
 // Governance
-export { VoteTransactionDetail } from "./variants/vote";
-export { SubmitProposalTransactionDetail } from "./variants/submit-proposal";
-export { DepositTransactionDetail } from "./variants/deposit";
+export { VoteTransactionDetail } from "./messages/vote";
+export { SubmitProposalTransactionDetail } from "./messages/submit-proposal";
+export { DepositTransactionDetail } from "./messages/deposit";
 // Authz
-export { ExecTransactionDetail } from "./variants/exec";
-export { GrantTransactionDetail } from "./variants/grant";
-export { RevokeTransactionDetail } from "./variants/revoke";
+export { ExecTransactionDetail } from "./messages/exec";
+export { GrantTransactionDetail } from "./messages/grant";
+export { RevokeTransactionDetail } from "./messages/revoke";
 // Feegrant
-export { GrantAllowanceTransactionDetail } from "./variants/grant-allowance";
-export { RevokeAllowanceTransactionDetail } from "./variants/revoke-allowance";
+export { GrantAllowanceTransactionDetail } from "./messages/grant-allowance";
+export { RevokeAllowanceTransactionDetail } from "./messages/revoke-allowance";
 // Vesting
-export { CreateVestingAccountTransactionDetail } from "./variants/create-vesting-account";
-export { CreatePeriodicVestingAccountTransactionDetail } from "./variants/create-periodic-vesting-account";
+export { CreateVestingAccountTransactionDetail } from "./messages/create-vesting-account";
+export { CreatePeriodicVestingAccountTransactionDetail } from "./messages/create-periodic-vesting-account";
 // IBC Client
-export { CreateClientTransactionDetail } from "./variants/create-client";
-export { UpdateClientTransactionDetail } from "./variants/update-client";
-export { UpgradeClientTransactionDetail } from "./variants/upgrade-client";
-export { SubmitMisbehaviourTransactionDetail } from "./variants/submit-misbehaviour";
+export { CreateClientTransactionDetail } from "./messages/create-client";
+export { UpdateClientTransactionDetail } from "./messages/update-client";
+export { UpgradeClientTransactionDetail } from "./messages/upgrade-client";
+export { SubmitMisbehaviourTransactionDetail } from "./messages/submit-misbehaviour";
 // IBC Channel
-export { RecvPacketTransactionDetail } from "./variants/recv-packet";
-export { AcknowledgementTransactionDetail } from "./variants/acknowledgement";
-export { ChannelCloseConfirmTransactionDetail } from "./variants/channel-close-confirm";
-export { ChannelCloseInitTransactionDetail } from "./variants/channel-close-init";
-export { ChannelOpenAckTransactionDetail } from "./variants/channel-open-ack";
-export { ChannelOpenConfirmTransactionDetail } from "./variants/channel-open-confirm";
-export { ChannelOpenInitTransactionDetail } from "./variants/channel-open-init";
-export { ChannelOpenTryTransactionDetail } from "./variants/channel-open-try";
-export { TimeoutTransactionDetail } from "./variants/timeout";
-export { TimeoutOnCloseTransactionDetail } from "./variants/timeout-on-close";
+export { RecvPacketTransactionDetail } from "./messages/recv-packet";
+export { AcknowledgementTransactionDetail } from "./messages/acknowledgement";
+export { ChannelCloseConfirmTransactionDetail } from "./messages/channel-close-confirm";
+export { ChannelCloseInitTransactionDetail } from "./messages/channel-close-init";
+export { ChannelOpenAckTransactionDetail } from "./messages/channel-open-ack";
+export { ChannelOpenConfirmTransactionDetail } from "./messages/channel-open-confirm";
+export { ChannelOpenInitTransactionDetail } from "./messages/channel-open-init";
+export { ChannelOpenTryTransactionDetail } from "./messages/channel-open-try";
+export { TimeoutTransactionDetail } from "./messages/timeout";
+export { TimeoutOnCloseTransactionDetail } from "./messages/timeout-on-close";
 // IBC Connection
-export { ConnectionOpenAckTransactionDetail } from "./variants/connection-open-ack";
-export { ConnectionOpenConfirmTransactionDetail } from "./variants/connection-open-confirm";
-export { ConnectionOpenInitTransactionDetail } from "./variants/connection-open-init";
-export { ConnectionOpenTryTransactionDetail } from "./variants/connection-open-try";
+export { ConnectionOpenAckTransactionDetail } from "./messages/connection-open-ack";
+export { ConnectionOpenConfirmTransactionDetail } from "./messages/connection-open-confirm";
+export { ConnectionOpenInitTransactionDetail } from "./messages/connection-open-init";
+export { ConnectionOpenTryTransactionDetail } from "./messages/connection-open-try";
 // IBC Transfer
-export { TransferTransactionDetail } from "./variants/transfer";
+export { TransferTransactionDetail } from "./messages/transfer";
 // Custom
-export { SoftwareUpgradeTransactionDetail } from "./variants/software-upgrade";
-export { RemoveValidatorTransactionDetail } from "./variants/remove-validator";
-export { AddValidatorTransactionDetail } from "./variants/add-validator";
-export { UpdateParamsTransactionDetail } from "./variants/update-params";
+export { SoftwareUpgradeTransactionDetail } from "./messages/software-upgrade";
+export { RemoveValidatorTransactionDetail } from "./messages/remove-validator";
+export { AddValidatorTransactionDetail } from "./messages/add-validator";
+export { UpdateParamsTransactionDetail } from "./messages/update-params";
 // Shared
 export { TransactionDataJsonTabs } from "./transaction-data-json-tabs";
 export { TransactionDataSection } from "./shared/transaction-data-section";
