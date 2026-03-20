@@ -12,18 +12,33 @@ import {
   formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
-import { getCosmosSignerFromMessage } from "@/lib/cosmos-message-address";
-import type { TransactionDetailViewProps } from "../types";
-import { DetailRow } from "./detail-row";
+import type { TransactionDetailViewProps } from "../../types";
+import { DetailRow } from "../../shared/detail-row";
 
-export function TransactionOverviewCard({
+interface RevokeAllowanceValue {
+  granter?: string;
+  grantee?: string;
+  data?: { granter?: string; grantee?: string };
+}
+
+export function RevokeAllowanceOverviewCard({
   hash,
   transaction,
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
-  const cosmosFrom = getCosmosSignerFromMessage(transaction.messages[0]);
+  const firstMessage = transaction.messages.at(0);
+  const parsed = parseJsonIfString(firstMessage?.value) as
+    | RevokeAllowanceValue
+    | null
+    | undefined;
+  const root = parsed ?? {};
+  const data = root.data ?? {};
+
+  const granter = root.granter ?? data.granter;
+  const grantee = root.grantee ?? data.grantee;
 
   return (
     <Card>
@@ -63,26 +78,41 @@ export function TransactionOverviewCard({
         <DetailRow label="Type">
           <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
         </DetailRow>
-        {cosmosFrom != null ? (
+
+        {granter != null && granter.length > 0 ? (
           <>
             <Separator />
-            <DetailRow label="From">
+            <DetailRow label="Granter">
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
-                  href={`/account/${encodeURIComponent(cosmosFrom)}`}
+                  href={`/account/${encodeURIComponent(granter)}`}
                   className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
                 >
-                  {cosmosFrom}
+                  {granter}
                 </Link>
-                <CopyButton
-                  value={cosmosFrom}
-                  label="Cosmos address"
-                  size="xs"
-                />
+                <CopyButton value={granter} label="granter address" size="xs" />
               </div>
             </DetailRow>
           </>
         ) : null}
+
+        {grantee != null && grantee.length > 0 ? (
+          <>
+            <Separator />
+            <DetailRow label="Grantee">
+              <div className="flex min-w-0 flex-nowrap items-center gap-2">
+                <Link
+                  href={`/account/${encodeURIComponent(grantee)}`}
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
+                >
+                  {grantee}
+                </Link>
+                <CopyButton value={grantee} label="grantee address" size="xs" />
+              </div>
+            </DetailRow>
+          </>
+        ) : null}
+
         <Separator />
         <DetailRow label="Fee">
           <span className="font-mono text-xs break-all">

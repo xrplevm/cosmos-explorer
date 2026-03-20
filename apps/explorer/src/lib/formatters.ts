@@ -141,6 +141,37 @@ export function formatTokenAmount(
 }
 
 /**
+ * Formats a single `{denom, amount}` coin for display.
+ * If the coin uses the primary token denom, converts to display units using the exponent.
+ */
+export function formatCoinDisplay(
+  coin: { denom?: string; amount?: string } | null | undefined,
+  primaryToken: { denom: string; displayDenom: string; exponent: number },
+): string {
+  if (coin == null) {
+    return "N/A";
+  }
+
+  const denom = coin.denom ?? "";
+  const raw = coin.amount ?? "0";
+
+  if (denom === primaryToken.denom) {
+    const n = Number(raw);
+    if (!Number.isFinite(n)) {
+      return `${raw} ${denom}`;
+    }
+    const human = n / 10 ** primaryToken.exponent;
+    return `${human.toLocaleString(undefined, {
+      maximumFractionDigits: 8,
+    })} ${primaryToken.displayDenom}`;
+  }
+
+  const num = Number(raw);
+  const formatted = Number.isFinite(num) ? num.toLocaleString() : raw;
+  return `${formatted} ${denom}`;
+}
+
+/**
  * Shortens a long hash with an ellipsis in the middle (e.g. `ABCD1234...WXYZ`).
  * If the string fits without omitting characters, it is returned unchanged.
  */

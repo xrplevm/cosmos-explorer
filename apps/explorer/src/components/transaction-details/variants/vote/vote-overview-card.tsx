@@ -12,18 +12,58 @@ import {
   formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
-import { getCosmosSignerFromMessage } from "@/lib/cosmos-message-address";
-import type { TransactionDetailViewProps } from "../types";
-import { DetailRow } from "./detail-row";
+import type { TransactionDetailViewProps } from "../../types";
+import { DetailRow } from "../../shared/detail-row";
 
-export function TransactionOverviewCard({
+interface VoteValue {
+  voter?: string;
+  proposal_id?: string;
+  proposalId?: string;
+  option?: string | number;
+  data?: {
+    voter?: string;
+    proposal_id?: string;
+    proposalId?: string;
+    option?: string | number;
+  };
+}
+
+const VOTE_OPTIONS: Record<string, string> = {
+  "1": "Yes",
+  "2": "Abstain",
+  "3": "No",
+  "4": "No with Veto",
+  VOTE_OPTION_YES: "Yes",
+  VOTE_OPTION_ABSTAIN: "Abstain",
+  VOTE_OPTION_NO: "No",
+  VOTE_OPTION_NO_WITH_VETO: "No with Veto",
+};
+
+function humanVoteOption(option: string | number | undefined): string {
+  if (option == null) return "Unknown";
+  const key = String(option);
+  return VOTE_OPTIONS[key] ?? key;
+}
+
+export function VoteOverviewCard({
   hash,
   transaction,
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
-  const cosmosFrom = getCosmosSignerFromMessage(transaction.messages[0]);
+  const firstMessage = transaction.messages.at(0);
+  const parsed = parseJsonIfString(firstMessage?.value) as
+    | VoteValue
+    | null
+    | undefined;
+  const root = parsed ?? {};
+  const data = root.data ?? {};
+
+  const voter = root.voter ?? data.voter;
+  const proposalId = root.proposal_id ?? root.proposalId ?? data.proposal_id ?? data.proposalId;
+  const option = root.option ?? data.option;
 
   return (
     <Card>
@@ -63,26 +103,43 @@ export function TransactionOverviewCard({
         <DetailRow label="Type">
           <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
         </DetailRow>
-        {cosmosFrom != null ? (
+
+        {voter != null && voter.length > 0 ? (
           <>
             <Separator />
-            <DetailRow label="From">
+            <DetailRow label="Voter">
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
-                  href={`/account/${encodeURIComponent(cosmosFrom)}`}
+                  href={`/account/${encodeURIComponent(voter)}`}
                   className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
                 >
-                  {cosmosFrom}
+                  {voter}
                 </Link>
-                <CopyButton
-                  value={cosmosFrom}
-                  label="Cosmos address"
-                  size="xs"
-                />
+                <CopyButton value={voter} label="voter address" size="xs" />
               </div>
             </DetailRow>
           </>
         ) : null}
+
+        {proposalId != null ? (
+          <>
+            <Separator />
+            <DetailRow label="Proposal">
+              <Link
+                href={`/proposals/${String(proposalId)}`}
+                className="font-mono text-primary hover:underline"
+              >
+                #{String(proposalId)}
+              </Link>
+            </DetailRow>
+          </>
+        ) : null}
+
+        <Separator />
+        <DetailRow label="Vote Option">
+          <span>{humanVoteOption(option)}</span>
+        </DetailRow>
+
         <Separator />
         <DetailRow label="Fee">
           <span className="font-mono text-xs break-all">

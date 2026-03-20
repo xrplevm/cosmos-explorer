@@ -8,22 +8,41 @@ import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
 import {
+  formatCoinDisplay,
   formatHashMiddle,
   formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
-import { getCosmosSignerFromMessage } from "@/lib/cosmos-message-address";
-import type { TransactionDetailViewProps } from "../types";
-import { DetailRow } from "./detail-row";
+import type { TransactionDetailViewProps } from "../../types";
+import { DetailRow } from "../../shared/detail-row";
 
-export function TransactionOverviewCard({
+interface FundCommunityPoolValue {
+  depositor?: string;
+  amount?: { denom?: string; amount?: string }[];
+  data?: {
+    depositor?: string;
+    amount?: { denom?: string; amount?: string }[];
+  };
+}
+
+export function FundCommunityPoolOverviewCard({
   hash,
   transaction,
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
-  const cosmosFrom = getCosmosSignerFromMessage(transaction.messages[0]);
+  const firstMessage = transaction.messages.at(0);
+  const parsed = parseJsonIfString(firstMessage?.value) as
+    | FundCommunityPoolValue
+    | null
+    | undefined;
+  const root = parsed ?? {};
+  const data = root.data ?? {};
+
+  const depositor = root.depositor ?? data.depositor;
+  const amounts = root.amount ?? data.amount;
 
   return (
     <Card>
@@ -63,26 +82,39 @@ export function TransactionOverviewCard({
         <DetailRow label="Type">
           <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
         </DetailRow>
-        {cosmosFrom != null ? (
+
+        {depositor != null && depositor.length > 0 ? (
           <>
             <Separator />
-            <DetailRow label="From">
+            <DetailRow label="Depositor">
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
-                  href={`/account/${encodeURIComponent(cosmosFrom)}`}
+                  href={`/account/${encodeURIComponent(depositor)}`}
                   className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
                 >
-                  {cosmosFrom}
+                  {depositor}
                 </Link>
-                <CopyButton
-                  value={cosmosFrom}
-                  label="Cosmos address"
-                  size="xs"
-                />
+                <CopyButton value={depositor} label="depositor address" size="xs" />
               </div>
             </DetailRow>
           </>
         ) : null}
+
+        {Array.isArray(amounts) && amounts.length > 0 ? (
+          <>
+            <Separator />
+            <DetailRow label="Amount">
+              <div className="space-y-1">
+                {amounts.map((coin, i) => (
+                  <div key={i} className="font-mono text-xs">
+                    {formatCoinDisplay(coin, token)}
+                  </div>
+                ))}
+              </div>
+            </DetailRow>
+          </>
+        ) : null}
+
         <Separator />
         <DetailRow label="Fee">
           <span className="font-mono text-xs break-all">

@@ -12,18 +12,35 @@ import {
   formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
-import { getCosmosSignerFromMessage } from "@/lib/cosmos-message-address";
-import type { TransactionDetailViewProps } from "../types";
-import { DetailRow } from "./detail-row";
+import type { TransactionDetailViewProps } from "../../types";
+import { DetailRow } from "../../shared/detail-row";
 
-export function TransactionOverviewCard({
+interface UpdateParamsValue {
+  authority?: string;
+  params?: Record<string, unknown>;
+  data?: {
+    authority?: string;
+    params?: Record<string, unknown>;
+  };
+}
+
+export function UpdateParamsOverviewCard({
   hash,
   transaction,
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
-  const cosmosFrom = getCosmosSignerFromMessage(transaction.messages[0]);
+  const firstMessage = transaction.messages.at(0);
+  const parsed = parseJsonIfString(firstMessage?.value) as
+    | UpdateParamsValue
+    | null
+    | undefined;
+  const root = parsed ?? {};
+  const data = root.data ?? {};
+
+  const authority = root.authority ?? data.authority;
 
   return (
     <Card>
@@ -63,26 +80,24 @@ export function TransactionOverviewCard({
         <DetailRow label="Type">
           <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
         </DetailRow>
-        {cosmosFrom != null ? (
+
+        {authority != null && authority.length > 0 ? (
           <>
             <Separator />
-            <DetailRow label="From">
+            <DetailRow label="Authority">
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
-                  href={`/account/${encodeURIComponent(cosmosFrom)}`}
+                  href={`/account/${encodeURIComponent(authority)}`}
                   className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
                 >
-                  {cosmosFrom}
+                  {authority}
                 </Link>
-                <CopyButton
-                  value={cosmosFrom}
-                  label="Cosmos address"
-                  size="xs"
-                />
+                <CopyButton value={authority} label="authority address" size="xs" />
               </div>
             </DetailRow>
           </>
         ) : null}
+
         <Separator />
         <DetailRow label="Fee">
           <span className="font-mono text-xs break-all">

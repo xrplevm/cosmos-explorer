@@ -12,18 +12,38 @@ import {
   formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
-import { getCosmosSignerFromMessage } from "@/lib/cosmos-message-address";
-import type { TransactionDetailViewProps } from "../types";
-import { DetailRow } from "./detail-row";
+import type { TransactionDetailViewProps } from "../../types";
+import { DetailRow } from "../../shared/detail-row";
 
-export function TransactionOverviewCard({
+interface ConnectionOpenTryValue {
+  signer?: string;
+  client_id?: string;
+  clientId?: string;
+  data?: {
+    signer?: string;
+    client_id?: string;
+    clientId?: string;
+  };
+}
+
+export function ConnectionOpenTryOverviewCard({
   hash,
   transaction,
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
-  const cosmosFrom = getCosmosSignerFromMessage(transaction.messages[0]);
+  const firstMessage = transaction.messages.at(0);
+  const parsed = parseJsonIfString(firstMessage?.value) as
+    | ConnectionOpenTryValue
+    | null
+    | undefined;
+  const root = parsed ?? {};
+  const data = root.data ?? {};
+
+  const signer = root.signer ?? data.signer;
+  const clientId = root.client_id ?? root.clientId ?? data.client_id ?? data.clientId;
 
   return (
     <Card>
@@ -63,26 +83,33 @@ export function TransactionOverviewCard({
         <DetailRow label="Type">
           <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
         </DetailRow>
-        {cosmosFrom != null ? (
+
+        {signer != null && signer.length > 0 ? (
           <>
             <Separator />
-            <DetailRow label="From">
+            <DetailRow label="Signer">
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
-                  href={`/account/${encodeURIComponent(cosmosFrom)}`}
+                  href={`/account/${encodeURIComponent(signer)}`}
                   className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
                 >
-                  {cosmosFrom}
+                  {signer}
                 </Link>
-                <CopyButton
-                  value={cosmosFrom}
-                  label="Cosmos address"
-                  size="xs"
-                />
+                <CopyButton value={signer} label="signer address" size="xs" />
               </div>
             </DetailRow>
           </>
         ) : null}
+
+        {clientId != null ? (
+          <>
+            <Separator />
+            <DetailRow label="Client">
+              <span className="font-mono text-xs">{clientId}</span>
+            </DetailRow>
+          </>
+        ) : null}
+
         <Separator />
         <DetailRow label="Fee">
           <span className="font-mono text-xs break-all">

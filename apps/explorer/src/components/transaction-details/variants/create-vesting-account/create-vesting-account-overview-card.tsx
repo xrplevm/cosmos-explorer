@@ -7,47 +7,66 @@ import {
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
-import { decodeEthereumMessage } from "@/lib/ethereum-message-decode";
 import {
+  formatCoinDisplay,
   formatHashMiddle,
   formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
 import type { TransactionDetailViewProps } from "../../types";
 import { DetailRow } from "../../shared/detail-row";
 
-export function EthereumOverviewCard({
+interface CreateVestingAccountValue {
+  from_address?: string;
+  fromAddress?: string;
+  to_address?: string;
+  toAddress?: string;
+  amount?: { denom?: string; amount?: string }[];
+  end_time?: string | number;
+  endTime?: string | number;
+  delayed?: boolean;
+  data?: {
+    from_address?: string;
+    fromAddress?: string;
+    to_address?: string;
+    toAddress?: string;
+    amount?: { denom?: string; amount?: string }[];
+    end_time?: string | number;
+    endTime?: string | number;
+    delayed?: boolean;
+  };
+}
+
+export function CreateVestingAccountOverviewCard({
   hash,
   transaction,
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
   const firstMessage = transaction.messages.at(0);
-  const decoded =
-    firstMessage === undefined
-      ? null
-      : decodeEthereumMessage(firstMessage, {
-          primaryTokenExponent: token.exponent,
-          primaryTokenDisplayDenom: token.displayDenom,
-        });
+  const parsed = parseJsonIfString(firstMessage?.value) as
+    | CreateVestingAccountValue
+    | null
+    | undefined;
+  const root = parsed ?? {};
+  const data = root.data ?? {};
 
-  const evmExplorerBase = chainConfig.network.endpoints.evmExplorer?.replace(
-    /\/$/,
-    "",
-  );
-  const evmExplorerTxHref =
-    evmExplorerBase != null &&
-    evmExplorerBase.length > 0 &&
-    decoded?.evmTxHash != null &&
-    decoded.evmTxHash.length > 0
-      ? `${evmExplorerBase}/tx/${decoded.evmTxHash}`
-      : null;
+  const from = root.from_address ?? root.fromAddress ?? data.from_address ?? data.fromAddress;
+  const to = root.to_address ?? root.toAddress ?? data.to_address ?? data.toAddress;
+  const amounts = root.amount ?? data.amount;
+  const endTime = root.end_time ?? root.endTime ?? data.end_time ?? data.endTime;
+  const delayed = root.delayed ?? data.delayed;
+
+  const endTimeDisplay = endTime != null
+    ? formatTimestamp(typeof endTime === "number" ? new Date(endTime * 1000).toISOString() : String(endTime))
+    : null;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>EVM overview</CardTitle>
+        <CardTitle>Overview</CardTitle>
       </CardHeader>
       <CardContent className="space-y-0">
         <DetailRow label="Cosmos hash">
@@ -61,37 +80,6 @@ export function EthereumOverviewCard({
             <CopyButton value={hash} label="cosmos hash" size="xs" />
           </div>
         </DetailRow>
-
-        {decoded?.evmTxHash != null && decoded.evmTxHash.length > 0 ? (
-          <>
-            <Separator />
-            <DetailRow label="Tx hash">
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <span className="min-w-0 flex-1 break-all font-mono text-xs">
-                  {decoded.evmTxHash}
-                </span>
-                <div className="flex shrink-0 items-center gap-2">
-                  <CopyButton
-                    value={decoded.evmTxHash}
-                    label="EVM tx hash"
-                    size="xs"
-                  />
-                  {evmExplorerTxHref != null ? (
-                    <a
-                      href={evmExplorerTxHref}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      View on EVM explorer
-                    </a>
-                  ) : null}
-                </div>
-              </div>
-            </DetailRow>
-          </>
-        ) : null}
-
         <Separator />
         <DetailRow label="Status">
           <StatusBadge status={transaction.success ? "Success" : "Failed"} />
@@ -111,62 +99,72 @@ export function EthereumOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Type">
-          <span>EthereumTx</span>
+          <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
         </DetailRow>
 
-        {decoded?.from != null && decoded.from.length > 0 ? (
+        {from != null && from.length > 0 ? (
           <>
             <Separator />
             <DetailRow label="From">
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
-                  href={`/account/${encodeURIComponent(decoded.from)}`}
+                  href={`/account/${encodeURIComponent(from)}`}
                   className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
                 >
-                  {decoded.from}
+                  {from}
                 </Link>
-                <CopyButton
-                  value={decoded.from}
-                  label="from address"
-                  size="xs"
-                />
+                <CopyButton value={from} label="from address" size="xs" />
               </div>
             </DetailRow>
           </>
         ) : null}
 
-        {decoded != null ? (
+        {to != null && to.length > 0 ? (
           <>
             <Separator />
             <DetailRow label="To">
-              {decoded.to === null ? (
-                <span className="text-muted-foreground">Contract creation</span>
-              ) : decoded.to != null && decoded.to.length > 0 ? (
-                <div className="flex min-w-0 flex-nowrap items-center gap-2">
-                  <Link
-                    href={`/account/${encodeURIComponent(decoded.to)}`}
-                    className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
-                  >
-                    {decoded.to}
-                  </Link>
-                  <CopyButton
-                    value={decoded.to}
-                    label="to address"
-                    size="xs"
-                  />
-                </div>
-              ) : (
-                <span className="text-muted-foreground">—</span>
-              )}
+              <div className="flex min-w-0 flex-nowrap items-center gap-2">
+                <Link
+                  href={`/account/${encodeURIComponent(to)}`}
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
+                >
+                  {to}
+                </Link>
+                <CopyButton value={to} label="to address" size="xs" />
+              </div>
             </DetailRow>
           </>
         ) : null}
 
-        {decoded?.amountDisplay != null && decoded.amountDisplay.length > 0 ? (
+        {Array.isArray(amounts) && amounts.length > 0 ? (
           <>
             <Separator />
             <DetailRow label="Amount">
-              <span className="font-mono text-xs">{decoded.amountDisplay}</span>
+              <div className="space-y-1">
+                {amounts.map((coin, i) => (
+                  <div key={i} className="font-mono text-xs">
+                    {formatCoinDisplay(coin, token)}
+                  </div>
+                ))}
+              </div>
+            </DetailRow>
+          </>
+        ) : null}
+
+        {endTimeDisplay != null ? (
+          <>
+            <Separator />
+            <DetailRow label="End Time">
+              <span>{endTimeDisplay}</span>
+            </DetailRow>
+          </>
+        ) : null}
+
+        {delayed != null ? (
+          <>
+            <Separator />
+            <DetailRow label="Delayed">
+              <span>{delayed ? "Yes" : "No"}</span>
             </DetailRow>
           </>
         ) : null}
@@ -178,7 +176,7 @@ export function EthereumOverviewCard({
           </span>
         </DetailRow>
         <Separator />
-        <DetailRow label="Gas used / wanted">
+        <DetailRow label="Gas Used / Wanted">
           <span className="font-mono">
             {transaction.gasUsed.toLocaleString()} /{" "}
             {transaction.gasWanted.toLocaleString()}{" "}

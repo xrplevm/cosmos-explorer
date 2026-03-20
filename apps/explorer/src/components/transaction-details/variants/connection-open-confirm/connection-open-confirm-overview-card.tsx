@@ -12,18 +12,39 @@ import {
   formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
-import { getCosmosSignerFromMessage } from "@/lib/cosmos-message-address";
-import type { TransactionDetailViewProps } from "../types";
-import { DetailRow } from "./detail-row";
+import type { TransactionDetailViewProps } from "../../types";
+import { DetailRow } from "../../shared/detail-row";
 
-export function TransactionOverviewCard({
+interface ConnectionOpenConfirmValue {
+  signer?: string;
+  connection_id?: string;
+  connectionId?: string;
+  data?: {
+    signer?: string;
+    connection_id?: string;
+    connectionId?: string;
+  };
+}
+
+export function ConnectionOpenConfirmOverviewCard({
   hash,
   transaction,
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
-  const cosmosFrom = getCosmosSignerFromMessage(transaction.messages[0]);
+  const firstMessage = transaction.messages.at(0);
+  const parsed = parseJsonIfString(firstMessage?.value) as
+    | ConnectionOpenConfirmValue
+    | null
+    | undefined;
+  const root = parsed ?? {};
+  const data = root.data ?? {};
+
+  const signer = root.signer ?? data.signer;
+  const connectionId =
+    root.connection_id ?? root.connectionId ?? data.connection_id ?? data.connectionId;
 
   return (
     <Card>
@@ -63,26 +84,33 @@ export function TransactionOverviewCard({
         <DetailRow label="Type">
           <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
         </DetailRow>
-        {cosmosFrom != null ? (
+
+        {signer != null && signer.length > 0 ? (
           <>
             <Separator />
-            <DetailRow label="From">
+            <DetailRow label="Signer">
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
-                  href={`/account/${encodeURIComponent(cosmosFrom)}`}
+                  href={`/account/${encodeURIComponent(signer)}`}
                   className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
                 >
-                  {cosmosFrom}
+                  {signer}
                 </Link>
-                <CopyButton
-                  value={cosmosFrom}
-                  label="Cosmos address"
-                  size="xs"
-                />
+                <CopyButton value={signer} label="signer address" size="xs" />
               </div>
             </DetailRow>
           </>
         ) : null}
+
+        {connectionId != null ? (
+          <>
+            <Separator />
+            <DetailRow label="Connection">
+              <span className="font-mono text-xs">{connectionId}</span>
+            </DetailRow>
+          </>
+        ) : null}
+
         <Separator />
         <DetailRow label="Fee">
           <span className="font-mono text-xs break-all">
