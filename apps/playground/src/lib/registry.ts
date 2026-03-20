@@ -18,6 +18,7 @@ export const registry: RegistryCategory[] = [
       { name: "Button", slug: "button", description: "Displays a button or a component that looks like a button." },
       { name: "Card", slug: "card", description: "Displays a card with header, content, and footer." },
       { name: "Chart", slug: "chart", description: "Beautiful charts built with Recharts." },
+      { name: "Copy Button", slug: "copy-button", description: "Copies text to the clipboard with tooltip feedback." },
       { name: "Dialog", slug: "dialog", description: "A modal dialog that interrupts the user." },
       { name: "Dropdown Menu", slug: "dropdown-menu", description: "Displays a menu triggered from a button." },
       { name: "Input", slug: "input", description: "Displays a form input field." },

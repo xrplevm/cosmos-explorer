@@ -4,18 +4,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
+import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
-import { formatTimestamp } from "@/lib/formatters";
+import { getChainConfig } from "@/lib/config";
+import { formatTimestamp, formatTransactionFee } from "@/lib/formatters";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
-      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
-      <div className="text-sm">{children}</div>
+      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">
+        {label}
+      </span>
+      <div className="min-w-0 text-sm">{children}</div>
     </div>
   );
 }
@@ -26,6 +36,7 @@ export default async function TransactionDetailPage({
   params: Promise<{ hash: string }>;
 }) {
   const { hash } = await params;
+  const config = getChainConfig();
   const { transactionService } = getServices();
   const transaction = await transactionService.getTransactionByHash(hash);
 
@@ -36,8 +47,12 @@ export default async function TransactionDetailPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Transaction Details</h1>
-        <p className="mt-1 font-mono text-sm text-muted-foreground">{hash}</p>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Transaction Details
+        </h1>
+        <p className="mt-1 font-mono text-xs text-muted-foreground break-all">
+          {hash}
+        </p>
       </div>
 
       <Card>
@@ -46,7 +61,12 @@ export default async function TransactionDetailPage({
         </CardHeader>
         <CardContent className="space-y-0">
           <Row label="Tx Hash">
-            <span className="font-mono text-xs break-all">{hash}</span>
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <span className="min-w-0 flex-1 font-mono text-xs break-all">
+                {hash}
+              </span>
+              <CopyButton value={hash} label="transaction hash" />
+            </div>
           </Row>
           <Separator />
           <Row label="Status">
@@ -54,7 +74,10 @@ export default async function TransactionDetailPage({
           </Row>
           <Separator />
           <Row label="Block">
-            <Link href={`/blocks/${transaction.height}`} className="font-mono text-primary hover:underline">
+            <Link
+              href={`/blocks/${String(transaction.height)}`}
+              className="font-mono text-primary hover:underline"
+            >
               #{transaction.height.toLocaleString()}
             </Link>
           </Row>
@@ -68,14 +91,15 @@ export default async function TransactionDetailPage({
           </Row>
           <Separator />
           <Row label="Fee">
-            <span className="font-mono text-muted-foreground">
-              {JSON.stringify(transaction.fee)}
+            <span className="font-mono text-xs break-all">
+              {formatTransactionFee(transaction.fee, config.network.primaryToken)}
             </span>
           </Row>
           <Separator />
           <Row label="Gas Used / Wanted">
             <span className="font-mono">
-              {transaction.gasUsed.toLocaleString()} / {transaction.gasWanted.toLocaleString()}
+              {transaction.gasUsed.toLocaleString()} /{" "}
+              {transaction.gasWanted.toLocaleString()}
             </span>
           </Row>
           <Separator />
@@ -86,7 +110,7 @@ export default async function TransactionDetailPage({
           </Row>
           <Separator />
           <Row label="Messages">
-            <pre className="max-w-full overflow-x-auto text-xs">
+            <pre className="max-w-full overflow-x-auto rounded-md bg-muted p-3 text-xs">
               {JSON.stringify(transaction.messages, null, 2)}
             </pre>
           </Row>

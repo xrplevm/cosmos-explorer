@@ -10,6 +10,7 @@
     "./badge": "./src/components/ui/badge.tsx",
     "./button": "./src/components/ui/button.tsx",
     "./card": "./src/components/ui/card.tsx",
+    "./copy-button": "./src/components/ui/copy-button.tsx",
     "./chart": "./src/components/ui/chart.tsx",
     "./dialog": "./src/components/ui/dialog.tsx",
     "./dropdown-menu": "./src/components/ui/dropdown-menu.tsx",

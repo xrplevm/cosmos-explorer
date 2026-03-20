@@ -1,4 +1,92 @@
+import type { ChainConfig } from "@cosmos-explorer/config";
 import type { TokenAmount } from "@cosmos-explorer/core";
+
+function parseFeePayload(
+  fee: unknown,
+): { amount?: unknown[]; gas_limit?: unknown } | null {
+  if (fee == null) {
+    return null;
+  }
+
+  if (typeof fee === "string") {
+    try {
+      const parsed: unknown = JSON.parse(fee);
+      if (typeof parsed === "object" && parsed !== null) {
+        return parsed as { amount?: unknown[]; gas_limit?: unknown };
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof fee === "object") {
+    return fee as { amount?: unknown[]; gas_limit?: unknown };
+  }
+
+  return null;
+}
+
+function normalizeFeeCoin(
+  coin: unknown,
+): { denom: string; amount: string } | null {
+  if (coin == null || typeof coin !== "object") {
+    return null;
+  }
+
+  const c = coin as { denom?: unknown; amount?: unknown };
+
+  if (typeof c.denom !== "string" || c.denom.length === 0) {
+    return null;
+  }
+
+  if (typeof c.amount === "string") {
+    return { denom: c.denom, amount: c.amount };
+  }
+
+  if (typeof c.amount === "number" && Number.isFinite(c.amount)) {
+    return { denom: c.denom, amount: String(Math.trunc(c.amount)) };
+  }
+
+  return null;
+}
+
+/**
+ * Formats Cosmos SDK `StdFee` JSON (including EVM / MsgEthereumTx txs) for display.
+ * Primary chain token amounts are shown in display units (e.g. XRP) using `exponent`.
+ */
+export function formatTransactionFee(
+  fee: unknown,
+  primaryToken: ChainConfig["network"]["primaryToken"],
+): string {
+  const payload = parseFeePayload(fee);
+  if (payload == null) {
+    return "N/A";
+  }
+
+  const amounts = Array.isArray(payload.amount) ? payload.amount : [];
+  const parts = amounts
+    .map((coin) => normalizeFeeCoin(coin))
+    .filter((c): c is { denom: string; amount: string } => c != null)
+    .map(({ denom, amount }) => {
+      if (denom === primaryToken.denom) {
+        const n = Number(amount);
+        if (!Number.isFinite(n)) {
+          return `${amount} ${denom}`;
+        }
+        const human = n / 10 ** primaryToken.exponent;
+        return `${human.toLocaleString(undefined, {
+          maximumFractionDigits: 8,
+        })} ${primaryToken.displayDenom}`;
+      }
+
+      const num = Number(amount);
+      const formatted = Number.isFinite(num) ? num.toLocaleString() : amount;
+      return `${formatted} ${denom}`;
+    });
+
+  return parts.length > 0 ? parts.join(", ") : "N/A";
+}
 
 export function formatTimestamp(value: string | null | undefined): string {
   if (value == null || value.length === 0) {

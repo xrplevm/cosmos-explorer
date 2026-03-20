@@ -1,5 +1,6 @@
 export { Button, buttonVariants, type ButtonProps } from "./components/ui/button";
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from "./components/ui/card";
+export { CopyButton, type CopyButtonProps } from "./components/ui/copy-button";
 export { Badge, badgeVariants, type BadgeProps } from "./components/ui/badge";
 export { Input } from "./components/ui/input";
 export { Label } from "./components/ui/label";
