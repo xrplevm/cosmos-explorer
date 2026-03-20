@@ -140,12 +140,25 @@ export function formatTokenAmount(
   })} ${value.denom}`;
 }
 
-export function formatHash(hash: string): string {
-  if (hash.length <= 14) {
+/**
+ * Shortens a long hash with an ellipsis in the middle (e.g. `ABCD1234...WXYZ`).
+ * If the string fits without omitting characters, it is returned unchanged.
+ */
+export function formatHashMiddle(
+  hash: string,
+  leading = 6,
+  trailing = 5,
+): string {
+  if (hash.length <= leading + trailing + 3) {
     return hash;
   }
 
-  return `${hash.slice(0, 6)}...${hash.slice(-5)}`;
+  return `${hash.slice(0, leading)}...${hash.slice(-trailing)}`;
+}
+
+/** Compact hash for tables and lists (6 + … + 5). */
+export function formatHash(hash: string): string {
+  return formatHashMiddle(hash, 6, 5);
 }
 
 export function formatRelativeTime(value: string | null | undefined): string {

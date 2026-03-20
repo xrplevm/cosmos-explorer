@@ -1,9 +1,13 @@
-import { type Block, type IBlockService } from '@cosmos-explorer/core';
-import { type Fetcher, resolveKeybaseAvatars } from '@cosmos-explorer/utils';
+import { type Block, type IBlockService } from "@cosmos-explorer/core";
+import { type Fetcher, resolveKeybaseAvatars } from "@cosmos-explorer/utils";
 
-import { mapBlockDetail, mapBlocks, type RawBlock } from '../mappers';
-import { BLOCK_DETAILS_QUERY, BLOCKS_QUERY, LATEST_BLOCKS_QUERY } from '../queries';
-import type { BlockDetailsResponse, LatestBlocksResponse } from '../types';
+import { mapBlockDetail, mapBlocks, type RawBlock } from "../mappers";
+import {
+  BLOCK_DETAILS_QUERY,
+  BLOCKS_QUERY,
+  LATEST_BLOCKS_QUERY,
+} from "../queries";
+import type { BlockDetailsResponse, LatestBlocksResponse } from "../types";
 
 async function resolveAvatars(rawBlocks: RawBlock[]): Promise<Block[]> {
   const identities = rawBlocks.map((b) => b._identity);
@@ -11,7 +15,7 @@ async function resolveAvatars(rawBlocks: RawBlock[]): Promise<Block[]> {
 
   return rawBlocks.map(({ _identity, ...block }) => ({
     ...block,
-    proposerAvatarUrl: _identity ? avatarMap.get(_identity) ?? null : null,
+    proposerAvatarUrl: _identity ? (avatarMap.get(_identity) ?? null) : null,
   }));
 }
 
@@ -24,16 +28,22 @@ export class CallistoBlockService implements IBlockService {
   }
 
   async getLatestBlocks(limit: number): Promise<Block[]> {
-    const response = await this.fetcher.graphql<LatestBlocksResponse, { limit: number }>({
+    const response = await this.fetcher.graphql<
+      LatestBlocksResponse,
+      { limit: number }
+    >({
       query: LATEST_BLOCKS_QUERY,
       variables: { limit },
-      operationName: 'LatestBlocks',
+      operationName: "LatestBlocks",
     });
 
     return resolveAvatars(mapBlocks(response));
   }
 
-  async getBlocks(params?: { limit?: number; offset?: number }): Promise<Block[]> {
+  async getBlocks(params?: {
+    limit?: number;
+    offset?: number;
+  }): Promise<Block[]> {
     const response = await this.fetcher.graphql<
       LatestBlocksResponse,
       { limit: number; offset: number }
@@ -43,7 +53,7 @@ export class CallistoBlockService implements IBlockService {
         limit: params?.limit ?? 50,
         offset: params?.offset ?? 0,
       },
-      operationName: 'Blocks',
+      operationName: "Blocks",
     });
 
     return resolveAvatars(mapBlocks(response));
@@ -59,9 +69,15 @@ export class CallistoBlockService implements IBlockService {
         height,
         signatureHeight: height + 1,
       },
-      operationName: 'BlockDetails',
+      operationName: "BlockDetails",
     });
 
-    return mapBlockDetail(response);
+    const detail = mapBlockDetail(response);
+    if (detail == null) {
+      return null;
+    }
+
+    const [overview] = await resolveAvatars([detail.overview as RawBlock]);
+    return { ...detail, overview };
   }
 }

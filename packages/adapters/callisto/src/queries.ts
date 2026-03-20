@@ -58,6 +58,10 @@ export const BLOCK_DETAILS_QUERY = `
         validatorInfo: validator_info {
           operatorAddress: operator_address
         }
+        validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
+          moniker
+          identity
+        }
       }
     }
     preCommits: pre_commit(where: { height: { _eq: $signatureHeight } }) {

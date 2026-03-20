@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@cosmos-explorer/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { Skeleton } from "@cosmos-explorer/ui/skeleton";
 import {
@@ -10,10 +16,18 @@ import {
   TableRow,
 } from "@cosmos-explorer/ui/table";
 
-function RowSkeleton({ label, width = "w-40" }: { label: string; width?: string }) {
+function RowSkeleton({
+  label,
+  width = "w-40",
+}: {
+  label: string;
+  width?: string;
+}) {
   return (
     <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
-      <span className="sm:w-44 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
+      <span className="sm:w-44 sm:shrink-0 text-sm text-muted-foreground">
+        {label}
+      </span>
       <Skeleton className={`h-4 ${width}`} />
     </div>
   );
@@ -34,7 +48,12 @@ export default function ValidatorDetailLoading() {
       </div>
 
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
-        {["Voting Power", "Commission", "Missed Blocks", "Latest Status Height"].map((label) => (
+        {[
+          "Voting Power",
+          "Commission",
+          "Missed Blocks",
+          "Latest Status Height",
+        ].map((label) => (
           <Card key={label}>
             <CardHeader className="pb-2">
               <CardDescription>{label}</CardDescription>
@@ -80,10 +99,18 @@ export default function ValidatorDetailLoading() {
               <TableBody>
                 {Array.from({ length: 10 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-6" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-16" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-28" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-6" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Skeleton className="h-4 w-24 ml-auto" />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

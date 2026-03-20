@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@cosmos-explorer/ui/table";
 import { Badge } from "@cosmos-explorer/ui/badge";
+import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatHash,
@@ -44,16 +45,19 @@ export default async function AccountDetailPage({
   const { accountService } = getServices();
   const account = await accountService.getAccountByAddress(address);
   const rewardTotal = sumPrimaryAmounts(
-    account.rewards.map((reward) => reward.amount?.amount)
+    account.rewards.map((reward) => reward.amount?.amount),
   );
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Account</h1>
-        <p className="mt-1 font-mono text-sm text-muted-foreground break-all">
-          {account.address}
-        </p>
+      <div className="flex items-start gap-2">
+        <DetailBackButton href="/" />
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold tracking-tight">Account</h1>
+          <p className="mt-1 font-mono text-sm text-muted-foreground break-all">
+            {account.address}
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -65,7 +69,9 @@ export default async function AccountDetailPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">Tracked token balances</p>
+            <p className="text-xs text-muted-foreground">
+              Tracked token balances
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -91,7 +97,9 @@ export default async function AccountDetailPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">Unclaimed delegation rewards</p>
+            <p className="text-xs text-muted-foreground">
+              Unclaimed delegation rewards
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -114,7 +122,9 @@ export default async function AccountDetailPage({
             <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">
               Unbonding
             </span>
-            <div className="text-sm">{formatTokenAmount(account.unbondingBalance, 0)}</div>
+            <div className="text-sm">
+              {formatTokenAmount(account.unbondingBalance, 0)}
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -125,7 +135,9 @@ export default async function AccountDetailPage({
         </CardHeader>
         <CardContent>
           {account.balances.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No balances found.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No balances found.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -138,7 +150,9 @@ export default async function AccountDetailPage({
                 <TableBody>
                   {account.balances.map((balance) => (
                     <TableRow key={`${balance.denom}-${balance.amount}`}>
-                      <TableCell className="font-medium">{balance.denom}</TableCell>
+                      <TableCell className="font-medium">
+                        {balance.denom}
+                      </TableCell>
                       <TableCell className="text-right font-mono">
                         {formatTokenAmount(balance, 6)}
                       </TableCell>
@@ -157,7 +171,9 @@ export default async function AccountDetailPage({
         </CardHeader>
         <CardContent>
           {account.delegations.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No delegations found.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No delegations found.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <Table>
@@ -165,13 +181,16 @@ export default async function AccountDetailPage({
                   <TableRow>
                     <TableHead>Validator</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
-                    <TableHead className="text-right">Pending Rewards</TableHead>
+                    <TableHead className="text-right">
+                      Pending Rewards
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {account.delegations.map((delegation) => {
                     const reward = account.rewards.find(
-                      (item) => item.validatorAddress === delegation.validatorAddress
+                      (item) =>
+                        item.validatorAddress === delegation.validatorAddress,
                     );
 
                     return (
@@ -206,7 +225,9 @@ export default async function AccountDetailPage({
         </CardHeader>
         <CardContent>
           {account.transactions.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No transactions found.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No transactions found.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <Table>

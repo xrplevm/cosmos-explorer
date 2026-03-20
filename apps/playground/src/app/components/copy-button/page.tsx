@@ -32,6 +32,22 @@ export default function CopyButtonPage() {
       </section>
 
       <section className="space-y-4">
+        <h2 className="text-lg font-semibold">Sizes</h2>
+
+        <ComponentPreview title="icon (36×36, default)">
+          <CopyButton value="sample" label="sample" />
+        </ComponentPreview>
+
+        <ComponentPreview title="sm (32×32)">
+          <CopyButton value="sample" label="sample" size="sm" />
+        </ComponentPreview>
+
+        <ComponentPreview title="xs (24×24, dense rows)">
+          <CopyButton value="sample" label="sample" size="xs" />
+        </ComponentPreview>
+      </section>
+
+      <section className="space-y-4">
         <h2 className="text-lg font-semibold">Variants</h2>
 
         <ComponentPreview title="Ghost (default)">

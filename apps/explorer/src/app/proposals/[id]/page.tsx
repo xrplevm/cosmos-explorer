@@ -6,15 +6,28 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
-import { formatPercent, formatTimestamp, formatTokenAmount } from "@/lib/formatters";
+import {
+  formatPercent,
+  formatTimestamp,
+  formatTokenAmount,
+} from "@/lib/formatters";
+import { DetailBackButton } from "@/components/detail-back-button";
 import { getServices } from "@/lib/services";
 import type { ProposalStatus, ProposalTally } from "@cosmos-explorer/core";
 import { notFound } from "next/navigation";
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
-      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
+      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">
+        {label}
+      </span>
       <div className="text-sm">{children}</div>
     </div>
   );
@@ -68,7 +81,9 @@ function VoteBar({
   veto: number | null;
 }) {
   if (yes == null || no == null || abstain == null || veto == null) {
-    return <p className="text-sm text-muted-foreground">No tally data available.</p>;
+    return (
+      <p className="text-sm text-muted-foreground">No tally data available.</p>
+    );
   }
 
   return (
@@ -95,8 +110,12 @@ export default async function ProposalDetailPage({
   }
 
   const tallyTotal = getTallyTotal(proposal.tally);
-  const yes = proposal.tally ? toVotePercent(proposal.tally.yes, tallyTotal) : null;
-  const no = proposal.tally ? toVotePercent(proposal.tally.no, tallyTotal) : null;
+  const yes = proposal.tally
+    ? toVotePercent(proposal.tally.yes, tallyTotal)
+    : null;
+  const no = proposal.tally
+    ? toVotePercent(proposal.tally.no, tallyTotal)
+    : null;
   const abstain = proposal.tally
     ? toVotePercent(proposal.tally.abstain, tallyTotal)
     : null;
@@ -106,13 +125,20 @@ export default async function ProposalDetailPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-sm text-muted-foreground">#{proposal.id}</span>
-          <StatusBadge status={toStatusLabel(proposal.status)} />
+      <div className="flex items-start gap-2">
+        <DetailBackButton href="/proposals" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-sm text-muted-foreground">
+              #{proposal.id}
+            </span>
+            <StatusBadge status={toStatusLabel(proposal.status)} />
+          </div>
+          <h1 className="mt-2 text-2xl font-bold tracking-tight">
+            {proposal.title}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{proposal.type}</p>
         </div>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight">{proposal.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{proposal.type}</p>
       </div>
 
       <Card>
@@ -127,16 +153,24 @@ export default async function ProposalDetailPage({
           <Row label="Type">{proposal.type}</Row>
           <Separator />
           <Row label="Proposer">
-            <span className="font-mono text-xs break-all">{proposal.proposer}</span>
+            <span className="font-mono text-xs break-all">
+              {proposal.proposer}
+            </span>
           </Row>
           <Separator />
           <Row label="Submit Time">{formatTimestamp(proposal.submitTime)}</Row>
           <Separator />
-          <Row label="Deposit End">{formatTimestamp(proposal.depositEndTime)}</Row>
+          <Row label="Deposit End">
+            {formatTimestamp(proposal.depositEndTime)}
+          </Row>
           <Separator />
-          <Row label="Voting Start">{formatTimestamp(proposal.votingStartTime)}</Row>
+          <Row label="Voting Start">
+            {formatTimestamp(proposal.votingStartTime)}
+          </Row>
           <Separator />
-          <Row label="Voting End">{formatTimestamp(proposal.votingEndTime)}</Row>
+          <Row label="Voting End">
+            {formatTimestamp(proposal.votingEndTime)}
+          </Row>
           <Separator />
           <Row label="Bonded Snapshot">
             {formatTokenAmount(proposal.tally?.bondedTokens, 0)}

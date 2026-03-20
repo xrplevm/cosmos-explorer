@@ -68,8 +68,11 @@ export default async function TransactionsPage({
             <TableBody>
               {transactions.map((tx) => (
                 <TableRow key={tx.hash}>
-                  <TableCell className="font-mono text-xs">
-                    <Link href={`/transactions/${tx.hash}`} className="text-primary hover:underline">
+                  <TableCell>
+                    <Link
+                      href={`/transactions/${tx.hash}`}
+                      className="font-mono text-sm text-primary hover:underline"
+                    >
                       {formatHash(tx.hash)}
                     </Link>
                   </TableCell>

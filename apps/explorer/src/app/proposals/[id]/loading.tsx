@@ -1,11 +1,24 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@cosmos-explorer/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { Skeleton } from "@cosmos-explorer/ui/skeleton";
 
-function RowSkeleton({ label, width = "w-40" }: { label: string; width?: string }) {
+function RowSkeleton({
+  label,
+  width = "w-40",
+}: {
+  label: string;
+  width?: string;
+}) {
   return (
     <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
-      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
+      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">
+        {label}
+      </span>
       <Skeleton className={`h-4 ${width}`} />
     </div>
   );

@@ -6,9 +6,14 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
+import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
 import { getChainConfig } from "@/lib/config";
-import { formatTimestamp, formatTransactionFee } from "@/lib/formatters";
+import {
+  formatHashMiddle,
+  formatTimestamp,
+  formatTransactionFee,
+} from "@/lib/formatters";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -46,13 +51,13 @@ export default async function TransactionDetailPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">
-          Transaction Details
-        </h1>
-        <p className="mt-1 font-mono text-xs text-muted-foreground break-all">
-          {hash}
-        </p>
+      <div className="flex items-start gap-2">
+        <DetailBackButton href="/transactions" />
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Transaction Details
+          </h1>
+        </div>
       </div>
 
       <Card>
@@ -61,11 +66,18 @@ export default async function TransactionDetailPage({
         </CardHeader>
         <CardContent className="space-y-0">
           <Row label="Tx Hash">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <span className="min-w-0 flex-1 font-mono text-xs break-all">
+            <div className="flex min-w-0 flex-nowrap items-center gap-2">
+              <span className="min-w-0 flex-1 font-mono text-xs md:hidden">
+                {formatHashMiddle(hash, 8, 8)}
+              </span>
+              <span className="hidden min-w-0 flex-1 break-all font-mono text-xs md:block">
                 {hash}
               </span>
-              <CopyButton value={hash} label="transaction hash" />
+              <CopyButton
+                value={hash}
+                label="transaction hash"
+                size="xs"
+              />
             </div>
           </Row>
           <Separator />
@@ -92,7 +104,10 @@ export default async function TransactionDetailPage({
           <Separator />
           <Row label="Fee">
             <span className="font-mono text-xs break-all">
-              {formatTransactionFee(transaction.fee, config.network.primaryToken)}
+              {formatTransactionFee(
+                transaction.fee,
+                config.network.primaryToken,
+              )}
             </span>
           </Row>
           <Separator />

@@ -5,7 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@cosmos-explorer/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@cosmos-explorer/ui/avatar";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import {
   Table,
@@ -15,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
+import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatHash,
@@ -26,10 +31,18 @@ import { getServices } from "@/lib/services";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
-      <span className="sm:w-44 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
+      <span className="sm:w-44 sm:shrink-0 text-sm text-muted-foreground">
+        {label}
+      </span>
       <div className="text-sm">{children}</div>
     </div>
   );
@@ -64,15 +77,20 @@ export default async function ValidatorDetailPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
+        <DetailBackButton href="/validators" />
         <Avatar className="h-12 w-12">
-          {validator.avatarUrl && <AvatarImage src={validator.avatarUrl} alt={validator.moniker} />}
+          {validator.avatarUrl && (
+            <AvatarImage src={validator.avatarUrl} alt={validator.moniker} />
+          )}
           <AvatarFallback className="text-lg">
             {validator.moniker.slice(0, 2)}
           </AvatarFallback>
         </Avatar>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">{validator.moniker}</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {validator.moniker}
+            </h1>
             <StatusBadge status={toStatusLabel(validator.status)} />
           </div>
           <p className="mt-0.5 font-mono text-xs text-muted-foreground">
@@ -100,13 +118,18 @@ export default async function ValidatorDetailPage({
             <CardDescription>Commission</CardDescription>
             <CardTitle className="text-xl">
               {formatPercent(
-                validator.commission == null ? null : validator.commission * 100
+                validator.commission == null
+                  ? null
+                  : validator.commission * 100,
               )}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
-              Max rate: {formatPercent(validator.maxRate == null ? null : validator.maxRate * 100)}
+              Max rate:{" "}
+              {formatPercent(
+                validator.maxRate == null ? null : validator.maxRate * 100,
+              )}
             </p>
           </CardContent>
         </Card>
@@ -144,7 +167,9 @@ export default async function ValidatorDetailPage({
         </CardHeader>
         <CardContent className="space-y-0">
           <Row label="Operator Address">
-            <span className="font-mono text-xs break-all">{validator.address}</span>
+            <span className="font-mono text-xs break-all">
+              {validator.address}
+            </span>
           </Row>
           <Separator />
           <Row label="Self Delegate Address">
@@ -189,7 +214,9 @@ export default async function ValidatorDetailPage({
         </CardHeader>
         <CardContent>
           {validator.recentBlocks.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No recent proposed blocks.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No recent proposed blocks.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <Table>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { TableCell, TableRow } from "./table";
+import { TableBody, TableCell, TableRow } from "./table";
 import type { Column } from "./data-table";
 
 interface AnimatedTableBodyProps<T> {
@@ -48,11 +48,11 @@ export function AnimatedTableBody<T>({
   }, [data, rowKey]);
 
   return (
-    <tbody className="[&_tr:last-child]:border-0">
+    <TableBody>
       {data.map((row) => {
         const isNew = newKeys.has(rowKey(row));
         return (
-          <TableRow key={rowKey(row)} className="h-[50px]">
+          <TableRow key={rowKey(row)}>
             {columns.map((col) => (
               <TableCell key={col.key} className={col.className}>
                 <motion.div
@@ -72,6 +72,6 @@ export function AnimatedTableBody<T>({
           </TableRow>
         );
       })}
-    </tbody>
+    </TableBody>
   );
 }

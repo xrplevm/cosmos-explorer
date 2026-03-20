@@ -14,16 +14,26 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
+import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
-import { formatHash, formatTimestamp } from "@/lib/formatters";
+import { CopyButton } from "@cosmos-explorer/ui/copy-button";
+import { formatHash, formatHashMiddle, formatTimestamp } from "@/lib/formatters";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
-      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
+      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">
+        {label}
+      </span>
       <div className="text-sm">{children}</div>
     </div>
   );
@@ -44,9 +54,16 @@ export default async function BlockDetailPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Block #{Number(height).toLocaleString()}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Block details and transactions</p>
+      <div className="flex items-start gap-2">
+        <DetailBackButton href="/blocks" />
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-bold tracking-tight">
+            Block #{Number(height).toLocaleString()}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Block details and transactions
+          </p>
+        </div>
       </div>
 
       <Card>
@@ -55,11 +72,25 @@ export default async function BlockDetailPage({
         </CardHeader>
         <CardContent className="space-y-0">
           <Row label="Block Height">
-            <span className="font-mono">#{Number(height).toLocaleString()}</span>
+            <span className="font-mono">
+              #{Number(height).toLocaleString()}
+            </span>
           </Row>
           <Separator />
           <Row label="Block Hash">
-            <span className="font-mono text-xs break-all">{detail.overview.hash}</span>
+            <div className="flex min-w-0 flex-nowrap items-center gap-2">
+              <span className="min-w-0 flex-1 font-mono text-xs md:hidden">
+                {formatHashMiddle(detail.overview.hash, 8, 8)}
+              </span>
+              <span className="hidden min-w-0 flex-1 break-all font-mono text-xs md:block">
+                {detail.overview.hash}
+              </span>
+              <CopyButton
+                value={detail.overview.hash}
+                label="block hash"
+                size="xs"
+              />
+            </div>
           </Row>
           <Separator />
           <Row label="Timestamp">
@@ -67,9 +98,30 @@ export default async function BlockDetailPage({
           </Row>
           <Separator />
           <Row label="Proposer">
-            <Link href={`/validators/${detail.overview.proposer}`} className="text-primary hover:underline">
-              {detail.overview.proposer}
-            </Link>
+            <div className="flex items-center gap-2">
+              {detail.overview.proposerAvatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element -- Keybase avatar URL from chain indexer
+                <img
+                  src={detail.overview.proposerAvatarUrl}
+                  alt={
+                    detail.overview.proposerMoniker ?? detail.overview.proposer
+                  }
+                  className="h-6 w-6 shrink-0 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
+                  {(detail.overview.proposerMoniker ?? detail.overview.proposer)
+                    .charAt(0)
+                    .toUpperCase()}
+                </div>
+              )}
+              <Link
+                href={`/validators/${detail.overview.proposer}`}
+                className="text-sm text-primary hover:underline"
+              >
+                {detail.overview.proposerMoniker ?? detail.overview.proposer}
+              </Link>
+            </div>
           </Row>
           <Separator />
           <Row label="Transactions">
@@ -77,7 +129,9 @@ export default async function BlockDetailPage({
           </Row>
           <Separator />
           <Row label="Pre-commits">
-            <span className="font-mono">{detail.signatures.length.toLocaleString()}</span>
+            <span className="font-mono">
+              {detail.signatures.length.toLocaleString()}
+            </span>
           </Row>
         </CardContent>
       </Card>
@@ -105,8 +159,11 @@ export default async function BlockDetailPage({
                 <TableBody>
                   {detail.transactions.map((tx) => (
                     <TableRow key={tx.hash}>
-                      <TableCell className="font-mono text-xs">
-                        <Link href={`/transactions/${tx.hash}`} className="text-primary hover:underline">
+                      <TableCell>
+                        <Link
+                          href={`/transactions/${tx.hash}`}
+                          className="font-mono text-sm text-primary hover:underline"
+                        >
                           {formatHash(tx.hash)}
                         </Link>
                       </TableCell>
@@ -114,7 +171,9 @@ export default async function BlockDetailPage({
                         <Badge variant="outline">{tx.type}</Badge>
                       </TableCell>
                       <TableCell>
-                        <StatusBadge status={tx.success ? "Success" : "Failed"} />
+                        <StatusBadge
+                          status={tx.success ? "Success" : "Failed"}
+                        />
                       </TableCell>
                       <TableCell className="text-right font-mono text-sm">
                         {tx.messageCount}

@@ -19,9 +19,24 @@ export interface CopyButtonProps {
   className?: string;
   /** Passed through to the underlying button. Defaults to `ghost`. */
   variant?: ButtonProps["variant"];
-  /** Icon button sizing. */
-  size?: "icon" | "sm";
+  /**
+   * Square icon button size. `icon` — 36×36 (default). `sm` — 32×32. `xs` — 24×24 (dense rows).
+   */
+  size?: "icon" | "sm" | "xs";
 }
+
+const sizeClass: Record<NonNullable<CopyButtonProps["size"]>, string> = {
+  icon: "",
+  sm: "h-8 w-8 min-h-8 min-w-8 p-0",
+  xs: "h-6 w-6 min-h-6 min-w-6 p-0",
+};
+
+const iconSizeClass: Record<NonNullable<CopyButtonProps["size"]>, string> = {
+  icon: "size-4",
+  /** Override Button `[&_svg]:size-4` on the trigger */
+  sm: "!size-3.5",
+  xs: "!size-3",
+};
 
 export function CopyButton({
   value,
@@ -63,6 +78,7 @@ export function CopyButton({
   }, [value]);
 
   const tooltip = copied ? "Copied" : `Copy ${label}`;
+  const icn = iconSizeClass[size];
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -71,8 +87,8 @@ export function CopyButton({
           <Button
             type="button"
             variant={variant}
-            size={size}
-            className={cn("shrink-0", className)}
+            size="icon"
+            className={cn("shrink-0", sizeClass[size], className)}
             disabled={value.length === 0}
             aria-label={copied ? `${label} copied` : `Copy ${label}`}
             onClick={() => {
@@ -80,9 +96,9 @@ export function CopyButton({
             }}
           >
             {copied ? (
-              <Check className="size-4 text-primary" />
+              <Check className={cn(icn, "text-primary")} />
             ) : (
-              <Copy className="size-4" />
+              <Copy className={icn} />
             )}
           </Button>
         </TooltipTrigger>

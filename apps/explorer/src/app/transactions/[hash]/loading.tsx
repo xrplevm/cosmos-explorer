@@ -1,11 +1,24 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@cosmos-explorer/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { Skeleton } from "@cosmos-explorer/ui/skeleton";
 
-function RowSkeleton({ label, width = "w-40" }: { label: string; width?: string }) {
+function RowSkeleton({
+  label,
+  width = "w-40",
+}: {
+  label: string;
+  width?: string;
+}) {
   return (
     <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
-      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">{label}</span>
+      <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">
+        {label}
+      </span>
       <Skeleton className={`h-4 ${width}`} />
     </div>
   );
@@ -15,7 +28,9 @@ export default function TransactionDetailLoading() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Transaction Details</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Transaction Details
+        </h1>
         <Skeleton className="mt-1 h-4 w-full max-w-lg" />
       </div>
 
@@ -41,7 +56,9 @@ export default function TransactionDetailLoading() {
           <RowSkeleton label="Memo" width="w-24" />
           <Separator />
           <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
-            <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">Messages</span>
+            <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">
+              Messages
+            </span>
             <Skeleton className="h-32 w-full" />
           </div>
         </CardContent>

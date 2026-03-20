@@ -57,7 +57,7 @@ export function DataTable<T>({
             </TableHeader>
             <TableBody>
               {data.map((row) => (
-                <TableRow key={rowKey(row)} className="h-[50px]">
+                <TableRow key={rowKey(row)}>
                   {columns.map((col) => (
                     <TableCell key={col.key} className={col.className}>
                       {col.render(row)}
@@ -109,7 +109,7 @@ export function DataTableSkeleton({
             </TableHeader>
             <TableBody>
               {Array.from({ length: rows }).map((_, i) => (
-                <TableRow key={i} className="h-[50px]">
+                <TableRow key={i}>
                   {columns.map((col) => (
                     <TableCell key={col.key} className={col.className}>
                       <Skeleton className={cn("h-4", col.width ?? "w-20")} />
