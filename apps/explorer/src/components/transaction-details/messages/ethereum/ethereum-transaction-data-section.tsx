@@ -10,8 +10,7 @@ export function EthereumTransactionDataSection({
   chainConfig,
 }: Pick<TransactionDetailViewProps, "transaction" | "chainConfig">) {
   const primary = transaction.messages[0];
-  const evmTxHash =
-    primary != null ? getEvmTxHashFromMessage(primary) : undefined;
+  const evmTxHash = getEvmTxHashFromMessage(primary);
   const base = chainConfig.network.endpoints.evmExplorer?.replace(/\/$/, "");
   const evmHref =
     base != null &&

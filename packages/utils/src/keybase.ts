@@ -18,9 +18,9 @@ export async function resolveKeybaseAvatar(
       return null;
     }
 
-    const data = await res.json();
-    const url: string | null =
-      data?.them?.[0]?.pictures?.primary?.url ?? null;
+    const data: unknown = await res.json();
+    const them = (data as { them?: { pictures?: { primary?: { url?: string } } }[] } | undefined)?.them;
+    const url: string | null = them?.[0]?.pictures?.primary?.url ?? null;
 
     cache.set(identity, url);
     return url;

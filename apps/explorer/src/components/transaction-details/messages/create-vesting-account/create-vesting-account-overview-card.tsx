@@ -60,7 +60,7 @@ export function CreateVestingAccountOverviewCard({
   const delayed = root.delayed ?? data.delayed;
 
   const endTimeDisplay = endTime != null
-    ? formatTimestamp(typeof endTime === "number" ? new Date(endTime * 1000).toISOString() : String(endTime))
+    ? formatTimestamp(typeof endTime === "number" ? new Date(endTime * 1000).toISOString() : endTime)
     : null;
 
   return (

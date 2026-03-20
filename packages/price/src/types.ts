@@ -1,40 +1,40 @@
 type Scalar = string | number | boolean | null;
 
-export type CurrentPriceResponse = {
-  tokenPrice: Array<{
+export interface CurrentPriceResponse {
+  tokenPrice: {
     price: Scalar;
     timestamp: Scalar;
     marketCap: Scalar;
     unitName: string;
-  }>;
-};
+  }[];
+}
 
-export type PriceHistoryResponse = {
-  tokenPrice: Array<{
+export interface PriceHistoryResponse {
+  tokenPrice: {
     price: Scalar;
     timestamp: Scalar;
-  }>;
-};
+  }[];
+}
 
-export type MarketSummaryResponse = {
-  communityPool: Array<{
+export interface MarketSummaryResponse {
+  communityPool: {
     coins: unknown;
-  }>;
-  inflation: Array<{
+  }[];
+  inflation: {
     value: Scalar;
-  }>;
-  tokenPrice: Array<{
+  }[];
+  tokenPrice: {
     price: Scalar;
     marketCap: Scalar;
     timestamp: Scalar;
-  }>;
-  supply: Array<{
+  }[];
+  supply: {
     coins: unknown;
-  }>;
-  bondedTokens: Array<{
+  }[];
+  bondedTokens: {
     bondedTokens: Scalar;
-  }>;
-  distributionParams: Array<{
+  }[];
+  distributionParams: {
     params: unknown;
-  }>;
-};
+  }[];
+}

@@ -38,7 +38,7 @@ export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }
         variant="ghost"
         size="icon"
         className="fixed top-3 left-3 z-50 md:hidden"
-        onClick={() => setOpen(true)}
+        onClick={() => { setOpen(true); }}
         aria-label="Open menu"
       >
         <Menu className="h-5 w-5" />
@@ -48,7 +48,7 @@ export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
-          onClick={() => setOpen(false)}
+          onClick={() => { setOpen(false); }}
         />
       )}
 
@@ -71,7 +71,7 @@ export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }
             variant="ghost"
             size="icon"
             className="h-7 w-7 md:hidden"
-            onClick={() => setOpen(false)}
+            onClick={() => { setOpen(false); }}
             aria-label="Close menu"
           >
             <X className="h-4 w-4" />

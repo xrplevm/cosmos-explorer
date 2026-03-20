@@ -16,7 +16,7 @@ function toOptionalNumber(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function normalizeCoins(coins: unknown): Array<{ denom: string; amount: string }> {
+function normalizeCoins(coins: unknown): { denom: string; amount: string }[] {
   if (!Array.isArray(coins)) {
     return [];
   }
@@ -35,7 +35,7 @@ function normalizeCoins(coins: unknown): Array<{ denom: string; amount: string }
       return [];
     }
 
-    return [{ denom, amount: String(amount) }];
+    return [{ denom, amount: `${amount as string | number}` }];
   });
 }
 
@@ -53,7 +53,7 @@ function getCoinAmount(coins: unknown, denom: string): TokenAmount | null {
 }
 
 export function mapPrice(response: CurrentPriceResponse, denom: string): Price | null {
-  const row = response.tokenPrice[0];
+  const row = response.tokenPrice[0] as CurrentPriceResponse['tokenPrice'][number] | undefined;
 
   if (!row) {
     return null;
@@ -93,7 +93,7 @@ export function mapMarketSummary(
   response: MarketSummaryResponse,
   denom: string
 ): MarketSummary {
-  const price = response.tokenPrice[0];
+  const price = response.tokenPrice[0] as MarketSummaryResponse['tokenPrice'][number] | undefined;
   const inflation = toOptionalNumber(response.inflation[0]?.value);
   const bondedAmount = toOptionalNumber(response.bondedTokens[0]?.bondedTokens);
   const supply = getCoinAmount(response.supply[0]?.coins, denom);

@@ -29,7 +29,7 @@ export async function StatsCards() {
         <CardHeader className="pb-2">
           <CardDescription>Latest Block</CardDescription>
           <CardTitle className="text-2xl">
-            {stats.latestBlock?.height?.toLocaleString() ?? "N/A"}
+            {stats.latestBlock?.height.toLocaleString() ?? "N/A"}
           </CardTitle>
         </CardHeader>
         <CardContent className="text-xs text-muted-foreground">

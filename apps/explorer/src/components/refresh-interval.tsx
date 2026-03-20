@@ -10,7 +10,7 @@ export function RefreshInterval({ intervalMs = 6000 }: { intervalMs?: number }) 
     const id = setInterval(() => {
       router.refresh();
     }, intervalMs);
-    return () => clearInterval(id);
+    return () => { clearInterval(id); };
   }, [router, intervalMs]);
 
   return null;

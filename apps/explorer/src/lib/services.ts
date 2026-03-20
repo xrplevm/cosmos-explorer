@@ -20,7 +20,7 @@ import type {
 import { PriceService } from "@cosmos-explorer/price";
 import { createFetcher } from "@cosmos-explorer/utils";
 
-export type Services = {
+export interface Services {
   blockService: IBlockService;
   transactionService: ITransactionService;
   priceService: IPriceService;
@@ -28,7 +28,7 @@ export type Services = {
   chainStatsService: IChainStatsService;
   proposalService: IProposalService;
   accountService: IAccountService;
-};
+}
 
 import { getChainConfig } from "./config";
 

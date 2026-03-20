@@ -25,7 +25,7 @@ import {
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 
-function sumPrimaryAmounts(values: Array<string | null | undefined>): string {
+function sumPrimaryAmounts(values: (string | null | undefined)[]): string {
   const total = values.reduce((sum, value) => {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? sum + parsed : sum;
@@ -114,7 +114,7 @@ export default async function AccountDetailPage({
               Withdraw Address
             </span>
             <div className="text-sm font-mono break-all">
-              {account.withdrawalAddress || "N/A"}
+              {account.withdrawalAddress ?? "N/A"}
             </div>
           </div>
           <Separator />

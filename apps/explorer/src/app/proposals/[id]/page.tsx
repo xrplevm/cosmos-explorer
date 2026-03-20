@@ -178,7 +178,7 @@ export default async function ProposalDetailPage({
           <Separator />
           <Row label="Metadata">
             <span className="font-mono text-xs break-all">
-              {proposal.metadata || "N/A"}
+              {proposal.metadata ?? "N/A"}
             </span>
           </Row>
         </CardContent>

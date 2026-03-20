@@ -111,10 +111,10 @@ export function DepositOverviewCard({
             <Separator />
             <DetailRow label="Proposal">
               <Link
-                href={`/proposals/${String(proposalId)}`}
+                href={`/proposals/${proposalId}`}
                 className="font-mono text-primary hover:underline"
               >
-                #{String(proposalId)}
+                #{proposalId}
               </Link>
             </DetailRow>
           </>

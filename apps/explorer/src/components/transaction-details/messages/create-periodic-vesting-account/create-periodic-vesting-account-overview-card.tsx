@@ -58,7 +58,7 @@ export function CreatePeriodicVestingAccountOverviewCard({
   const periods = root.vesting_periods ?? root.vestingPeriods ?? data.vesting_periods ?? data.vestingPeriods;
 
   const startTimeDisplay = startTime != null
-    ? formatTimestamp(typeof startTime === "number" ? new Date(startTime * 1000).toISOString() : String(startTime))
+    ? formatTimestamp(typeof startTime === "number" ? new Date(startTime * 1000).toISOString() : startTime)
     : null;
 
   return (

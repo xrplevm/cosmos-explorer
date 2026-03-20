@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from "@cosmos-explorer/ui/card";
+import { Card, CardHeader } from "@cosmos-explorer/ui/card";
 import { Skeleton } from "@cosmos-explorer/ui/skeleton";
 
 export default function ProposalsLoading() {
