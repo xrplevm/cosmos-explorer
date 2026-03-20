@@ -24,7 +24,7 @@ pnpm --filter @cosmos-explorer/callisto typecheck
 pnpm --filter @cosmos-explorer/explorer typecheck
 ```
 
-Turbo config is in [turbo.json](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/turbo.json). `typecheck` and `lint` depend on `^build`.
+Turbo config is in `turbo.json`. `typecheck` and `lint` depend on `^build`.
 
 ## Linting
 
@@ -36,7 +36,7 @@ Shared ESLint 9 flat config lives in `packages/eslint-config/`. Three composable
 
 Each package has its own `eslint.config.mjs` that spreads the right shared config. `projectService: true` auto-discovers the nearest `tsconfig.json` — do not set `project` alongside it. Run `eslint . --fix` to auto-fix stylistic violations.
 
-## Actual Package Layout
+## Package Layout
 
 ```text
 apps/explorer          Next.js explorer app
@@ -49,9 +49,10 @@ packages/adapters/callisto
                        Callisto-backed chain services
 packages/price         Price service implementation
 packages/ui            Shared UI components
+packages/eslint-config Shared ESLint flat configs
 ```
 
-Older references to `hooks`, `hasura`, `xrplevm adapter`, or a single `IChainDataSource` contract are outdated for this repo state.
+Older references to `hooks`, `hasura`, `xrplevm adapter`, `storybook`, or a single `IChainDataSource` contract are outdated for this repo state.
 
 ## Architecture Rules
 
@@ -70,14 +71,46 @@ Older references to `hooks`, `hasura`, `xrplevm adapter`, or a single `IChainDat
 
 ### Explorer app
 
-- Service composition happens in [apps/explorer/src/lib/services.ts](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/apps/explorer/src/lib/services.ts).
+- Service composition happens in `apps/explorer/src/lib/services.ts`.
 - Pages should consume services, not raw GraphQL.
 - Prefer server-side reads over adding client hooks unless there is a concrete need.
+
+### Transaction Detail Variants
+
+Transaction details follow the **explicit variant pattern**: one self-contained component per message type.
+
+```text
+apps/explorer/src/components/transaction-details/
+├── messages/              # One folder per message type (~43 variants)
+│   ├── default/           # Fallback for unknown types
+│   ├── ethereum/          # EthereumTx (both ethermint and cosmos.evm)
+│   ├── send/              # Cosmos bank Send
+│   ├── delegate/          # Cosmos staking Delegate
+│   ├── vote/              # Cosmos governance Vote
+│   ├── transfer/          # IBC Transfer
+│   └── ...                # All other Cosmos SDK, IBC, and custom types
+├── shared/                # Reusable primitives (header, detail-row, overview card, data section)
+├── transaction-detail-root.tsx   # Switch dispatch by message type
+├── transaction-data-json-tabs.tsx
+├── transaction-data-payload.ts
+├── types.ts
+└── index.ts               # Barrel exports
+```
+
+Each variant folder contains:
+- `index.tsx` — composes `TransactionDetailHeader` + type-specific overview card + `DefaultTransactionDataSection`
+- `*-overview-card.tsx` — type-specific fields plus base transaction rows (hash, status, block, timestamp, fee, gas, memo)
+
+Message type resolution: the Callisto adapter's `formatMessageType()` strips the `Msg` prefix from the last segment of the protobuf type URL (e.g., `/cosmos.staking.v1beta1.MsgDelegate` → `Delegate`). The `TransactionDetailRoot` switch dispatches on this short name.
+
+To add a new variant:
+1. Create `messages/<type-name>/index.tsx` and `messages/<type-name>/<type-name>-overview-card.tsx`
+2. Add a `case` in `transaction-detail-root.tsx`
+3. Add barrel exports in `index.ts`
 
 ## Working Conventions
 
 - Prefer `rg` and `rg --files` for search.
-- Use `apply_patch` for manual file edits.
 - Avoid destructive git commands unless explicitly requested.
 - Do not revert unrelated user changes.
 - Build or typecheck the smallest affected package set first, then verify the app package if the change crosses boundaries.
@@ -91,8 +124,9 @@ Older references to `hooks`, `hasura`, `xrplevm adapter`, or a single `IChainDat
 
 ## Useful Files
 
-- [apps/explorer/chain.json](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/apps/explorer/chain.json)
-- [apps/explorer/src/lib/services.ts](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/apps/explorer/src/lib/services.ts)
-- [packages/core/src/index.ts](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/packages/core/src/index.ts)
-- [packages/adapters/callisto/src/index.ts](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/packages/adapters/callisto/src/index.ts)
-- [plan.md](/home/doctor/Documents/Peersyst/xrp/sidechain/cosmos-explorer/plan.md)
+- `apps/explorer/chain.json`
+- `apps/explorer/src/lib/services.ts`
+- `apps/explorer/src/lib/formatters.ts`
+- `packages/core/src/index.ts`
+- `packages/adapters/callisto/src/index.ts`
+- `plan.md`
