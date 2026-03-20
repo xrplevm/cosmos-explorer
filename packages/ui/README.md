@@ -4,28 +4,28 @@ Shadcn-based design system for the Cosmos Explorer. Dark-mode-first, Tailwind v4
 
 ## Components
 
-| Component | Import |
-|-----------|--------|
-| Avatar | `@cosmos-explorer/ui/avatar` |
-| Badge | `@cosmos-explorer/ui/badge` |
-| Button | `@cosmos-explorer/ui/button` |
-| Card | `@cosmos-explorer/ui/card` |
-| Chart | `@cosmos-explorer/ui/chart` |
-| Dialog | `@cosmos-explorer/ui/dialog` |
+| Component     | Import                              |
+| ------------- | ----------------------------------- |
+| Avatar        | `@cosmos-explorer/ui/avatar`        |
+| Badge         | `@cosmos-explorer/ui/badge`         |
+| Button        | `@cosmos-explorer/ui/button`        |
+| Card          | `@cosmos-explorer/ui/card`          |
+| Chart         | `@cosmos-explorer/ui/chart`         |
+| Dialog        | `@cosmos-explorer/ui/dialog`        |
 | Dropdown Menu | `@cosmos-explorer/ui/dropdown-menu` |
-| Input | `@cosmos-explorer/ui/input` |
-| Label | `@cosmos-explorer/ui/label` |
-| Popover | `@cosmos-explorer/ui/popover` |
-| Scroll Area | `@cosmos-explorer/ui/scroll-area` |
-| Select | `@cosmos-explorer/ui/select` |
-| Separator | `@cosmos-explorer/ui/separator` |
-| Sheet | `@cosmos-explorer/ui/sheet` |
-| Skeleton | `@cosmos-explorer/ui/skeleton` |
-| Table | `@cosmos-explorer/ui/table` |
-| Tabs | `@cosmos-explorer/ui/tabs` |
-| Tooltip | `@cosmos-explorer/ui/tooltip` |
-| Utilities | `@cosmos-explorer/ui/lib/utils` |
-| Styles | `@cosmos-explorer/ui/styles` |
+| Input         | `@cosmos-explorer/ui/input`         |
+| Label         | `@cosmos-explorer/ui/label`         |
+| Popover       | `@cosmos-explorer/ui/popover`       |
+| Scroll Area   | `@cosmos-explorer/ui/scroll-area`   |
+| Select        | `@cosmos-explorer/ui/select`        |
+| Separator     | `@cosmos-explorer/ui/separator`     |
+| Sheet         | `@cosmos-explorer/ui/sheet`         |
+| Skeleton      | `@cosmos-explorer/ui/skeleton`      |
+| Table         | `@cosmos-explorer/ui/table`         |
+| Tabs          | `@cosmos-explorer/ui/tabs`          |
+| Tooltip       | `@cosmos-explorer/ui/tooltip`       |
+| Utilities     | `@cosmos-explorer/ui/lib/utils`     |
+| Styles        | `@cosmos-explorer/ui/styles`        |
 
 ## Usage in a Next.js app
 
@@ -63,7 +63,12 @@ The `@source` path must be relative from your CSS file to `packages/ui/src` so T
 
 ```tsx
 import { Button } from "@cosmos-explorer/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@cosmos-explorer/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@cosmos-explorer/ui/card";
 ```
 
 ## Adding a new component

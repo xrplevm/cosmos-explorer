@@ -15,6 +15,8 @@ export const ChainConfigSchema = z.object({
     endpoints: z.object({
       graphqlHttp: z.string().url(),
       graphqlWs: z.string().url().optional(),
+      /** Base URL for the EVM block explorer (e.g. `https://explorer.testnet.xrplevm.org`). */
+      evmExplorer: z.string().url().optional(),
     }),
   }),
   branding: z.object({

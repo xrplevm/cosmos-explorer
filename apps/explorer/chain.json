@@ -11,7 +11,8 @@
       "exponent": 18
     },
     "endpoints": {
-      "graphqlHttp": "https://governance.testnet.xrplevm.org/v1/graphql"
+      "graphqlHttp": "https://governance.testnet.xrplevm.org/v1/graphql",
+      "evmExplorer": "https://explorer.testnet.xrplevm.org"
     }
   },
   "branding": {
