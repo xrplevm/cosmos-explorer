@@ -8,6 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Separator } from "@cosmos-explorer/ui/separator";
+import { NetworkLogo } from "@/components/network-logo";
 
 interface FooterLinkDef {
   name: string;
@@ -61,14 +62,7 @@ export function Footer() {
       <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
         {/* Left: branding + description */}
         <div className="max-w-md space-y-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">X</span>
-            </div>
-            <span className="text-base font-semibold tracking-tight">
-              {config.branding.title}
-            </span>
-          </div>
+          <NetworkLogo className="h-8 w-auto" />
           {config.branding.description && (
             <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
               {config.branding.description}

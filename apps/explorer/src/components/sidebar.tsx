@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@cosmos-explorer/ui/lib/utils";
+import { NetworkLogo } from "@/components/network-logo";
 import { Button } from "@cosmos-explorer/ui/button";
 
 const nav = [
@@ -61,12 +62,7 @@ export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }
         )}
       >
         <div className="flex h-14 items-center justify-between border-b border-border px-5">
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-md bg-primary" />
-            <span className="text-sm font-semibold tracking-tight">
-              {title}
-            </span>
-          </div>
+          <NetworkLogo className="h-5 w-auto" />
           <Button
             variant="ghost"
             size="icon"
