@@ -1,0 +1,13 @@
+export { ProposalContentRoot } from "./proposal-content-root";
+export { ProposalContent } from "./shared/proposal-content-parts";
+export { RawContentSection } from "./shared/raw-content-section";
+export { SoftwareUpgradeContent } from "./variants/software-upgrade";
+export { CommunityPoolSpendContent } from "./variants/community-pool-spend";
+export { ParameterChangeContent } from "./variants/parameter-change";
+export { TextContent } from "./variants/text";
+export { AddValidatorContent } from "./variants/add-validator";
+export { RemoveValidatorContent } from "./variants/remove-validator";
+export { CancelUpgradeContent } from "./variants/cancel-upgrade";
+export { UpdateParamsContent } from "./variants/update-params";
+export { DefaultContent } from "./variants/default";
+export type { ProposalContentViewProps, ProposalContentItem } from "./types";

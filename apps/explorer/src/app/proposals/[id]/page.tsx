@@ -4,17 +4,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
+import {
+  Timeline,
+  TimelineItem,
+  TimelineConnector,
+  TimelineDot,
+  TimelineContent,
+  TimelineTitle,
+  TimelineDescription,
+} from "@cosmos-explorer/ui/timeline";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
 import {
+  formatNumber,
   formatPercent,
   formatTimestamp,
   formatTokenAmount,
 } from "@/lib/formatters";
 import { DetailBackButton } from "@/components/detail-back-button";
 import { getServices } from "@/lib/services";
-import type { ProposalStatus, ProposalTally } from "@cosmos-explorer/core";
+import type {
+  ProposalDetail,
+  ProposalStatus,
+  ProposalTally,
+} from "@cosmos-explorer/core";
 import { notFound } from "next/navigation";
+import { Check, Clock, Vote, Coins } from "lucide-react";
+import { ProposalContentRoot } from "@/components/proposal-content";
 
 function Row({
   label,
@@ -96,6 +112,93 @@ function VoteBar({
   );
 }
 
+type TimelinePhase = "submitted" | "deposit" | "voting" | "result";
+
+function getActivePhase(status: ProposalStatus): TimelinePhase {
+  switch (status) {
+    case "deposit":
+      return "deposit";
+    case "voting":
+      return "voting";
+    case "passed":
+    case "rejected":
+    case "failed":
+      return "result";
+    default:
+      return "submitted";
+  }
+}
+
+const PHASE_ORDER: TimelinePhase[] = ["submitted", "deposit", "voting", "result"];
+
+function isPhaseCompleted(phase: TimelinePhase, activePhase: TimelinePhase): boolean {
+  return PHASE_ORDER.indexOf(phase) < PHASE_ORDER.indexOf(activePhase);
+}
+
+function isPhaseActive(phase: TimelinePhase, activePhase: TimelinePhase): boolean {
+  return phase === activePhase;
+}
+
+function ProposalTimeline({ proposal }: { proposal: ProposalDetail }) {
+  const activePhase = getActivePhase(proposal.status);
+
+  const phases: {
+    phase: TimelinePhase;
+    label: string;
+    timestamp: string | null;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      phase: "submitted",
+      label: "Submitted",
+      timestamp: proposal.submitTime,
+      icon: <Check className="h-3 w-3" />,
+    },
+    {
+      phase: "deposit",
+      label: "Deposit Period",
+      timestamp: proposal.depositEndTime,
+      icon: <Coins className="h-3 w-3" />,
+    },
+    {
+      phase: "voting",
+      label: "Voting Period",
+      timestamp: proposal.votingStartTime,
+      icon: <Vote className="h-3 w-3" />,
+    },
+    {
+      phase: "result",
+      label: toStatusLabel(proposal.status),
+      timestamp: proposal.votingEndTime,
+      icon: <Clock className="h-3 w-3" />,
+    },
+  ];
+
+  return (
+    <Timeline>
+      {phases.map((p, i) => {
+        const completed = isPhaseCompleted(p.phase, activePhase);
+        const active = isPhaseActive(p.phase, activePhase);
+
+        return (
+          <TimelineItem key={p.phase} completed={completed} active={active}>
+            <TimelineDot icon={p.icon} />
+            {i < phases.length - 1 && <TimelineConnector />}
+            <TimelineContent>
+              <TimelineTitle>{p.label}</TimelineTitle>
+              {p.timestamp != null && (
+                <TimelineDescription>
+                  {formatTimestamp(p.timestamp)}
+                </TimelineDescription>
+              )}
+            </TimelineContent>
+          </TimelineItem>
+        );
+      })}
+    </Timeline>
+  );
+}
+
 export default async function ProposalDetailPage({
   params,
 }: {
@@ -158,20 +261,6 @@ export default async function ProposalDetailPage({
             </span>
           </Row>
           <Separator />
-          <Row label="Submit Time">{formatTimestamp(proposal.submitTime)}</Row>
-          <Separator />
-          <Row label="Deposit End">
-            {formatTimestamp(proposal.depositEndTime)}
-          </Row>
-          <Separator />
-          <Row label="Voting Start">
-            {formatTimestamp(proposal.votingStartTime)}
-          </Row>
-          <Separator />
-          <Row label="Voting End">
-            {formatTimestamp(proposal.votingEndTime)}
-          </Row>
-          <Separator />
           <Row label="Bonded Snapshot">
             {formatTokenAmount(proposal.tally?.bondedTokens, 0)}
           </Row>
@@ -184,55 +273,94 @@ export default async function ProposalDetailPage({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Voting</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <VoteBar yes={yes} no={no} abstain={abstain} veto={veto} />
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-lg border border-border p-3">
-              <p className="text-xs text-muted-foreground">Yes</p>
-              <p className="mt-1 text-xl font-bold text-green-400">
-                {formatPercent(yes)}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border p-3">
-              <p className="text-xs text-muted-foreground">No</p>
-              <p className="mt-1 text-xl font-bold text-red-400">
-                {formatPercent(no)}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border p-3">
-              <p className="text-xs text-muted-foreground">Abstain</p>
-              <p className="mt-1 text-xl font-bold">{formatPercent(abstain)}</p>
-            </div>
-            <div className="rounded-lg border border-border p-3">
-              <p className="text-xs text-muted-foreground">No with Veto</p>
-              <p className="mt-1 text-xl font-bold text-yellow-400">
-                {formatPercent(veto)}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-10">
+        <div className="lg:col-span-7">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Voting</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <VoteBar yes={yes} no={no} abstain={abstain} veto={veto} />
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs text-muted-foreground">Yes</p>
+                  <p className="mt-1 text-xl font-bold text-green-400">
+                    {formatPercent(yes)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs text-muted-foreground">No</p>
+                  <p className="mt-1 text-xl font-bold text-red-400">
+                    {formatPercent(no)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs text-muted-foreground">Abstain</p>
+                  <p className="mt-1 text-xl font-bold">
+                    {formatPercent(abstain)}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs text-muted-foreground">No with Veto</p>
+                  <p className="mt-1 text-xl font-bold text-yellow-400">
+                    {formatPercent(veto)}
+                  </p>
+                </div>
+              </div>
+              <Separator />
+              <div className="grid grid-cols-2 gap-x-8 gap-y-3 pt-2 sm:grid-cols-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">Yes Votes</p>
+                  <p className="mt-1 text-sm font-medium">
+                    {proposal.tally ? formatNumber(Number(proposal.tally.yes)) : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">No Votes</p>
+                  <p className="mt-1 text-sm font-medium">
+                    {proposal.tally ? formatNumber(Number(proposal.tally.no)) : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Abstain Votes</p>
+                  <p className="mt-1 text-sm font-medium">
+                    {proposal.tally ? formatNumber(Number(proposal.tally.abstain)) : "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Veto Votes</p>
+                  <p className="mt-1 text-sm font-medium">
+                    {proposal.tally ? formatNumber(Number(proposal.tally.noWithVeto)) : "N/A"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-3">
+                <p className="text-xs text-muted-foreground">
+                  Total Votes: <span className="font-medium text-foreground">{formatNumber(tallyTotal)}</span>
+                </p>
+                {proposal.tally?.bondedTokens != null && (
+                  <p className="text-xs text-muted-foreground">
+                    Turnout: <span className="font-medium text-foreground">{formatPercent(tallyTotal > 0 && Number(proposal.tally.bondedTokens.amount) > 0 ? (tallyTotal / Number(proposal.tally.bondedTokens.amount)) * 100 : null)}</span>
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Description</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
-            <p>{proposal.description || "No description available."}</p>
-            <div>
-              <p className="mb-2 font-medium text-foreground">Content</p>
-              <pre className="max-w-full overflow-x-auto rounded-md bg-muted p-3 text-xs">
-                {JSON.stringify(proposal.content, null, 2)}
-              </pre>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="lg:col-span-3">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProposalTimeline proposal={proposal} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      <ProposalContentRoot proposal={proposal} />
     </div>
   );
 }

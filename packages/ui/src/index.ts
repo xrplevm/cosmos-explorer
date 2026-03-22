@@ -112,6 +112,17 @@ export {
   useChart,
   type ChartConfig,
 } from "./components/ui/chart";
+export {
+  Timeline,
+  TimelineItem,
+  TimelineConnector,
+  TimelineDot,
+  TimelineContent,
+  TimelineTitle,
+  TimelineDescription,
+  type TimelineItemProps,
+  type TimelineDotProps,
+} from "./components/ui/timeline";
 export { cn } from "./lib/utils";
 
 // Error components

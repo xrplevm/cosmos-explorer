@@ -27,6 +27,7 @@
     "./animated-table-body": "./src/components/ui/animated-table-body.tsx",
     "./table": "./src/components/ui/table.tsx",
     "./tabs": "./src/components/ui/tabs.tsx",
+    "./timeline": "./src/components/ui/timeline.tsx",
     "./tooltip": "./src/components/ui/tooltip.tsx",
     ".": "./src/index.ts"
   },
