@@ -21,4 +21,5 @@ export interface IBlockService {
   getLatestBlocks(limit: number): Promise<Block[]>;
   getBlocks(params?: { limit?: number; offset?: number }): Promise<Block[]>;
   getBlockByHeight(height: number): Promise<BlockDetail | null>;
+  getBlockByHash(hash: string): Promise<Block | null>;
 }

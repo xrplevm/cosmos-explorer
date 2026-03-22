@@ -3,6 +3,7 @@ import { type Fetcher, resolveKeybaseAvatars } from "@cosmos-explorer/utils";
 
 import { mapBlockDetail, mapBlocks, type RawBlock } from "../mappers";
 import {
+  BLOCK_BY_HASH_QUERY,
   BLOCK_DETAILS_QUERY,
   BLOCKS_QUERY,
   LATEST_BLOCKS_QUERY,
@@ -79,5 +80,19 @@ export class CallistoBlockService implements IBlockService {
 
     const [overview] = await resolveAvatars([detail.overview as RawBlock]);
     return { ...detail, overview };
+  }
+
+  async getBlockByHash(hash: string): Promise<Block | null> {
+    const response = await this.fetcher.graphql<
+      LatestBlocksResponse,
+      { hash: string }
+    >({
+      query: BLOCK_BY_HASH_QUERY,
+      variables: { hash },
+      operationName: "BlockByHash",
+    });
+
+    const blocks = await resolveAvatars(mapBlocks(response));
+    return blocks[0] ?? null;
   }
 }

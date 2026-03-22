@@ -74,6 +74,26 @@ export const BLOCK_DETAILS_QUERY = `
   }
 `;
 
+export const BLOCK_BY_HASH_QUERY = `
+  query BlockByHash($hash: String!) {
+    blocks: block(limit: 1, where: { hash: { _eq: $hash } }) {
+      height
+      txs: num_txs
+      hash
+      timestamp
+      validator {
+        validatorInfo: validator_info {
+          operatorAddress: operator_address
+        }
+        validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
+          moniker
+          identity
+        }
+      }
+    }
+  }
+`;
+
 export const LATEST_TRANSACTIONS_QUERY = `
   query LatestTransactions($limit: Int = 7) {
     transactions: transaction(limit: $limit, order_by: { height: desc }) {
