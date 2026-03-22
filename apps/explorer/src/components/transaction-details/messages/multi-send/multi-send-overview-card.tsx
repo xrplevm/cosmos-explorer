@@ -79,7 +79,7 @@ export function MultiSendOverviewCard({
         <DetailRow label="Block">
           <Link
             href={`/blocks/${String(transaction.height)}`}
-            className="font-mono text-primary hover:underline"
+            className="font-mono text-foreground hover:underline"
           >
             #{transaction.height.toLocaleString()}
           </Link>
@@ -104,7 +104,7 @@ export function MultiSendOverviewCard({
                       <div className="flex min-w-0 flex-nowrap items-center gap-2">
                         <Link
                           href={`/account/${encodeURIComponent(entry.address)}`}
-                          className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
+                          className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
                         >
                           {entry.address}
                         </Link>
@@ -136,7 +136,7 @@ export function MultiSendOverviewCard({
                       <div className="flex min-w-0 flex-nowrap items-center gap-2">
                         <Link
                           href={`/account/${encodeURIComponent(entry.address)}`}
-                          className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
+                          className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
                         >
                           {entry.address}
                         </Link>

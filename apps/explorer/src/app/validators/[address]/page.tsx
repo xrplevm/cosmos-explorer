@@ -178,7 +178,7 @@ export default async function ValidatorDetailPage({
               <div className="flex items-center gap-1">
                 <Link
                   href={`/account/${validator.selfDelegateAddress}`}
-                  className="font-mono text-xs break-all text-primary hover:underline"
+                  className="font-mono text-xs break-all text-foreground hover:underline"
                 >
                   {validator.selfDelegateAddress}
                 </Link>
@@ -195,7 +195,7 @@ export default async function ValidatorDetailPage({
                 href={validator.website}
                 target="_blank"
                 rel="noreferrer"
-                className="text-primary hover:underline"
+                className="text-foreground hover:underline"
               >
                 {validator.website}
               </a>
@@ -239,7 +239,7 @@ export default async function ValidatorDetailPage({
                         <div className="flex items-center gap-1">
                           <Link
                             href={`/blocks/${block.height}`}
-                            className="text-primary hover:underline"
+                            className="text-foreground hover:underline"
                           >
                             #{block.height.toLocaleString()}
                           </Link>

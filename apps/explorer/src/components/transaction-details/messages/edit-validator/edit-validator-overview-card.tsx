@@ -96,7 +96,7 @@ export function EditValidatorOverviewCard({
         <DetailRow label="Block">
           <Link
             href={`/blocks/${String(transaction.height)}`}
-            className="font-mono text-primary hover:underline"
+            className="font-mono text-foreground hover:underline"
           >
             #{transaction.height.toLocaleString()}
           </Link>

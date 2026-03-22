@@ -199,7 +199,7 @@ export default async function AccountDetailPage({
                         <TableCell>
                           <Link
                             href={`/validators/${delegation.validatorAddress}`}
-                            className="text-primary hover:underline"
+                            className="text-foreground hover:underline"
                           >
                             {delegation.validatorAddress}
                           </Link>
@@ -247,7 +247,7 @@ export default async function AccountDetailPage({
                       <TableCell className="font-mono text-xs">
                         <Link
                           href={`/transactions/${transaction.hash}`}
-                          className="text-primary hover:underline"
+                          className="text-foreground hover:underline"
                         >
                           {formatHash(transaction.hash)}
                         </Link>

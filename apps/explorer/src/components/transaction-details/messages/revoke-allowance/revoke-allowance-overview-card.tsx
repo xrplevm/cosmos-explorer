@@ -65,7 +65,7 @@ export function RevokeAllowanceOverviewCard({
         <DetailRow label="Block">
           <Link
             href={`/blocks/${String(transaction.height)}`}
-            className="font-mono text-primary hover:underline"
+            className="font-mono text-foreground hover:underline"
           >
             #{transaction.height.toLocaleString()}
           </Link>
@@ -86,7 +86,7 @@ export function RevokeAllowanceOverviewCard({
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
                   href={`/account/${encodeURIComponent(granter)}`}
-                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
                 >
                   {granter}
                 </Link>
@@ -103,7 +103,7 @@ export function RevokeAllowanceOverviewCard({
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
                   href={`/account/${encodeURIComponent(grantee)}`}
-                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
                 >
                   {grantee}
                 </Link>

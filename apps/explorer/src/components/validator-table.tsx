@@ -86,7 +86,7 @@ export function ValidatorTable({ validators }: { validators: Validator[] }) {
                 <TableRow key={v.address}>
                   <TableCell className="text-muted-foreground">{index + 1}</TableCell>
                   <TableCell>
-                    <Link href={`/validators/${v.address}`} className="flex items-center gap-3 hover:text-primary">
+                    <Link href={`/validators/${v.address}`} className="flex items-center gap-3 hover:text-foreground">
                       <Avatar className="h-7 w-7">
                         {v.avatarUrl && <AvatarImage src={v.avatarUrl} alt={v.moniker} />}
                         <AvatarFallback className="text-xs">{v.moniker.slice(0, 2)}</AvatarFallback>

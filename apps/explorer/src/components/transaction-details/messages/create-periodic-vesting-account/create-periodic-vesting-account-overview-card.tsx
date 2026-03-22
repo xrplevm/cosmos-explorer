@@ -86,7 +86,7 @@ export function CreatePeriodicVestingAccountOverviewCard({
         <DetailRow label="Block">
           <Link
             href={`/blocks/${String(transaction.height)}`}
-            className="font-mono text-primary hover:underline"
+            className="font-mono text-foreground hover:underline"
           >
             #{transaction.height.toLocaleString()}
           </Link>
@@ -107,7 +107,7 @@ export function CreatePeriodicVestingAccountOverviewCard({
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
                   href={`/account/${encodeURIComponent(from)}`}
-                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
                 >
                   {from}
                 </Link>
@@ -124,7 +124,7 @@ export function CreatePeriodicVestingAccountOverviewCard({
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
                   href={`/account/${encodeURIComponent(to)}`}
-                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary hover:underline"
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
                 >
                   {to}
                 </Link>

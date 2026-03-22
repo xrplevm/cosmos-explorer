@@ -111,7 +111,7 @@ export default async function BlocksPage({
                   {visibleBlocks.map((block) => (
                     <TableRow key={block.height}>
                       <TableCell className="font-mono text-sm">
-                        <Link href={`/blocks/${String(block.height)}`} className="text-primary hover:underline">
+                        <Link href={`/blocks/${String(block.height)}`} className="text-foreground hover:underline">
                           #{block.height.toLocaleString()}
                         </Link>
                       </TableCell>
@@ -123,7 +123,7 @@ export default async function BlocksPage({
                       </TableCell>
                       <TableCell>{block.txs}</TableCell>
                       <TableCell>
-                        <Link href={`/validators/${block.proposer}`} className="flex items-center gap-2 hover:text-primary">
+                        <Link href={`/validators/${block.proposer}`} className="flex items-center gap-2 hover:text-foreground">
                           {block.proposerAvatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img

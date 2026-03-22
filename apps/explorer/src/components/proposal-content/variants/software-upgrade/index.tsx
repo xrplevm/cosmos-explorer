@@ -61,7 +61,7 @@ export function SoftwareUpgradeContent({ proposal }: ProposalContentViewProps) {
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="break-all text-xs text-primary hover:underline"
+                    className="break-all text-xs text-foreground hover:underline"
                   >
                     {url}
                   </a>

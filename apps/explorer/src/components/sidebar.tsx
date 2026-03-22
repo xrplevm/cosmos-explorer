@@ -56,12 +56,12 @@ export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 flex h-screen w-60 flex-col border-r border-border bg-background transition-transform duration-200",
+          "fixed top-0 left-0 z-50 flex h-screen w-60 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-transform duration-200",
           "md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex h-14 items-center justify-between border-b border-border px-5">
+        <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-5">
           <NetworkLogo className="h-5 w-auto" />
           <Button
             variant="ghost"
@@ -87,8 +87,8 @@ export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                   active
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                    : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
                 )}
               >
                 <item.icon className="h-4 w-4" />
@@ -98,7 +98,7 @@ export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }
           })}
         </nav>
 
-        <div className="border-t border-border p-4">
+        <div className="border-t border-sidebar-border p-4">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-green-500" />
             <span className="text-xs text-muted-foreground capitalize">{chainEnv}</span>

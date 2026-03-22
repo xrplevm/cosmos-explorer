@@ -21,7 +21,7 @@ const columns: Column<Block>[] = [
     render: (block) => (
       <Link
         href={`/blocks/${String(block.height)}`}
-        className="font-mono text-sm text-primary hover:underline"
+        className="font-mono text-sm text-foreground hover:underline"
       >
         {block.height.toLocaleString()}
       </Link>
@@ -46,7 +46,7 @@ const columns: Column<Block>[] = [
         )}
         <Link
           href={`/validators/${block.proposer}`}
-          className="text-sm text-primary hover:underline truncate max-w-[120px]"
+          className="text-sm text-foreground hover:underline truncate max-w-[120px]"
         >
           {block.proposerMoniker ?? block.proposer}
         </Link>

@@ -110,7 +110,7 @@ export default async function TransactionsPage({
                         <div className="flex items-center gap-1">
                           <Link
                             href={`/transactions/${tx.hash}`}
-                            className="font-mono text-sm text-primary hover:underline"
+                            className="font-mono text-sm text-foreground hover:underline"
                           >
                             {formatHash(tx.hash)}
                           </Link>
@@ -131,7 +131,7 @@ export default async function TransactionsPage({
                       <TableCell className="text-right font-mono text-sm">{tx.messageCount}</TableCell>
                       <TableCell className="text-right font-mono text-sm">
                         <div className="flex items-center justify-end gap-1">
-                          <Link href={`/blocks/${String(tx.height)}`} className="text-primary hover:underline">
+                          <Link href={`/blocks/${String(tx.height)}`} className="text-foreground hover:underline">
                             #{tx.height.toLocaleString()}
                           </Link>
                           <CopyButton value={String(tx.height)} label="block height" size="xs" />

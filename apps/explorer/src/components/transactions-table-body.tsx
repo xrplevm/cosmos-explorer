@@ -24,7 +24,7 @@ const columns: Column<TransactionSummary>[] = [
     render: (tx) => (
       <Link
         href={`/transactions/${tx.hash}`}
-        className="font-mono text-sm text-primary hover:underline"
+        className="font-mono text-sm text-foreground hover:underline"
       >
         {formatHash(tx.hash)}
       </Link>
