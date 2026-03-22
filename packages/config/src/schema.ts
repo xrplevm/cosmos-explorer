@@ -21,9 +21,18 @@ export const ChainConfigSchema = z.object({
   }),
   branding: z.object({
     title: z.string(),
+    description: z.string().optional(),
     logoPath: z.string().optional(),
     favicon: z.string().optional(),
   }),
+  links: z
+    .object({
+      github: z.string().url().optional(),
+      discord: z.string().url().optional(),
+      website: z.string().url().optional(),
+      issues: z.string().url().optional(),
+    })
+    .optional(),
   features: z.object({
     proposals: z.boolean().default(true),
     accounts: z.boolean().default(true),

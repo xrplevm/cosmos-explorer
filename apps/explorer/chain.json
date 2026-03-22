@@ -16,7 +16,14 @@
     }
   },
   "branding": {
-    "title": "XRPL EVM Explorer"
+    "title": "XRPL EVM Explorer",
+    "description": "The XRPL EVM Sidechain is a fast and secure blockchain that brings web3 applications to the XRP Ledger community."
+  },
+  "links": {
+    "github": "https://github.com/xrplevm/cosmos-explorer",
+    "discord": "https://discord.gg/xrplevm",
+    "website": "https://peersyst.com",
+    "issues": "https://github.com/xrplevm/cosmos-explorer/issues"
   },
   "features": {
     "proposals": true,
