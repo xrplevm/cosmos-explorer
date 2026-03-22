@@ -180,6 +180,16 @@ export const registry: RegistryCategory[] = [
         slug: "proposals-table",
         description: "Governance proposals with status and voting period.",
       },
+      {
+        name: "Proposal Content",
+        slug: "proposal-content",
+        description: "Type-specific proposal content variants with composable building blocks.",
+      },
+      {
+        name: "Timeline",
+        slug: "timeline",
+        description: "Vertical timeline for proposal lifecycle phases.",
+      },
     ],
   },
 ];

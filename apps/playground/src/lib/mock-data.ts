@@ -58,6 +58,203 @@ export const mockProposals = [
   { id: 36, title: "Fund Security Audit", status: "Rejected" as const, type: "CommunityPoolSpend", submitTime: "2026-01-05", votingEnd: "2026-01-19" },
 ];
 
+/* ─── Mock Proposal Details (ProposalDetail shape from @cosmos-explorer/core) ── */
+
+const baseTally = {
+  yes: "15000000",
+  no: "2000000",
+  abstain: "500000",
+  noWithVeto: "100000",
+  bondedTokens: { amount: "26000000", denom: "axrp" },
+};
+
+export const mockProposalDetails = {
+  softwareUpgrade: {
+    id: 42,
+    title: "Enable IBC Transfers",
+    description: "The XRPL EVM sidechain upgrade v10.0.0 is ready to migrate Cosmos EVM v0.4.2 to v0.6.0, a fully supported fork of Cosmos EVM.",
+    proposer: "ethm1z4f0lx5t3mwxq9799nlefpz7v0s0t0eed7w3w8",
+    status: "passed" as const,
+    type: "SoftwareUpgrade",
+    submitTime: "2026-02-19T18:53:18Z",
+    votingEndTime: "2026-02-20T18:53:18Z",
+    metadata: "ipfs://CID",
+    depositEndTime: "2026-02-21T18:53:18Z",
+    votingStartTime: "2026-02-19T18:53:18Z",
+    tally: baseTally,
+    content: [{
+      "@type": "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade",
+      authority: "ethm1z4f0lx5t3mwxq9799nlefpz7v0s0t0eed7w3w8",
+      plan: {
+        name: "v10.0.0",
+        height: "5601606",
+        time: "0001-01-01T00:00:00Z",
+        info: '{"binaries":{"linux/amd64":"https://github.com/xrplevm/node/releases/download/v10.0.0/node_10.0.0_Linux_amd64.tar.gz","linux/arm64":"https://github.com/xrplevm/node/releases/download/v10.0.0/node_10.0.0_Linux_arm64.tar.gz"}}',
+        upgraded_client_state: null,
+      },
+    }],
+  },
+
+  communityPoolSpend: {
+    id: 41,
+    title: "Community Pool Spend for Developer Grants",
+    description: "Allocate 50,000 XRP from the community pool to fund developer grants for Q2 2026.",
+    proposer: "ethm1abc123def456ghi789jkl012mno345pqr678stu",
+    status: "voting" as const,
+    type: "CommunityPoolSpend",
+    submitTime: "2026-03-10T12:00:00Z",
+    votingEndTime: "2026-03-24T12:00:00Z",
+    metadata: null,
+    depositEndTime: "2026-03-12T12:00:00Z",
+    votingStartTime: "2026-03-12T12:00:00Z",
+    tally: { ...baseTally, yes: "8000000", no: "5000000" },
+    content: [{
+      "@type": "/cosmos.distribution.v1beta1.MsgCommunityPoolSpend",
+      authority: "ethm1govmoduleaddress000000000000000000000",
+      recipient: "ethm1grantrecipient999888777666555444333222",
+      amount: [{ denom: "axrp", amount: "50000000000000000000000" }],
+    }],
+  },
+
+  parameterChange: {
+    id: 40,
+    title: "Parameter Change: Max Validators",
+    description: "Increase the maximum number of active validators from 100 to 150 to improve network decentralization.",
+    proposer: "ethm1validator999888777666555444333222111000",
+    status: "rejected" as const,
+    type: "ParameterChange",
+    submitTime: "2026-02-20T08:00:00Z",
+    votingEndTime: "2026-03-06T08:00:00Z",
+    metadata: null,
+    depositEndTime: "2026-02-22T08:00:00Z",
+    votingStartTime: "2026-02-22T08:00:00Z",
+    tally: { ...baseTally, yes: "3000000", no: "12000000" },
+    content: [{
+      "@type": "/cosmos.params.v1beta1.ParameterChangeProposal",
+      changes: [
+        { subspace: "staking", key: "MaxValidators", value: "150" },
+        { subspace: "staking", key: "BondDenom", value: "axrp" },
+      ],
+    }],
+  },
+
+  text: {
+    id: 38,
+    title: "Text Proposal: Governance Framework",
+    description: "This proposal outlines a governance framework for the XRPL EVM sidechain.\n\n1. All major parameter changes require a 2-week voting period.\n2. Software upgrades must include a testnet validation period of at least 1 week.\n3. Community pool spend proposals exceeding 100,000 XRP require a supermajority.\n\nThis is a signaling proposal and does not enact on-chain changes.",
+    proposer: "ethm1communitymod000111222333444555666777888",
+    status: "deposit" as const,
+    type: "Text",
+    submitTime: "2026-03-12T10:00:00Z",
+    votingEndTime: null,
+    metadata: null,
+    depositEndTime: "2026-03-14T10:00:00Z",
+    votingStartTime: null,
+    tally: null,
+    content: [{
+      "@type": "/cosmos.gov.v1beta1.TextProposal",
+    }],
+  },
+
+  addValidator: {
+    id: 35,
+    title: "Add Validator: Peersyst Technology",
+    description: "Proposal to add Peersyst Technology as a new validator on the XRPL EVM sidechain.",
+    proposer: "ethm1z4f0lx5t3mwxq9799nlefpz7v0s0t0eed7w3w8",
+    status: "passed" as const,
+    type: "AddValidator",
+    submitTime: "2026-01-10T14:00:00Z",
+    votingEndTime: "2026-01-24T14:00:00Z",
+    metadata: null,
+    depositEndTime: "2026-01-12T14:00:00Z",
+    votingStartTime: "2026-01-12T14:00:00Z",
+    tally: baseTally,
+    content: [{
+      "@type": "/xrplevm.poa.v1.MsgAddValidator",
+      authority: "ethm1govmoduleaddress000000000000000000000",
+      validator_address: "ethvaloper1peersyst999888777666555444333222111",
+      description: {
+        moniker: "Peersyst Technology",
+        identity: "AABB1122CCDD3344",
+        website: "https://peersyst.com",
+        security_contact: "security@peersyst.com",
+        details: "Enterprise blockchain infrastructure provider",
+      },
+      commission: {
+        rate: "0.050000000000000000",
+        max_rate: "0.200000000000000000",
+        max_change_rate: "0.010000000000000000",
+      },
+      min_self_delegation: "1000000",
+    }],
+  },
+
+  removeValidator: {
+    id: 34,
+    title: "Remove Validator: Inactive Node",
+    description: "Proposal to remove an inactive validator that has been jailed for over 30 days with no recovery.",
+    proposer: "ethm1z4f0lx5t3mwxq9799nlefpz7v0s0t0eed7w3w8",
+    status: "passed" as const,
+    type: "RemoveValidator",
+    submitTime: "2026-01-05T09:00:00Z",
+    votingEndTime: "2026-01-19T09:00:00Z",
+    metadata: null,
+    depositEndTime: "2026-01-07T09:00:00Z",
+    votingStartTime: "2026-01-07T09:00:00Z",
+    tally: baseTally,
+    content: [{
+      "@type": "/xrplevm.poa.v1.MsgRemoveValidator",
+      authority: "ethm1govmoduleaddress000000000000000000000",
+      validator_address: "ethvaloper1inactive000999888777666555444333",
+      description: { moniker: "Inactive Node" },
+    }],
+  },
+
+  cancelUpgrade: {
+    id: 33,
+    title: "Cancel Software Upgrade v9.5.0",
+    description: "Cancel the pending v9.5.0 upgrade due to a critical bug discovered during testnet validation.",
+    proposer: "ethm1z4f0lx5t3mwxq9799nlefpz7v0s0t0eed7w3w8",
+    status: "passed" as const,
+    type: "CancelUpgrade",
+    submitTime: "2025-12-20T16:00:00Z",
+    votingEndTime: "2026-01-03T16:00:00Z",
+    metadata: null,
+    depositEndTime: "2025-12-22T16:00:00Z",
+    votingStartTime: "2025-12-22T16:00:00Z",
+    tally: baseTally,
+    content: [{
+      "@type": "/cosmos.upgrade.v1beta1.MsgCancelUpgrade",
+      authority: "ethm1govmoduleaddress000000000000000000000",
+    }],
+  },
+
+  updateParams: {
+    id: 32,
+    title: "Update EVM Module Parameters",
+    description: "Update the EVM module gas parameters to optimize transaction throughput.",
+    proposer: "ethm1abc123def456ghi789jkl012mno345pqr678stu",
+    status: "passed" as const,
+    type: "UpdateParams",
+    submitTime: "2025-12-15T11:00:00Z",
+    votingEndTime: "2025-12-29T11:00:00Z",
+    metadata: null,
+    depositEndTime: "2025-12-17T11:00:00Z",
+    votingStartTime: "2025-12-17T11:00:00Z",
+    tally: baseTally,
+    content: [{
+      "@type": "/cosmos.evm.v1.MsgUpdateParams",
+      authority: "ethm1govmoduleaddress000000000000000000000",
+      params: {
+        evm_denom: "axrp",
+        extra_eips: [],
+        chain_config: { chain_id: "1440002" },
+        allow_unprotected_txs: false,
+      },
+    }],
+  },
+};
+
 export function formatHash(hash: string): string {
   if (hash.length <= 14) return hash;
   return `${hash.slice(0, 6)}...${hash.slice(-5)}`;

@@ -12,6 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@cosmos-explorer/core": "workspace:*",
     "@cosmos-explorer/ui": "workspace:*",
     "framer-motion": "^12.38.0",
     "lucide-react": "^0.468.0",

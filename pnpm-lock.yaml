@@ -90,6 +90,9 @@ importers:
 
   apps/playground:
     dependencies:
+      '@cosmos-explorer/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@cosmos-explorer/ui':
         specifier: workspace:*
         version: link:../../packages/ui
