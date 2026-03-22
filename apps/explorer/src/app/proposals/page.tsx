@@ -27,8 +27,6 @@ export default async function ProposalsPage({
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Proposals</h1>
-
       <ProposalList proposals={visibleProposals} />
 
       <Pagination
