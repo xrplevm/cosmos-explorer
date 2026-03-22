@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
+import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
 import {
@@ -93,9 +94,6 @@ export default async function ValidatorDetailPage({
             </h1>
             <StatusBadge status={toStatusLabel(validator.status)} />
           </div>
-          <p className="mt-0.5 font-mono text-xs text-muted-foreground">
-            {validator.address}
-          </p>
         </div>
       </div>
 
@@ -167,19 +165,25 @@ export default async function ValidatorDetailPage({
         </CardHeader>
         <CardContent className="space-y-0">
           <Row label="Operator Address">
-            <span className="font-mono text-xs break-all">
-              {validator.address}
-            </span>
+            <div className="flex items-center gap-1">
+              <span className="font-mono text-xs break-all">
+                {validator.address}
+              </span>
+              <CopyButton value={validator.address} label="operator address" size="xs" />
+            </div>
           </Row>
           <Separator />
           <Row label="Self Delegate Address">
             {validator.selfDelegateAddress ? (
-              <Link
-                href={`/account/${validator.selfDelegateAddress}`}
-                className="font-mono text-xs break-all text-primary hover:underline"
-              >
-                {validator.selfDelegateAddress}
-              </Link>
+              <div className="flex items-center gap-1">
+                <Link
+                  href={`/account/${validator.selfDelegateAddress}`}
+                  className="font-mono text-xs break-all text-primary hover:underline"
+                >
+                  {validator.selfDelegateAddress}
+                </Link>
+                <CopyButton value={validator.selfDelegateAddress} label="self delegate address" size="xs" />
+              </div>
             ) : (
               <span className="text-muted-foreground">N/A</span>
             )}
@@ -232,15 +236,21 @@ export default async function ValidatorDetailPage({
                   {validator.recentBlocks.map((block) => (
                     <TableRow key={block.hash}>
                       <TableCell className="font-mono text-sm">
-                        <Link
-                          href={`/blocks/${block.height}`}
-                          className="text-primary hover:underline"
-                        >
-                          #{block.height.toLocaleString()}
-                        </Link>
+                        <div className="flex items-center gap-1">
+                          <Link
+                            href={`/blocks/${block.height}`}
+                            className="text-primary hover:underline"
+                          >
+                            #{block.height.toLocaleString()}
+                          </Link>
+                          <CopyButton value={String(block.height)} label="block height" size="xs" />
+                        </div>
                       </TableCell>
                       <TableCell className="font-mono text-xs">
-                        {formatHash(block.hash)}
+                        <div className="flex items-center gap-1">
+                          {formatHash(block.hash)}
+                          <CopyButton value={block.hash} label="block hash" size="xs" />
+                        </div>
                       </TableCell>
                       <TableCell>{block.txs}</TableCell>
                       <TableCell className="text-right text-muted-foreground">
