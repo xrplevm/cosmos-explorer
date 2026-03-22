@@ -6,6 +6,8 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
+import { Badge } from "@cosmos-explorer/ui/badge";
+import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import { decodeEthereumMessage } from "@/lib/ethereum-message-decode";
 import {
@@ -111,7 +113,10 @@ export function EthereumOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Type">
-          <span>EthereumTx</span>
+          <Badge variant="outline">
+            <IconCurrencyEthereum className="h-3.5 w-3.5" />
+            EthereumTx
+          </Badge>
         </DetailRow>
 
         {decoded?.from != null && decoded.from.length > 0 ? (

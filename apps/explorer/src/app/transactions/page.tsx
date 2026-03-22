@@ -1,4 +1,5 @@
 import { Badge } from "@cosmos-explorer/ui/badge";
+import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@cosmos-explorer/ui/card";
 import {
   Table,
@@ -117,7 +118,12 @@ export default async function TransactionsPage({
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{tx.type}</Badge>
+                        <Badge variant="outline">
+                          {tx.type === "EthereumTx" && (
+                            <IconCurrencyEthereum className="h-3.5 w-3.5" />
+                          )}
+                          {tx.type}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <StatusBadge status={tx.success ? "Success" : "Failed"} />

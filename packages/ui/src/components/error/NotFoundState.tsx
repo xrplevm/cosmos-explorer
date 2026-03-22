@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SearchX } from "lucide-react";
+import { IconSearchOff as SearchX } from "@tabler/icons-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
 

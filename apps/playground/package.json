@@ -14,8 +14,8 @@
   "dependencies": {
     "@cosmos-explorer/core": "workspace:*",
     "@cosmos-explorer/ui": "workspace:*",
+    "@tabler/icons-react": "^3.40.0",
     "framer-motion": "^12.38.0",
-    "lucide-react": "^0.468.0",
     "next": "^15",
     "next-themes": "^0.4.4",
     "react": "^19",

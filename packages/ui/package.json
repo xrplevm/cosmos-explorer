@@ -54,13 +54,14 @@
     "tailwind-merge": "^3.0.2"
   },
   "peerDependencies": {
+    "@tabler/icons-react": "^3.40.0",
     "framer-motion": ">=12",
-    "lucide-react": ">=0.400.0",
     "react": "^19",
     "react-dom": "^19"
   },
   "devDependencies": {
     "@cosmos-explorer/eslint-config": "workspace:^",
+    "@tabler/icons-react": "^3.40.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

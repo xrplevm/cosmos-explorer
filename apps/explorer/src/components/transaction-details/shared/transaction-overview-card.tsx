@@ -6,6 +6,8 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
+import { Badge } from "@cosmos-explorer/ui/badge";
+import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatHashMiddle,
@@ -61,7 +63,12 @@ export function TransactionOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Type">
-          <span>{transaction.messages[0]?.type ?? "Unknown"}</span>
+          <Badge variant="outline">
+            {transaction.messages[0]?.type === "EthereumTx" && (
+              <IconCurrencyEthereum className="h-3.5 w-3.5" />
+            )}
+            {transaction.messages[0]?.type ?? "Unknown"}
+          </Badge>
         </DetailRow>
         {cosmosFrom != null ? (
           <>

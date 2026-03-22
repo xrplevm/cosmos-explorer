@@ -29,7 +29,7 @@ import type {
   ProposalTally,
 } from "@cosmos-explorer/core";
 import { notFound } from "next/navigation";
-import { Check, Clock, Vote, Coins } from "lucide-react";
+import { IconCheck as Check, IconClock as Clock, IconThumbUp as Vote, IconCoins as Coins } from "@tabler/icons-react";
 import { ProposalContentRoot } from "@/components/proposal-content";
 
 function Row({

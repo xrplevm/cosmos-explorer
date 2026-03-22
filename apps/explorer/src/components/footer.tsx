@@ -1,25 +1,25 @@
 import { getChainConfig } from "@/lib/config";
 import {
-  Bug,
-  MessageCircle,
-  Code,
-  Globe,
-  ExternalLink,
-  type LucideIcon,
-} from "lucide-react";
+  IconBug as Bug,
+  IconMessageCircle as MessageCircle,
+  IconCode as Code,
+  IconWorld as Globe,
+  IconExternalLink as ExternalLink,
+  type TablerIcon,
+} from "@tabler/icons-react";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { NetworkLogo } from "@/components/network-logo";
 
 interface FooterLinkDef {
   name: string;
   href: string;
-  icon: LucideIcon;
+  icon: TablerIcon;
 }
 
 const linkDefs: {
   key: "issues" | "github" | "discord" | "website";
   name: string;
-  icon: LucideIcon;
+  icon: TablerIcon;
 }[] = [
   { key: "issues", name: "Submit an Issue", icon: Bug },
   { key: "github", name: "GitHub", icon: Code },

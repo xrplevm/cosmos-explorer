@@ -10,7 +10,7 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { Input } from "@cosmos-explorer/ui/input";
-import { Search, X } from "lucide-react";
+import { IconSearch as Search, IconX as X } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import { formatTimestamp } from "@/lib/formatters";
 import Link from "next/link";

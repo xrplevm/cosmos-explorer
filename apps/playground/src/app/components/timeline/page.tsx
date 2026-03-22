@@ -10,7 +10,7 @@ import {
   TimelineDescription,
 } from "@cosmos-explorer/ui/timeline";
 import { ComponentPreview } from "@/components/component-preview";
-import { Check, Clock, Vote, Coins } from "lucide-react";
+import { IconCheck as Check, IconClock as Clock, IconThumbUp as Vote, IconCoins as Coins } from "@tabler/icons-react";
 
 export default function TimelinePage() {
   return (

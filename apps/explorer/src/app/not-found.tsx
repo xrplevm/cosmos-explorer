@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SearchX } from "lucide-react";
+import { IconSearchOff as SearchX } from "@tabler/icons-react";
 import { buttonVariants } from "@cosmos-explorer/ui/button";
 
 export default function NotFound() {

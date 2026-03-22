@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { IconArrowLeft as ArrowLeft } from "@tabler/icons-react";
 import { Button } from "@cosmos-explorer/ui/button";
 
 export function DetailBackButton({ href }: { href: string }) {

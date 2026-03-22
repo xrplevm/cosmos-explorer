@@ -11,7 +11,7 @@ import {
 } from "@cosmos-explorer/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@cosmos-explorer/ui/avatar";
 import { Input } from "@cosmos-explorer/ui/input";
-import { Search, X } from "lucide-react";
+import { IconSearch as Search, IconX as X } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import { formatPercent } from "@/lib/formatters";
 import Link from "next/link";

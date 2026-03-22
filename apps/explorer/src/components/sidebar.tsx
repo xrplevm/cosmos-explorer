@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  Box,
-  ShieldCheck,
-  Vote,
-  Menu,
-  X,
-} from "lucide-react";
+  IconLayoutDashboard as LayoutDashboard,
+  IconArrowsLeftRight as ArrowLeftRight,
+  IconBox as Box,
+  IconShieldCheck as ShieldCheck,
+  IconFileText as Vote,
+  IconMenu2 as Menu,
+  IconX as X,
+} from "@tabler/icons-react";
 import { cn } from "@cosmos-explorer/ui/lib/utils";
 import { NetworkLogo } from "@/components/network-logo";
 import { Button } from "@cosmos-explorer/ui/button";

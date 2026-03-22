@@ -11,6 +11,8 @@ import {
   TableRow,
 } from "@cosmos-explorer/ui/table";
 
+import { Badge } from "@cosmos-explorer/ui/badge";
+import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import { formatHash } from "@/lib/formatters";
 import { RelativeTime } from "@/components/relative-time";
@@ -31,14 +33,19 @@ const columns: Column<TransactionSummary>[] = [
   {
     key: "type",
     header: "Type",
-    render: (tx) => <span className="text-sm">{tx.type}</span>,
+    render: (tx) => (
+      <Badge variant="outline">
+        {tx.type === "EthereumTx" && (
+          <IconCurrencyEthereum className="h-3.5 w-3.5" />
+        )}
+        {tx.type}
+      </Badge>
+    ),
   },
   {
     key: "status",
     header: "Status",
-    render: (tx) => (
-      <StatusBadge status={tx.success ? "Success" : "Failed"} />
-    ),
+    render: (tx) => <StatusBadge status={tx.success ? "Success" : "Failed"} />,
   },
   {
     key: "time",
@@ -52,7 +59,11 @@ const columns: Column<TransactionSummary>[] = [
   },
 ];
 
-export function TransactionsTableBody({ transactions }: { transactions: TransactionSummary[] }) {
+export function TransactionsTableBody({
+  transactions,
+}: {
+  transactions: TransactionSummary[];
+}) {
   return (
     <Table>
       <TableHeader>

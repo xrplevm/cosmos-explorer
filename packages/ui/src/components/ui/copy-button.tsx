@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, Copy } from "lucide-react";
+import { IconCheck as Check, IconCopy as Copy } from "@tabler/icons-react";
 import { Button, type ButtonProps } from "./button";
 import {
   Tooltip,

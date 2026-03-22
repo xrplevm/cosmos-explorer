@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@cosmos-explorer/ui/input";
-import { Search, X } from "lucide-react";
+import { IconSearch as Search, IconX as X } from "@tabler/icons-react";
 
 export function TransactionSearch() {
   const router = useRouter();

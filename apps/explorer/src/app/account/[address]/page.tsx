@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@cosmos-explorer/ui/table";
 import { Badge } from "@cosmos-explorer/ui/badge";
+import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
 import {
@@ -252,7 +253,12 @@ export default async function AccountDetailPage({
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{transaction.type}</Badge>
+                        <Badge variant="outline">
+                          {transaction.type === "EthereumTx" && (
+                            <IconCurrencyEthereum className="h-3.5 w-3.5" />
+                          )}
+                          {transaction.type}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <StatusBadge
