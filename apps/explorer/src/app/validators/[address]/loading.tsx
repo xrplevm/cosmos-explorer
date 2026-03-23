@@ -37,13 +37,13 @@ export default function ValidatorDetailLoading() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
+        <Skeleton className="h-8 w-8 rounded-md" />
         <Skeleton className="h-12 w-12 rounded-full" />
         <div>
           <div className="flex items-center gap-2">
             <Skeleton className="h-7 w-40" />
             <Skeleton className="h-5 w-14 rounded-full" />
           </div>
-          <Skeleton className="mt-1 h-4 w-80" />
         </div>
       </div>
 
