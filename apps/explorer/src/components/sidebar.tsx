@@ -62,7 +62,12 @@ export function Sidebar({ title: _title, chainEnv }: { title: string; chainEnv: 
         )}
       >
         <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-5">
-          <NetworkLogo className="h-5 w-auto" />
+          <div className="relative">
+            <NetworkLogo className="h-5 w-auto" />
+            <span className="absolute -right-8 -top-2.5 rounded-md border border-primary/30 bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wider text-primary shadow-[0_0_8px_hsl(var(--primary)/0.4)]">
+              Beta
+            </span>
+          </div>
           <Button
             variant="ghost"
             size="icon"
