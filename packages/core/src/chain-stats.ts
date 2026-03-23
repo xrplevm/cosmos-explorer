@@ -9,6 +9,12 @@ export interface ChainStats {
   validators: ValidatorCount;
 }
 
+export interface DailyStats {
+  date: string;
+  transactions: number;
+}
+
 export interface IChainStatsService {
   getChainStats(input: { priceDenom: string }): Promise<ChainStats>;
+  getDailyStats(): Promise<DailyStats[]>;
 }

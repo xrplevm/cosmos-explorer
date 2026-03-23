@@ -377,3 +377,27 @@ export const AVERAGE_BLOCK_TIME_QUERY = `
     }
   }
 `;
+
+/**
+ * Builds a single GraphQL query with 7 aliased `block_aggregate` calls
+ * to get daily transaction counts for the last 7 days.
+ */
+export function buildDailyStatsQuery(): string {
+  const now = new Date();
+  const fragments: string[] = [];
+
+  for (let i = 0; i < 7; i++) {
+    const dayStart = new Date(now);
+    dayStart.setUTCDate(dayStart.getUTCDate() - i);
+    dayStart.setUTCHours(0, 0, 0, 0);
+
+    const dayEnd = new Date(dayStart);
+    dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+
+    fragments.push(
+      `day_${i}: block_aggregate(where: { timestamp: { _gte: "${dayStart.toISOString()}", _lt: "${dayEnd.toISOString()}" } }) { aggregate { sum { num_txs } } }`
+    );
+  }
+
+  return `query DailyStats { ${fragments.join('\n')} }`;
+}

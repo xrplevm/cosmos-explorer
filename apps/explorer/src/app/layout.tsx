@@ -32,7 +32,17 @@ export default function RootLayout({
             <header className="sticky top-0 z-20 flex h-14 items-center justify-end border-b border-border bg-background/80 px-4 pl-14 backdrop-blur-sm md:px-6 md:pl-6">
               <ThemeToggle />
             </header>
-            <main className="min-h-[calc(100vh-3.5rem-1px)] p-4 md:p-6">{children}</main>
+            <main className="relative min-h-[calc(100vh-3.5rem-1px)] overflow-hidden p-4 md:p-6">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -left-20 -top-20 h-[800px] w-[500px] bg-[url('/bg-lines-left.webp')] bg-contain bg-no-repeat opacity-50 mix-blend-screen dark:opacity-30"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute bottom-0 right-0 h-[800px] w-[500px] bg-[url('/bg-lines-right.png')] bg-contain bg-right-bottom bg-no-repeat opacity-20 mix-blend-multiply dark:mix-blend-screen dark:opacity-15"
+              />
+              <div className="relative">{children}</div>
+            </main>
             <Footer />
           </div>
         </ThemeProvider>

@@ -221,6 +221,18 @@ export type AccountWithdrawalAddressResponse = {
   } | null;
 };
 
+export type DailyStatsResponse = Record<
+  string,
+  {
+    aggregate?: {
+      count?: number | null;
+      sum?: {
+        num_txs?: number | null;
+      } | null;
+    } | null;
+  }
+>;
+
 export type AccountMessagesResponse = {
   messagesByAddress: Array<{
     transaction?: {

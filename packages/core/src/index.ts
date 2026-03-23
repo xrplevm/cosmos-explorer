@@ -41,5 +41,6 @@ export {
 } from './account';
 export {
   type ChainStats,
+  type DailyStats,
   type IChainStatsService,
 } from './chain-stats';
