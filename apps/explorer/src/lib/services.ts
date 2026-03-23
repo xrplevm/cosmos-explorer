@@ -55,7 +55,8 @@ export const getServices = cache((): Services => {
   );
   const accountService = new CallistoAccountService(
     fetcher,
-    config.network.primaryToken.denom
+    config.network.primaryToken.denom,
+    config.network.bech32Prefix,
   );
   const chainStatsService = new CallistoChainStatsService(
     fetcher,

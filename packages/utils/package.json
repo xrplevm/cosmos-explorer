@@ -17,7 +17,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@cosmos-explorer/core": "workspace:*"
+    "@cosmos-explorer/core": "workspace:*",
+    "bech32": "^2.0.0"
   },
   "devDependencies": {
     "@cosmos-explorer/eslint-config": "workspace:^",

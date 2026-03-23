@@ -1,3 +1,4 @@
+export { isEvmAddress, evmToCosmosAddress } from './address';
 export {
   type AppErrorOptions,
   createAppError,

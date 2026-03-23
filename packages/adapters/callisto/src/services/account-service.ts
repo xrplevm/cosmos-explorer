@@ -1,5 +1,5 @@
 import { type AccountOverview, type IAccountService } from '@cosmos-explorer/core';
-import { type Fetcher } from '@cosmos-explorer/utils';
+import { type Fetcher, evmToCosmosAddress } from '@cosmos-explorer/utils';
 
 import {
   buildAccountOverview,
@@ -28,11 +28,13 @@ import type {
 export class CallistoAccountService implements IAccountService {
   constructor(
     private readonly fetcher: Fetcher,
-    private readonly primaryDenom = 'axrp'
+    private readonly primaryDenom = 'axrp',
+    private readonly bech32Prefix = 'ethm',
   ) {}
 
   async getAccountByAddress(address: string): Promise<AccountOverview> {
-    const wrappedAddress = `{${address}}`;
+    const cosmosAddress = evmToCosmosAddress(address, this.bech32Prefix);
+    const wrappedAddress = `{${cosmosAddress}}`;
 
     const [
       balancesResponse,
@@ -45,22 +47,22 @@ export class CallistoAccountService implements IAccountService {
     ] = await Promise.all([
       this.fetcher.graphql<AccountCoinsResponse, { address: string }>({
         query: ACCOUNT_BALANCES_QUERY,
-        variables: { address },
+        variables: { address: cosmosAddress },
         operationName: 'AccountBalances',
       }),
       this.fetcher.graphql<AccountCoinsResponse, { address: string }>({
         query: ACCOUNT_DELEGATION_BALANCE_QUERY,
-        variables: { address },
+        variables: { address: cosmosAddress },
         operationName: 'AccountDelegationBalance',
       }),
       this.fetcher.graphql<AccountCoinsResponse, { address: string }>({
         query: ACCOUNT_UNBONDING_BALANCE_QUERY,
-        variables: { address },
+        variables: { address: cosmosAddress },
         operationName: 'AccountUnbondingBalance',
       }),
       this.fetcher.graphql<AccountRewardsResponse, { address: string }>({
         query: ACCOUNT_REWARDS_QUERY,
-        variables: { address },
+        variables: { address: cosmosAddress },
         operationName: 'AccountDelegationRewards',
       }),
       this.fetcher.graphql<
@@ -69,7 +71,7 @@ export class CallistoAccountService implements IAccountService {
       >({
         query: ACCOUNT_DELEGATIONS_QUERY,
         variables: {
-          address,
+          address: cosmosAddress,
           limit: 10,
           offset: 0,
           pagination: true,
@@ -78,7 +80,7 @@ export class CallistoAccountService implements IAccountService {
       }),
       this.fetcher.graphql<AccountWithdrawalAddressResponse, { address: string }>({
         query: ACCOUNT_WITHDRAWAL_ADDRESS_QUERY,
-        variables: { address },
+        variables: { address: cosmosAddress },
         operationName: 'AccountWithdrawalAddress',
       }),
       this.fetcher.graphql<

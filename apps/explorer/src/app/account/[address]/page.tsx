@@ -5,6 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
+import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import {
   Table,
@@ -19,10 +20,12 @@ import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
 import {
+  formatCoinDisplay,
   formatHash,
   formatTokenAmount,
   formatTimestamp,
 } from "@/lib/formatters";
+import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 
@@ -43,6 +46,8 @@ export default async function AccountDetailPage({
   params: Promise<{ address: string }>;
 }) {
   const { address } = await params;
+  const config = getChainConfig();
+  const primaryToken = config.network.primaryToken;
   const { accountService } = getServices();
   const account = await accountService.getAccountByAddress(address);
   const rewardTotal = sumPrimaryAmounts(
@@ -55,9 +60,12 @@ export default async function AccountDetailPage({
         <DetailBackButton href="/" />
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold tracking-tight">Account</h1>
-          <p className="mt-1 font-mono text-sm text-muted-foreground break-all">
-            {account.address}
-          </p>
+          <div className="mt-1 flex items-center gap-1">
+            <p className="font-mono text-sm text-muted-foreground break-all">
+              {account.address}
+            </p>
+            <CopyButton value={account.address} label="address" size="xs" />
+          </div>
         </div>
       </div>
 
@@ -114,8 +122,11 @@ export default async function AccountDetailPage({
             <span className="sm:w-40 sm:shrink-0 text-sm text-muted-foreground">
               Withdraw Address
             </span>
-            <div className="text-sm font-mono break-all">
+            <div className="flex items-center gap-1 text-sm font-mono break-all">
               {account.withdrawalAddress ?? "N/A"}
+              {account.withdrawalAddress && (
+                <CopyButton value={account.withdrawalAddress} label="withdraw address" size="xs" />
+              )}
             </div>
           </div>
           <Separator />
@@ -152,10 +163,12 @@ export default async function AccountDetailPage({
                   {account.balances.map((balance) => (
                     <TableRow key={`${balance.denom}-${balance.amount}`}>
                       <TableCell className="font-medium">
-                        {balance.denom}
+                        {balance.denom === primaryToken.denom
+                          ? primaryToken.displayDenom
+                          : balance.denom}
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        {formatTokenAmount(balance, 6)}
+                        {formatCoinDisplay(balance, primaryToken)}
                       </TableCell>
                     </TableRow>
                   ))}
