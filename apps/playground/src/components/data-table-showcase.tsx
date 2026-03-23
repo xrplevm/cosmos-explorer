@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ComponentPreview } from "@/components/component-preview";
 import { DataTable, DataTableSkeleton } from "@/components/data-table";
 import { AnimatedDataTable } from "@/components/animated-data-table";
-import type { Column, SkeletonColumn } from "@/components/data-table";
+import type { Column } from "@/components/data-table";
 
 interface DataTableShowcaseProps<T> {
   title: string;

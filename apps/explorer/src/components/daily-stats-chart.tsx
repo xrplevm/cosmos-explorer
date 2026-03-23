@@ -19,7 +19,7 @@ function getMockDailyStats(): DailyStats[] {
   });
 }
 
-export async function DailyStatsChart() {
+export function DailyStatsChart() {
   const dailyStats = getMockDailyStats();
 
   return <TransactionVolumeChart data={dailyStats} />;

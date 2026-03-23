@@ -40,7 +40,7 @@ export function RawContentSection({ content }: { content: unknown }) {
   }, [mounted, resolvedTheme]);
 
   const jsonValue = useMemo(() => {
-    if (Array.isArray(content)) return content;
+    if (Array.isArray(content)) return content as object[];
     if (typeof content === "object" && content !== null) return content;
     return { value: content };
   }, [content]);
@@ -80,7 +80,7 @@ export function RawContentSection({ content }: { content: unknown }) {
                 )}
               >
                 <JsonView
-                  value={jsonValue as object}
+                  value={jsonValue}
                   style={jsonViewStyle}
                   shortenTextAfterLength={0}
                   displayDataTypes={false}

@@ -57,7 +57,7 @@ function Description({ children }: { children: React.ReactNode }) {
         Description
       </span>
       <div className="min-w-0 text-sm">
-        {children || "No description available."}
+        {children ?? "No description available."}
       </div>
     </div>
   );

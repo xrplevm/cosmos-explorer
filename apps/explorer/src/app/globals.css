@@ -4,3 +4,7 @@
 @source "../../../../packages/ui/src";
 
 @import "@cosmos-explorer/ui/styles";
+
+@theme {
+  --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+}

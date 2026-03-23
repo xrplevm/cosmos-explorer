@@ -35,7 +35,7 @@ function Description({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:gap-4">
       <span className="sm:w-44 sm:shrink-0 text-sm text-muted-foreground">Description</span>
-      <div className="min-w-0 text-sm">{children || "No description available."}</div>
+      <div className="min-w-0 text-sm">{children ?? "No description available."}</div>
     </div>
   );
 }

@@ -24,7 +24,7 @@ const nav = [
   { name: "Proposals", href: "/proposals", icon: Vote },
 ];
 
-export function Sidebar({ title, chainEnv }: { title: string; chainEnv: string }) {
+export function Sidebar({ title: _title, chainEnv }: { title: string; chainEnv: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Work_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { getChainConfig } from "@/lib/config";
 import { Sidebar } from "@/components/sidebar";
@@ -6,6 +7,13 @@ import { Footer } from "@/components/footer";
 import { GlobalSearch } from "@/components/global-search";
 import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
+
+const workSans = Work_Sans({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-work-sans",
+  display: "swap",
+});
 
 const config = getChainConfig();
 
@@ -25,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen antialiased">
+    <html lang="en" suppressHydrationWarning className={workSans.variable}>
+      <body className="min-h-screen font-sans antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
