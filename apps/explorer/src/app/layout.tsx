@@ -54,11 +54,11 @@ export default function RootLayout({
             <main className="relative min-h-[calc(100vh-3.5rem-1px)] overflow-hidden p-4 md:p-6">
               <div
                 aria-hidden
-                className="pointer-events-none absolute -left-20 -top-20 h-[800px] w-[500px] bg-[url('/bg-lines-left.webp')] bg-contain bg-no-repeat opacity-50 mix-blend-screen dark:opacity-30"
+                className="pointer-events-none absolute -left-20 -top-20 h-[800px] w-[500px] bg-[url('/bg-lines-left.webp')] bg-contain bg-no-repeat opacity-15 dark:opacity-30 dark:mix-blend-screen"
               />
               <div
                 aria-hidden
-                className="pointer-events-none absolute bottom-0 right-0 h-[800px] w-[500px] bg-[url('/bg-lines-right.png')] bg-contain bg-right-bottom bg-no-repeat opacity-20 mix-blend-multiply dark:mix-blend-screen dark:opacity-15"
+                className="pointer-events-none absolute bottom-0 right-0 h-[800px] w-[500px] bg-[url('/bg-lines-right.png')] bg-contain bg-right-bottom bg-no-repeat opacity-15 dark:opacity-15 dark:mix-blend-screen"
               />
               <div className="relative">{children}</div>
             </main>

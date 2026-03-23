@@ -20,7 +20,7 @@ export default function OverviewPage() {
         <StatsCards />
       </Suspense>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 xl:grid-cols-2">
         <Suspense fallback={<BlocksTableSkeleton />}>
           <BlocksTable />
         </Suspense>

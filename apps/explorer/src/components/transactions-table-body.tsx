@@ -45,6 +45,7 @@ const columns: Column<TransactionSummary>[] = [
   {
     key: "status",
     header: "Status",
+    className: "hidden sm:table-cell",
     render: (tx) => <StatusBadge status={tx.success ? "Success" : "Failed"} />,
   },
   {

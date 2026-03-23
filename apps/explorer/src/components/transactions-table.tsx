@@ -58,7 +58,7 @@ export async function TransactionsTable() {
 const txSkeletonColumns: SkeletonColumn[] = [
   { key: "hash", header: "Hash", width: "w-28" },
   { key: "type", header: "Type", width: "w-24" },
-  { key: "status", header: "Status", width: "w-16" },
+  { key: "status", header: "Status", className: "hidden sm:table-cell", width: "w-16" },
   { key: "time", header: "Time", className: "text-right", width: "w-20" },
 ];
 

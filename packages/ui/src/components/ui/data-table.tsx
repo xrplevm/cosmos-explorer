@@ -112,7 +112,7 @@ export function DataTableSkeleton({
                 <TableRow key={i}>
                   {columns.map((col) => (
                     <TableCell key={col.key} className={col.className}>
-                      <Skeleton className={cn("h-4", col.width ?? "w-20")} />
+                      <Skeleton className={cn("h-4", col.width ?? "w-20", col.className?.includes("text-right") && "ml-auto")} />
                     </TableCell>
                   ))}
                 </TableRow>

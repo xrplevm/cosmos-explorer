@@ -30,6 +30,7 @@ const columns: Column<Block>[] = [
   {
     key: "proposer",
     header: "Proposer",
+    className: "hidden md:table-cell",
     render: (block) => (
       <div className="flex items-center gap-2">
         {block.proposerAvatarUrl ? (
@@ -56,6 +57,7 @@ const columns: Column<Block>[] = [
   {
     key: "hash",
     header: "Hash",
+    className: "hidden sm:table-cell",
     render: (block) => (
       <span className="font-mono text-sm text-muted-foreground">
         {formatHash(block.hash)}
