@@ -15,7 +15,7 @@ export function createAppError(message: string, options: AppErrorOptions): AppEr
   error.code = options.code;
   error.statusCode = options.statusCode ?? 500;
   const ErrorWithCapture = Error as typeof Error & {
-    captureStackTrace?: (target: object, constructor: (...args: unknown[]) => unknown) => void;
+    captureStackTrace?: (target: object, constructor: (...args: never[]) => unknown) => void;
   };
   ErrorWithCapture.captureStackTrace?.(error, createAppError);
   return error;
