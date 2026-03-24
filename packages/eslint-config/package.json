@@ -13,7 +13,7 @@
     "@typescript-eslint/parser": "^8",
     "eslint-plugin-react-hooks": "^5",
     "@next/eslint-plugin-next": "^15",
-    "globals": "^15"
+    "globals": "^17"
   },
   "peerDependencies": {
     "eslint": "^9",
