@@ -32,7 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: pnpm lint
+        run: pnpm turbo run lint --filter='!@cosmos-explorer/juno' --filter='!@cosmos-explorer/callisto-app'
 
   go-lint:
     name: Go lint
@@ -55,7 +55,18 @@ jobs:
             .mod
             .sum
 
+      - name: Lint juno
+        if: env.GIT_DIFF != ''
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v2.11.3
+          working-directory: packages/juno
+          args: --timeout=10m
+
       - name: Lint callisto
         if: env.GIT_DIFF != ''
-        working-directory: apps/callisto
-        run: make lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v2.11.3
+          working-directory: apps/callisto
+          args: --timeout=10m

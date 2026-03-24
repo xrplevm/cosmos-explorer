@@ -64,7 +64,13 @@ jobs:
         working-directory: apps/callisto
         run: make build
 
+      - name: Test juno
+        if: env.GIT_DIFF != ''
+        working-directory: packages/juno
+        run: go test ./... -coverprofile=coverage.txt -covermode=atomic
+
       - name: Test callisto
+        if: env.GIT_DIFF != ''
         working-directory: apps/callisto
         run: make test-unit stop-docker-test
 
@@ -72,4 +78,6 @@ jobs:
         if: env.GIT_DIFF != ''
         uses: codecov/codecov-action@v4
         with:
-          file: apps/callisto/coverage.txt
+          files: |
+            apps/callisto/coverage.txt
+            packages/juno/coverage.txt
