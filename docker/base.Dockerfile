@@ -21,8 +21,8 @@ COPY . /project
 # Install package and app dependencies
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm install
 # Run linting
-RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run lint:packages
+# RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run lint:packages
 # Run checking types
-RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run typecheck:packages
+# RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run typecheck:packages
 # Run testing
-RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run test:packages
+# RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run test:packages

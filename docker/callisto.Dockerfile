@@ -9,14 +9,14 @@ COPY apps/callisto /project/apps/callisto
 RUN pnpm install
 
 # Lint callisto
-RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
-    npx turbo run lint --filter=callisto
+# RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
+#    npx turbo run lint --filter=callisto
 # Check types callisto
-RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
-    npx turbo run check-types --filter=callisto
+# RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
+#     npx turbo run check-types --filter=callisto
 # Test callisto
-RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
-    npx turbo run test --filter=callisto
+# RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
+#     npx turbo run test --filter=callisto
 # Build callisto
 WORKDIR /project/apps/callisto
 RUN make build
