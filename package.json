@@ -3,7 +3,6 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:explorer": "pnpm --filter @cosmos-explorer/explorer dev",
     "dev:playground": "pnpm --filter @cosmos-explorer/playground dev",
@@ -11,9 +10,16 @@
     "build:callisto": "pnpm --filter @cosmos-explorer/callisto-app build",
     "start:callisto": "cd apps/callisto && ./build/callisto start",
     "start:callisto-db": "docker start callisto-db",
-    "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean"
+    "build": "npx turbo run build && echo '🚀 Build completed'",
+    "build:packages": "npx turbo run build --filter=\"./packages/**/*\" && echo '🚀 Build packages completed'",
+    "clean": "npx turbo run clean && echo 'root: cleaning' && rimraf node_modules .turbo && echo '\n🧼 Clean completed'",
+    "test": "npx turbo run test && echo '🧪 Test completed'",
+    "test:packages": "npx turbo run test --filter=\"./packages/**/*\" && echo '🧪 Test packages completed'",
+    "lint": "npx turbo run lint && echo '🧹 Lint completed'",
+    "lint:packages": "npx turbo run lint --filter=\"./packages/**/*\" && echo '🧹 Lint packages completed'",
+    "check-types": "npx turbo run check-types && echo '🔎 Check types completed'",
+    "check-types:packages": "npx turbo run check-types --filter=\"./packages/**/*\" && echo '🔎 Check types packages completed'"
   },
   "devDependencies": {
     "eslint": "^9",

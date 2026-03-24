@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "go build ./...",
-    "lint": "golangci-lint run ./...",
-    "test": "go test ./...",
+    "build": "make build",
+    "lint": "make lint",
+    "test": "make test",
     "clean": "rm -rf coverage.txt"
   }
 }
