@@ -24,6 +24,13 @@ export interface GraphQlRequest<TVariables> {
   operationName?: string;
 }
 
+interface JsonRequestOptions {
+  body?: unknown;
+  headers?: HeadersInit;
+  method: 'GET' | 'POST';
+  path: string;
+}
+
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 export class Fetcher {
@@ -43,37 +50,23 @@ export class Fetcher {
     this.baseUrl = options.baseUrl;
     this.headers = options.headers ?? {};
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.fetchImpl = options.fetchImpl ?? ((input, init) => globalThis.fetch(input, init));
+  }
+
+  async getJson<TResponse>(path: string): Promise<TResponse> {
+    return this.requestJson<TResponse>({
+      method: 'GET',
+      path,
+    });
   }
 
   async postJson<TResponse>(path: string, body: unknown): Promise<TResponse> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => { controller.abort(); }, this.timeoutMs);
-
-    try {
-      const headers = new Headers({ 'content-type': 'application/json' });
-      const baseHeaders = this.headers instanceof Headers
-        ? this.headers
-        : new Headers(this.headers as Record<string, string>);
-      baseHeaders.forEach((value, key) => { headers.set(key, value); });
-
-      const response = await this.fetchImpl(this.resolveUrl(path), {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      });
-
-      if (!response.ok) {
-        throw await this.mapHttpError(response);
-      }
-
-      return (await response.json()) as TResponse;
-    } catch (error) {
-      throw this.mapFetchError(error);
-    } finally {
-      clearTimeout(timeoutId);
-    }
+    return this.requestJson<TResponse>({
+      method: 'POST',
+      path,
+      body,
+      headers: { 'content-type': 'application/json' },
+    });
   }
 
   async graphql<TData, TVariables = Record<string, never>>(
@@ -95,6 +88,55 @@ export class Fetcher {
     }
 
     return response.data;
+  }
+
+  private async requestJson<TResponse>(options: JsonRequestOptions): Promise<TResponse> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, this.timeoutMs);
+
+    try {
+      const response = await this.fetchImpl(this.resolveUrl(options.path), {
+        method: options.method,
+        headers: this.buildHeaders(options.headers),
+        body: options.body == null ? undefined : JSON.stringify(options.body),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw await this.mapHttpError(response);
+      }
+
+      return (await response.json()) as TResponse;
+    } catch (error) {
+      throw this.mapFetchError(error);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  private buildHeaders(extraHeaders?: HeadersInit): Headers {
+    const headers = new Headers();
+    const baseHeaders = this.headers instanceof Headers
+      ? this.headers
+      : new Headers(this.headers as Record<string, string>);
+
+    baseHeaders.forEach((value, key) => {
+      headers.set(key, value);
+    });
+
+    if (extraHeaders) {
+      const mergedHeaders = extraHeaders instanceof Headers
+        ? extraHeaders
+        : new Headers(extraHeaders as Record<string, string>);
+
+      mergedHeaders.forEach((value, key) => {
+        headers.set(key, value);
+      });
+    }
+
+    return headers;
   }
 
   private resolveUrl(path: string): string {

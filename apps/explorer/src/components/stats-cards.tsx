@@ -9,11 +9,12 @@ import { Skeleton } from "@cosmos-explorer/ui/skeleton";
 
 import {
   formatBlockTime,
-  formatPrice,
   formatTimestamp,
 } from "@/lib/formatters";
 import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
+
+import { MarketPriceCard } from "./market-price-card";
 
 export async function StatsCards() {
   const config = getChainConfig();
@@ -21,7 +22,6 @@ export async function StatsCards() {
   const stats = await chainStatsService.getChainStats({
     priceDenom: config.network.primaryToken.denom,
   });
-  const hasPrice = stats.price?.priceUsd != null;
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -51,19 +51,11 @@ export async function StatsCards() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardDescription>Price</CardDescription>
-          <CardTitle className="text-2xl">
-            {hasPrice ? formatPrice(stats.price?.priceUsd) : "Unavailable"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-xs text-muted-foreground">
-          {hasPrice && stats.price?.timestamp
-            ? `Updated ${formatTimestamp(stats.price.timestamp)}`
-            : "No indexed price data available"}
-        </CardContent>
-      </Card>
+      <MarketPriceCard
+        assetsByDenom={config.price.assetsByDenom}
+        baseUrl={config.price.baseUrl}
+        denom={config.network.primaryToken.denom}
+      />
 
       <Card>
         <CardHeader className="pb-2">

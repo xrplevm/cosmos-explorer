@@ -107,7 +107,13 @@ export function formatBlockTime(value: number | null): string {
 }
 
 export function formatPrice(value: number | null | undefined): string {
-  return value == null ? "N/A" : `$${value.toFixed(4)}`;
+  return value == null
+    ? "N/A"
+    : "$" +
+        value.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 4,
+        });
 }
 
 export function formatNumber(value: number | null | undefined): string {

@@ -15,6 +15,13 @@
       "evmExplorer": "https://explorer.testnet.xrplevm.org"
     }
   },
+  "price": {
+    "baseUrl": "https://api.coingecko.com/api/v3/",
+    "assetsByDenom": {
+      "axrp": "ripple",
+      "xrp": "ripple"
+    }
+  },
   "branding": {
     "title": "XRPL EVM Explorer",
     "description": "The XRPL EVM Sidechain is a fast and secure blockchain that brings web3 applications to the XRP Ledger community."

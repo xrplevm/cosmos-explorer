@@ -6,60 +6,44 @@ import {
 } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
-import { mapMarketSummary, mapPrice, mapPriceHistory } from './mappers';
-import {
-  CURRENT_PRICE_QUERY,
-  MARKET_SUMMARY_QUERY,
-  PRICE_HISTORY_QUERY,
-} from './queries';
-import type {
-  CurrentPriceResponse,
-  MarketSummaryResponse,
-  PriceHistoryResponse,
-} from './types';
+import { fetchCurrentPrice, resolveAsset } from './client';
+import type { PriceServiceOptions } from './types';
 
 export class PriceService implements IPriceService {
-  constructor(private readonly fetcher: Fetcher) {}
+  constructor(
+    private readonly fetcher: Fetcher,
+    private readonly options: PriceServiceOptions
+  ) {}
 
   async getCurrentPrice(denom: string): Promise<Price | null> {
-    const response = await this.fetcher.graphql<CurrentPriceResponse, { denom: string }>({
-      query: CURRENT_PRICE_QUERY,
-      variables: { denom },
-      operationName: 'CurrentPrice',
-    });
+    const asset = resolveAsset(denom, this.options);
+    if (!asset) {
+      return null;
+    }
 
-    return mapPrice(response, denom);
+    return fetchCurrentPrice(this.fetcher, asset);
   }
 
-  async getPriceHistory(
-    denom: string,
-    params?: { limit?: number }
+  getPriceHistory(
+    _denom: string,
+    _params?: { limit?: number }
   ): Promise<PricePoint[]> {
-    const response = await this.fetcher.graphql<
-      PriceHistoryResponse,
-      { denom: string; limit: number }
-    >({
-      query: PRICE_HISTORY_QUERY,
-      variables: {
-        denom,
-        limit: params?.limit ?? 48,
-      },
-      operationName: 'TokenPriceHistory',
-    });
-
-    return mapPriceHistory(response, denom);
+    return Promise.resolve([]);
   }
 
   async getMarketSummary(denom: string): Promise<MarketSummary> {
-    const response = await this.fetcher.graphql<
-      MarketSummaryResponse,
-      { denom: string }
-    >({
-      query: MARKET_SUMMARY_QUERY,
-      variables: { denom },
-      operationName: 'MarketData',
-    });
+    const price = await this.getCurrentPrice(denom);
 
-    return mapMarketSummary(response, denom);
+    return {
+      denom,
+      priceUsd: price?.priceUsd ?? null,
+      marketCapUsd: price?.marketCapUsd ?? null,
+      supply: null,
+      bonded: null,
+      inflation: null,
+      communityPool: null,
+      apr: null,
+      updatedAt: price?.timestamp ?? null,
+    };
   }
 }

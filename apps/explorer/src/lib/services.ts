@@ -12,18 +12,15 @@ import type {
   IAccountService,
   IBlockService,
   IChainStatsService,
-  IPriceService,
   IProposalService,
   ITransactionService,
   IValidatorService,
 } from "@cosmos-explorer/core";
-import { PriceService } from "@cosmos-explorer/price";
 import { createFetcher } from "@cosmos-explorer/utils";
 
 export interface Services {
   blockService: IBlockService;
   transactionService: ITransactionService;
-  priceService: IPriceService;
   validatorService: IValidatorService;
   chainStatsService: IChainStatsService;
   proposalService: IProposalService;
@@ -44,7 +41,6 @@ export const getServices = cache((): Services => {
 
   const blockService = new CallistoBlockService(fetcher);
   const transactionService = new CallistoTransactionService(fetcher);
-  const priceService = new PriceService(fetcher);
   const validatorService = new CallistoValidatorService(
     fetcher,
     config.network.primaryToken.denom
@@ -61,14 +57,12 @@ export const getServices = cache((): Services => {
   const chainStatsService = new CallistoChainStatsService(
     fetcher,
     blockService,
-    priceService,
     validatorService,
   );
 
   return {
     blockService,
     transactionService,
-    priceService,
     validatorService,
     chainStatsService,
     proposalService,

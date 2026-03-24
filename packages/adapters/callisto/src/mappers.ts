@@ -450,7 +450,7 @@ function mapProposalType(content: unknown): string {
     return "Unknown";
   }
 
-  const first = content[0];
+  const [first] = content as unknown[];
   if (!first || typeof first !== "object") {
     return "Unknown";
   }

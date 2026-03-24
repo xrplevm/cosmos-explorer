@@ -3,7 +3,6 @@ import {
   type DailyStats,
   type IBlockService,
   type IChainStatsService,
-  type IPriceService,
   type IValidatorService,
 } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
@@ -16,18 +15,16 @@ export class CallistoChainStatsService implements IChainStatsService {
   constructor(
     private readonly fetcher: Fetcher,
     private readonly blockService: IBlockService,
-    private readonly priceService: IPriceService,
     private readonly validatorService: IValidatorService
   ) {}
 
-  async getChainStats(input: { priceDenom: string }): Promise<ChainStats> {
-    const [latestBlockResult, averageBlockTimeResult, priceResult, validatorsResult] =
+  async getChainStats(_input: { priceDenom: string }): Promise<ChainStats> {
+    const [latestBlockResult, averageBlockTimeResult, validatorsResult] =
       await Promise.allSettled([
-      this.blockService.getLatestBlock(),
-      this.getAverageBlockTime(),
-      this.priceService.getCurrentPrice(input.priceDenom),
-      this.validatorService.getValidatorCount(),
-    ]);
+        this.blockService.getLatestBlock(),
+        this.getAverageBlockTime(),
+        this.validatorService.getValidatorCount(),
+      ]);
 
     return {
       latestBlock:
@@ -36,7 +33,7 @@ export class CallistoChainStatsService implements IChainStatsService {
         averageBlockTimeResult.status === 'fulfilled'
           ? averageBlockTimeResult.value
           : null,
-      price: priceResult.status === 'fulfilled' ? priceResult.value : null,
+      price: null,
       validators:
         validatorsResult.status === 'fulfilled'
           ? validatorsResult.value

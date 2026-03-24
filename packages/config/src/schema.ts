@@ -19,6 +19,10 @@ export const ChainConfigSchema = z.object({
       evmExplorer: z.string().url().optional(),
     }),
   }),
+  price: z.object({
+    baseUrl: z.string().url(),
+    assetsByDenom: z.record(z.string(), z.string()),
+  }),
   branding: z.object({
     title: z.string(),
     description: z.string().optional(),

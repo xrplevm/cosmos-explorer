@@ -1,40 +1,30 @@
-type Scalar = string | number | boolean | null;
+import type { Price } from '@cosmos-explorer/core';
 
-export interface CurrentPriceResponse {
-  tokenPrice: {
-    price: Scalar;
-    timestamp: Scalar;
-    marketCap: Scalar;
-    unitName: string;
-  }[];
+export interface CoinGeckoCoinResponse {
+  id: string;
+  last_updated?: string;
+  market_data?: {
+    current_price?: {
+      usd?: number;
+    };
+    market_cap?: {
+      usd?: number;
+    };
+  };
 }
 
-export interface PriceHistoryResponse {
-  tokenPrice: {
-    price: Scalar;
-    timestamp: Scalar;
-  }[];
+export interface PriceServiceOptions {
+  assetsByDenom: Record<string, string>;
 }
 
-export interface MarketSummaryResponse {
-  communityPool: {
-    coins: unknown;
-  }[];
-  inflation: {
-    value: Scalar;
-  }[];
-  tokenPrice: {
-    price: Scalar;
-    marketCap: Scalar;
-    timestamp: Scalar;
-  }[];
-  supply: {
-    coins: unknown;
-  }[];
-  bondedTokens: {
-    bondedTokens: Scalar;
-  }[];
-  distributionParams: {
-    params: unknown;
-  }[];
+export interface FetchCurrentPriceInput {
+  assetId: string;
+  denom: string;
 }
+
+export interface ResolvedAsset {
+  assetId: string;
+  denom: string;
+}
+
+export type MappedPrice = Price;
