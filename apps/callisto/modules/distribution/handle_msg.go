@@ -22,7 +22,7 @@ func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error 
 		return nil
 	}
 
-	log.Debug().Str("module", "distribution").Str("hash", tx.TxHash).Uint64("height", tx.Height).Msg(fmt.Sprintf("handling distribution message %s", msg.GetType()))
+	log.Debug().Str("module", "distribution").Str("hash", tx.TxHash).Int64("height", tx.Height).Msg(fmt.Sprintf("handling distribution message %s", msg.GetType()))
 
 	if msg.GetType() == "/cosmos.distribution.v1beta1.MsgFundCommunityPool" {
 		return m.updateCommunityPool(int64(tx.Height))

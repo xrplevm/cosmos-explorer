@@ -38,7 +38,7 @@ func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error 
 		return nil
 	}
 
-	log.Debug().Str("module", "auth").Str("hash", tx.TxHash).Uint64("height", tx.Height).Msg(fmt.Sprintf("handling auth message %s", msg.GetType()))
+	log.Debug().Str("module", "auth").Str("hash", tx.TxHash).Int64("height", tx.Height).Msg(fmt.Sprintf("handling auth message %s", msg.GetType()))
 
 	if msg.GetType() == "/cosmos.vesting.v1beta1.MsgCreateVestingAccount" {
 		// Store tx timestamp as start_time of the created vesting account

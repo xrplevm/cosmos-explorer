@@ -30,7 +30,7 @@ func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error 
 		return nil
 	}
 
-	log.Debug().Str("module", "staking").Str("hash", tx.TxHash).Uint64("height", tx.Height).Msg(fmt.Sprintf("handling staking message %s", msg.GetType()))
+	log.Debug().Str("module", "staking").Str("hash", tx.TxHash).Int64("height", tx.Height).Msg(fmt.Sprintf("handling staking message %s", msg.GetType()))
 
 	switch msg.GetType() {
 	case "/cosmos.staking.v1beta1.MsgCreateValidator":

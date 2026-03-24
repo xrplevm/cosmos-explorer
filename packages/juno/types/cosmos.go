@@ -139,11 +139,12 @@ func (tx Transaction) Successful() bool {
 type TxResponse struct {
 	*sdk.TxResponse
 
-	// Override these fields to apply the proper type since the Cosmos SDK encodes uint64 as strings
-	Tx        *Tx    `json:"tx,omitempty"`
-	Height    uint64 `json:"height,string,omitempty"`
-	GasWanted uint64 `json:"gas_wanted,string,omitempty"`
-	GasUsed   uint64 `json:"gas_used,string,omitempty"`
+	// Override these fields to apply the proper type since the Cosmos SDK encodes uint64 as strings.
+	// Use int64 (not uint64) because some chains return gas_wanted: -1 for failed ante handler txs.
+	Tx        *Tx   `json:"tx,omitempty"`
+	Height    int64 `json:"height,string,omitempty"`
+	GasWanted int64 `json:"gas_wanted,string,omitempty"`
+	GasUsed   int64 `json:"gas_used,string,omitempty"`
 }
 
 // -------------------------------------------------------------------------------------------------------------------
