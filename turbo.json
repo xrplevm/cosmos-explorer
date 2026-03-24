@@ -16,7 +16,7 @@
       "dependsOn": ["@cosmos-explorer/callisto-app#lint"]
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build", "build"]
     },
     "test": {},
     "clean": {
