@@ -17,6 +17,8 @@ permissions:
   # Needed to configure aws credentials step
   id-token: write
   contents: read
+  # Needed to push images to GitHub Container Registry
+  packages: write
 
 jobs:
   build:
