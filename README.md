@@ -7,11 +7,13 @@ A Turborepo monorepo for a Cosmos blockchain explorer. The current deployment ta
 | Layer | Technology |
 |---|---|
 | Monorepo | Turborepo + pnpm |
-| Apps | Next.js 15 + React 19 |
+| Apps | Next.js 16 + React 19 (webpack bundler) |
 | UI | Tailwind CSS v4 + shadcn/ui |
+| Font | Work Sans (400, 600) via `next/font/google` |
 | Domain | TypeScript contracts in `packages/core` |
 | Chain data | Callisto / Hasura GraphQL via `packages/adapters/callisto` |
 | Price data | `packages/price` |
+| Indexer | Go (Callisto app + Juno library) |
 
 ## Repository Layout
 
@@ -19,13 +21,15 @@ A Turborepo monorepo for a Cosmos blockchain explorer. The current deployment ta
 apps/
   explorer/          Main Next.js explorer app
   playground/        UI playground app
+  callisto/          Go indexer app (Callisto)
 
 packages/
   adapters/
-    callisto/        Callisto-backed chain services
+    callisto/        Callisto-backed chain services (TypeScript)
   config/            Chain config schema and validation
   core/              Domain types and service interfaces
   eslint-config/     Shared ESLint 9 flat configs
+  juno/              Go library (Juno)
   price/             Price service implementation
   ui/                Shared UI components
   utils/             Shared helpers, errors, fetcher
@@ -66,8 +70,10 @@ The transaction detail page renders a **dedicated component per Cosmos message t
 
 Prerequisites:
 
-- Node.js 20+
+- Node.js 22+
 - pnpm 9+
+- Go 1.23+ (for Go packages)
+- golangci-lint (for Go linting)
 
 ```bash
 pnpm install
@@ -95,6 +101,14 @@ pnpm --filter @cosmos-explorer/explorer typecheck
 pnpm --filter @cosmos-explorer/explorer lint --fix
 ```
 
+Go commands:
+
+```bash
+cd apps/callisto && make build
+cd apps/callisto && make lint
+cd apps/callisto && make test-unit
+```
+
 ## Chain Configuration
 
 The explorer is configured by `apps/explorer/chain.json`.
@@ -111,7 +125,18 @@ Current config:
 - `build` depends on `^build`
 - `typecheck` depends on `^build`
 - `lint` depends on `^build`
+- `test` runs independently
 - `dev` is persistent and uncached
+
+Go packages have `package.json` wrappers so Turbo can orchestrate their tasks alongside TypeScript packages.
+
+## CI
+
+GitHub Actions workflows:
+
+- **Lint** (`lint.yml`) — TypeScript lint + Go lint (gated on Go file changes)
+- **Tests** (`test.yml`) — TypeScript build & typecheck + Go unit tests with coverage
+- **Dependabot** — weekly updates for GitHub Actions, npm, and Go modules
 
 ## Development Rules
 
@@ -120,3 +145,4 @@ Current config:
 - Map external responses into domain types before they cross package boundaries.
 - Pages consume services, not raw GraphQL.
 - Prefer server-side data access unless there is a concrete client-side requirement.
+- Next.js apps use webpack bundler due to Turbopack incompatibilities.

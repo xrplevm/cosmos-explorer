@@ -7,6 +7,10 @@
     "dev": "turbo run dev",
     "dev:explorer": "pnpm --filter @cosmos-explorer/explorer dev",
     "dev:playground": "pnpm --filter @cosmos-explorer/playground dev",
+    "dev:callisto": "pnpm --filter @cosmos-explorer/callisto-app dev",
+    "build:callisto": "pnpm --filter @cosmos-explorer/callisto-app build",
+    "start:callisto": "cd apps/callisto && ./build/callisto start",
+    "start:callisto-db": "docker start callisto-db",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean"

@@ -1,0 +1,10 @@
+.docs
+.github
+build
+tools
+.gitignore
+.golangci.yaml
+.mergify.yml
+config.yaml
+coverage.txt
+README.md

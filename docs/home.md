@@ -1,5 +1,7 @@
 # Home Implementation Plan
 
+> **Historical document** — This was the initial planning doc for the home page. The implementation is complete. See `apps/explorer/src/app/(home)/` for the current code. The architecture uses server-side service composition (`src/lib/services.ts`), not client-side hooks.
+
 This document is the general implementation plan for the home page.
 
 ## Goal
@@ -18,17 +20,8 @@ Deliver the first usable dashboard with:
 
 Use this consistently:
 
-- service interfaces keep the `I` prefix
-- domain model types do not use the `I` prefix
-
-Examples:
-
-- `IChainDataSource`
-- `IPriceService`
-- `Block`
-- `Transaction`
-- `Price`
-- `Validator`
+- service interfaces keep the `I` prefix: `IBlockService`, `IProposalService`, `IAccountService`
+- domain model types do not use the `I` prefix: `Block`, `TransactionSummary`, `Price`, `Validator`
 
 ## Domain Docs
 
@@ -92,11 +85,11 @@ If we let UI code consume raw Hasura-generated types directly, the home page bec
 - latest blocks feed
 - latest transactions feed
 
-### Hooks
+### Server-side Services
 
-- a home stats hook
-- a latest blocks hook
-- a latest transactions hook
+- chain stats service for dashboard cards
+- block service for latest blocks
+- transaction service for latest transactions
 
 ### UI
 
@@ -105,15 +98,15 @@ If we let UI code consume raw Hasura-generated types directly, the home page bec
 - latest transactions table
 - responsive layout
 
-## Implementation Sequence
+## Implementation Sequence (completed)
 
-1. finalize core domain types
-2. finalize the minimum adapter contract
-3. implement Callisto adapter data access
-4. map backend responses into domain types
-5. implement hooks
-6. implement UI
-7. verify loading, empty, error, and responsive states
+1. ~~finalize core domain types~~
+2. ~~finalize the minimum adapter contract~~
+3. ~~implement Callisto adapter data access~~
+4. ~~map backend responses into domain types~~
+5. ~~implement server-side service layer~~
+6. ~~implement UI~~
+7. ~~verify loading, empty, error, and responsive states~~
 
 ## Notes
 

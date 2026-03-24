@@ -19,6 +19,8 @@ importers:
         specifier: ^2
         version: 2.8.17
 
+  apps/callisto: {}
+
   apps/explorer:
     dependencies:
       '@cosmos-explorer/callisto':
@@ -223,6 +225,8 @@ importers:
       typescript:
         specifier: ^5
         version: 5.9.3
+
+  packages/juno: {}
 
   packages/price:
     dependencies:

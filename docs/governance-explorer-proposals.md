@@ -1,5 +1,7 @@
 # Governance Explorer Proposal Data Flow
 
+> **Reference document** — This documents the legacy `../governance-explorer` proposal data flow. The new explorer has reimplemented proposals with server-side service composition. See `packages/adapters/callisto/src/` for the current adapter and `apps/explorer/src/app/proposals/` for the pages.
+
 This document explains how the existing `../governance-explorer` project retrieves and shapes proposal/governance data, so we can reuse the same backend behavior later in this repo.
 
 ## Scope

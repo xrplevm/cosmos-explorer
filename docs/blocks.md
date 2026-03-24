@@ -1,5 +1,7 @@
 # Blocks Domain Plan
 
+> **Historical document** — This was the initial planning doc for the blocks domain. The implementation is complete. See `packages/core/src/` for domain types, `packages/adapters/callisto/src/` for the adapter, and `apps/explorer/src/app/blocks/` for the pages.
+
 This file covers the home-page requirements for the blocks domain.
 
 ## Home Responsibilities
@@ -109,14 +111,14 @@ So the adapter should normalize block results into:
 - `Block`
 - `BlockDetail`
 
-## Home Implementation Tasks
+## Home Implementation Tasks (completed)
 
-1. define `Block` and `BlockDetail` in `packages/core`
-2. add block queries to the Callisto adapter
-3. create block mappers
-4. implement the latest blocks hook
-5. implement the latest block card
-6. implement the latest blocks table
+1. ~~define `Block` and `BlockDetail` in `packages/core`~~
+2. ~~add block queries to the Callisto adapter~~
+3. ~~create block mappers~~
+4. ~~implement server-side block service~~
+5. ~~implement the latest block card~~
+6. ~~implement the latest blocks table~~
 
 ## Notes
 

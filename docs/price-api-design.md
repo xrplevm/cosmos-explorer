@@ -1,5 +1,7 @@
 # Price API Design
 
+> **Historical document** — This was the design proposal for the price API. The implementation is in `packages/price/` and `packages/adapters/callisto/src/`. The actual types may differ from proposals below.
+
 This document proposes a clean price API for `cosmos-explorer`, based on how `../governance-explorer` currently handles price and market data.
 
 ## Current Legacy Behavior

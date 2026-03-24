@@ -1,5 +1,7 @@
 # Transactions Domain Plan
 
+> **Historical document** — This was the initial planning doc for the transactions domain. The implementation is complete. See `packages/core/src/` for domain types, `packages/adapters/callisto/src/` for the adapter, and `apps/explorer/src/app/transactions/` for the pages.
+
 This file covers the home-page requirements for the transactions domain.
 
 ## Home Responsibilities
@@ -100,13 +102,13 @@ So transaction domain code should map Hasura results into:
 - `TransactionSummary`
 - `TransactionDetail`
 
-## Home Implementation Tasks
+## Home Implementation Tasks (completed)
 
-1. define transaction types in `packages/core`
-2. add transaction queries to the Callisto adapter
-3. create transaction mappers
-4. implement the latest transactions hook
-5. implement the latest transactions table
+1. ~~define transaction types in `packages/core`~~
+2. ~~add transaction queries to the Callisto adapter~~
+3. ~~create transaction mappers~~
+4. ~~implement server-side transaction service~~
+5. ~~implement the latest transactions table~~
 
 ## Notes
 

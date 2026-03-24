@@ -1,5 +1,7 @@
 # Validators Domain Plan
 
+> **Historical document** — This was the initial planning doc for the validators domain. The implementation is complete. See `packages/core/src/` for domain types, `packages/adapters/callisto/src/` for the adapter, and `apps/explorer/src/app/validators/` for the pages.
+
 This file covers the home-page requirements for the validators domain.
 
 ## Home Responsibilities
@@ -101,13 +103,13 @@ So the adapter should convert Hasura validator data into:
 - `ValidatorDetail`
 - `ValidatorCount`
 
-## Home Implementation Tasks
+## Home Implementation Tasks (completed)
 
-1. define the validator count shape in `packages/core`
-2. decide whether counts belong in `ChainStats` or a dedicated method
-3. add Callisto adapter query for active and total validators
-4. expose the count through the home stats hook
-5. implement the active validators card
+1. ~~define the validator count shape in `packages/core`~~
+2. ~~decide whether counts belong in `ChainStats` or a dedicated method~~
+3. ~~add Callisto adapter query for active and total validators~~
+4. ~~expose the count through the server-side service layer~~
+5. ~~implement the active validators card~~
 
 ## Notes
 

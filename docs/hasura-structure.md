@@ -1,5 +1,7 @@
 # Hasura Structure And Types
 
+> **Reference document** — This explains the Hasura/Callisto backend structure that the explorer consumes. The `../governance-explorer` paths refer to the legacy project. The new explorer's adapter layer (`packages/adapters/callisto/`) abstracts these details behind clean service interfaces.
+
 This document explains how Hasura is structured in `../governance-explorer`, what kinds of types it exposes, and how those types are consumed by the frontend.
 
 ## Big Picture

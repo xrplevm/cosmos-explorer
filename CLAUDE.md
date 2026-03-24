@@ -24,6 +24,37 @@ pnpm --filter @cosmos-explorer/callisto typecheck
 pnpm --filter @cosmos-explorer/explorer typecheck
 ```
 
+Go commands (requires Go 1.23+ and `golangci-lint`):
+
+```bash
+cd apps/callisto && make build
+cd apps/callisto && make lint
+cd apps/callisto && make test-unit
+```
+
+### Running Callisto
+
+Callisto is the Go indexer that feeds chain data into PostgreSQL. To run it locally:
+
+First-time database setup:
+
+```bash
+docker run --name callisto-db \
+  -e POSTGRES_USER=callisto -e POSTGRES_PASSWORD=password -e POSTGRES_DB=callisto \
+  -p 5432:5432 -v ./apps/callisto/database/schema:/docker-entrypoint-initdb.d \
+  -d postgres
+```
+
+Then to run:
+
+```bash
+pnpm start:callisto-db   # Start the PostgreSQL container
+pnpm build:callisto      # Build the binary
+pnpm start:callisto      # Start the indexer
+```
+
+Config lives at `~/.callisto/config.yaml`. The current config points to the XRPL EVM Sidechain testnet endpoints. The `go.work` file (gitignored) enables local resolution of the `packages/juno` dependency.
+
 Turbo config is in `turbo.json`. `typecheck` and `lint` depend on `^build`.
 
 ## Linting
@@ -36,21 +67,29 @@ Shared ESLint 9 flat config lives in `packages/eslint-config/`. Three composable
 
 Each package has its own `eslint.config.mjs` that spreads the right shared config. `projectService: true` auto-discovers the nearest `tsconfig.json` — do not set `project` alongside it. Run `eslint . --fix` to auto-fix stylistic violations.
 
+Next.js 16 removed `next lint`. Both apps use `eslint .` directly. Their `eslint.config.mjs` files include `{ ignores: ['.next/**', 'next.config.ts'] }` to skip generated files.
+
+Go linting uses `golangci-lint run ./...` (configured in each Go project's Makefile).
+
 ## Package Layout
 
 ```text
-apps/explorer          Next.js explorer app
-apps/playground        Next.js playground app
+apps/explorer          Next.js 16 explorer app (webpack bundler)
+apps/playground        Next.js 16 playground app (webpack bundler)
+apps/callisto          Go indexer app (Callisto)
 
 packages/core          Domain types and service interfaces
 packages/config        Chain config schema
 packages/utils         Shared helpers, fetcher, errors
 packages/adapters/callisto
-                       Callisto-backed chain services
+                       Callisto-backed chain services (TypeScript)
 packages/price         Price service implementation
 packages/ui            Shared UI components
+packages/juno          Go library (Juno)
 packages/eslint-config Shared ESLint flat configs
 ```
+
+Go packages (`apps/callisto`, `packages/juno`) have `package.json` wrappers so Turbo can orchestrate `build`, `lint`, `test`, and `clean` tasks alongside TypeScript packages.
 
 Older references to `hooks`, `hasura`, `xrplevm adapter`, `storybook`, or a single `IChainDataSource` contract are outdated for this repo state.
 
@@ -121,6 +160,15 @@ To add a new variant:
 - Price is fetched through `packages/price`.
 - The home overview reads composed stats from the service layer.
 - Upstream price data may be missing even when the app wiring is correct.
+
+## CI
+
+GitHub Actions workflows in `.github/workflows/`:
+
+- **`lint.yml`** — TypeScript lint (`pnpm lint`) + Go lint (`make lint` in `apps/callisto`, gated on `.go`/`.mod`/`.sum` diffs)
+- **`test.yml`** — TypeScript build & typecheck + Go unit tests with coverage upload
+
+Dependabot (`.github/dependabot.yml`) monitors `github-actions`, `npm`, and `gomod` (for `apps/callisto` and `packages/juno`) on a weekly schedule.
 
 ## Useful Files
 

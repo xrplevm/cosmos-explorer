@@ -1,0 +1,13 @@
+.idea/
+build/
+vendor/
+
+# Configuration
+*.toml
+*.json
+!package.json
+config.yaml
+
+# Coverage
+coverage.*
+docker

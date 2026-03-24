@@ -1,5 +1,7 @@
 # Home Dashboard Data Contract
 
+> **Historical document** — This was the data contract specification for the home dashboard. The implementation is complete. See `apps/explorer/src/app/(home)/` for the current layout and `src/lib/services.ts` for service composition.
+
 This document defines the required home page data and layout.
 
 ## Layout

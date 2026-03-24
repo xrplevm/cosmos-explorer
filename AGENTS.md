@@ -6,15 +6,19 @@ Repository instructions for coding agents working in this repo.
 
 This is a Turborepo monorepo for a Cosmos-style blockchain explorer. The current deployment targets the XRPL EVM Sidechain testnet.
 
-- `apps/explorer` — production Next.js app
-- `apps/playground` — UI playground app
+- `apps/explorer` — production Next.js 16 app (webpack bundler)
+- `apps/playground` — UI playground Next.js 16 app (webpack bundler)
+- `apps/callisto` — Go indexer app (Callisto)
 - `packages/core` — domain contracts (types, service interfaces)
-- `packages/adapters/callisto` — Callisto/Hasura GraphQL chain services
+- `packages/adapters/callisto` — Callisto/Hasura GraphQL chain services (TypeScript)
 - `packages/price` — price data service
 - `packages/config` — chain config schema and validation
 - `packages/utils` — shared runtime helpers (fetcher, errors, keybase)
 - `packages/ui` — shared UI components (shadcn/ui + Tailwind)
+- `packages/juno` — Go library (Juno)
 - `packages/eslint-config` — shared ESLint 9 flat configs
+
+Go packages have `package.json` wrappers for Turbo orchestration. Go requires Go 1.23+ and `golangci-lint`.
 
 ## Commands
 
@@ -36,6 +40,35 @@ pnpm --filter @cosmos-explorer/core build
 pnpm --filter @cosmos-explorer/callisto typecheck
 pnpm --filter @cosmos-explorer/explorer typecheck
 ```
+
+Go commands (requires Go 1.23+ and `golangci-lint`):
+
+```bash
+cd apps/callisto && make build
+cd apps/callisto && make lint
+cd apps/callisto && make test-unit
+```
+
+### Running Callisto locally
+
+First-time database setup:
+
+```bash
+docker run --name callisto-db \
+  -e POSTGRES_USER=callisto -e POSTGRES_PASSWORD=password -e POSTGRES_DB=callisto \
+  -p 5432:5432 -v ./apps/callisto/database/schema:/docker-entrypoint-initdb.d \
+  -d postgres
+```
+
+Then to run:
+
+```bash
+pnpm start:callisto-db   # Start the PostgreSQL container
+pnpm build:callisto      # Build the binary
+pnpm start:callisto      # Start the indexer
+```
+
+Config: `~/.callisto/config.yaml` (points to XRPL EVM Sidechain testnet by default). A `go.work` file (gitignored) at the repo root enables local resolution of the `packages/juno` dependency.
 
 ## Boundaries
 
@@ -178,8 +211,19 @@ pnpm --filter @cosmos-explorer/explorer typecheck
 | `packages/adapters/callisto/src/mappers.ts` | GraphQL → core type mappers |
 | `plan.md` | Original implementation plan |
 
+## CI
+
+GitHub Actions workflows in `.github/workflows/`:
+
+- **`lint.yml`** — TypeScript lint + Go lint (gated on `.go`/`.mod`/`.sum` diffs)
+- **`test.yml`** — TypeScript build & typecheck + Go unit tests with coverage
+
+Dependabot monitors `github-actions`, `npm`, and `gomod` weekly.
+
 ## Current Notes
 
+- Next.js apps use webpack bundler (`--webpack` flag) due to Turbopack incompatibilities with `next-themes` and `@tabler/icons-react`.
+- `next lint` was removed in Next.js 16. Both apps use `eslint .` directly with `{ ignores: ['.next/**', 'next.config.ts'] }`.
 - The explorer is configured by `apps/explorer/chain.json`.
 - The current chain is XRPL EVM Sidechain testnet.
 - The GraphQL endpoint is Callisto-backed Hasura.

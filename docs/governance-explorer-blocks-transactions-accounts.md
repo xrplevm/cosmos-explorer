@@ -1,5 +1,7 @@
 # Governance Explorer Blocks, Transactions, And Accounts Data Flow
 
+> **Reference document** — This documents the legacy `../governance-explorer` data flow. The new explorer has reimplemented these features with server-side service composition instead of client-side hooks/subscriptions. See `packages/adapters/callisto/src/` for the current adapter and `apps/explorer/src/lib/services.ts` for service composition.
+
 This document explains how `../governance-explorer` retrieves blocks, transactions, and account data today, and where that data actually comes from.
 
 ## High-Level Split

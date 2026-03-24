@@ -1,0 +1,120 @@
+# v6.0.1
+
+### Changes
+- ([\#121](https://github.com/forbole/juno/pull/121)) Added back authz message handler in worker
+
+# v6.0.0
+### Changes
+- ([\#107](https://github.com/forbole/juno/pull/107)) Removed SDK codec dependency from remote mode
+
+### Database
+- ([\#110](https://github.com/forbole/juno/pull/110)) Fixed initialization of involved account addresses slice
+- ([\#114](https://github.com/forbole/juno/pull/114)) Changed colum type from JSON into JSONB for message-related field
+
+### Dependencies
+- ([\#119](https://github.com/forbole/juno/pull/119)) Updated cosmos-sdk to v0.50.x
+
+### Migrations
+
+Now the api config is required in remote mode, please check the [reference](./.docs/config.md#remote-node) and add the field into your config after upgrading Juno to v6.
+
+
+## v5.3.0
+### Changes
+- ([\#100](https://github.com/forbole/juno/pull/100)) Improved account relationship mapping
+- ([\#108](https://github.com/forbole/juno/pull/108)) Fixed `init` command creating empty config file
+
+## v5.2.0
+### Changes
+- Exposed `Database#CreatePartitionIfNotExists` method 
+- ([\#97](https://github.com/forbole/juno/pull/97)) Add `x/authz` message parser
+
+## v5.1.0
+### Changes
+- Bumped Go version to `1.20`
+- Fixed a bug that caused messages type urls to be empty in the database
+- Implemented a better default `EncodingConfigBuilder`
+- Added the ability to set `DatabaseConfig` field values using setter methods
+- ([\#96](https://github.com/forbole/juno/pull/96)) Export `Codec` and `LegacyAmino` from the `Database` implementation
+
+## v5.0.0
+### Changes
+- Updated Cosmos SDK to `v0.47.2`
+
+### Database
+- ([\#96](https://github.com/forbole/juno/pull/96)) Exported Codec and LegacyAmino codec inside Database wrapper
+
+## v4.2.0
+### Changes
+- ([\#93](https://github.com/forbole/juno/pull/93)) Decode IBC transfer data to JSON for `/ibc.core.channel.v1.MsgRecvPacket` message
+- ([\#94](https://github.com/forbole/juno/pull/94)) Added TSL support when connecting to database
+
+## v4.1.0
+### Changes
+- ([\#74](https://github.com/forbole/juno/pull/74)) Applied `GetMissingHeights()` in `enqueueMissingBlocks()` & in `parse blocks missing` cmd
+- ([\#88](https://github.com/forbole/juno/pull/88)) Added `juno_db_latest_height` metric to prometheus monitoring
+
+## v4.0.0
+### Changes
+- Updated Cosmos SDK to `v0.45.8`
+- ([\#74](https://github.com/forbole/juno/pull/74)) Added database block count to prometheus to improve alert monitoring
+- ([\#75](https://github.com/forbole/juno/pull/75)) Allow modules to handle MsgExec inner messages
+- ([\#76](https://github.com/forbole/juno/pull/76)) Return 0 as height for `GetLastBlockHeight()` method if there are no blocks saved in database
+- ([\#79](https://github.com/forbole/juno/pull/79)) Use `sqlx` instead of `sql` while dealing with a PostgreSQL database
+- ([\#83](https://github.com/forbole/juno/pull/83)) Bump `github.com/tendermint/tendermint` to `v0.34.22`
+- ([\#84](https://github.com/forbole/juno/pull/84)) Replace database configuration params with URI
+- ([\#86](https://github.com/forbole/juno/pull/86)) Revert concurrent handling of transactions and messages
+
+## v3.4.0
+### Changes
+- ([\#71](https://github.com/forbole/juno/pull/71)) Retry RPC client connection upon failure instead of panic
+- ([\#72](https://github.com/forbole/juno/pull/72)) Updated missing blocks parsing 
+- ([\#73](https://github.com/forbole/juno/pull/73)) Re-enqueue failed block after average block time
+
+## v3.3.0
+### Changes
+- ([\#67](https://github.com/forbole/juno/pull/67)) Added support for concurrent transaction handling
+- ([\#69](https://github.com/forbole/juno/pull/69)) Added `ChainID` method to the `Node` type
+
+## v3.2.1
+### Changes
+- ([\#68](https://github.com/forbole/juno/pull/68)) Added `chain_id` label to prometheus to improve alert monitoring 
+
+## v3.2.0
+### Changes
+- ([\#61](https://github.com/forbole/juno/pull/61)) Updated v3 migration code to handle database users names with a hyphen 
+- ([\#59](https://github.com/forbole/juno/pull/59)) Added `parse transactios` command to re-fetch missing or incomplete transactions
+
+## v3.1.1
+### Changes
+- Updated IBC to `v3.0.0`
+
+## v3.1.0
+### Changes
+- Allow to return any `WritableConfig` when initializing the configuration
+
+## v3.0.1
+### Changes
+- Updated IBC to `v2.2.0`
+
+## v3.0.0
+#### Note
+Some changes included in this version are **breaking** due to the command renames. Extra precaution needs to be used when updating to this version.
+
+### Migrating
+To migrate to this version you can run the following command: 
+```
+juno migrate v3
+```
+
+### Changes 
+#### CLI
+- Renamed the `parse` command to `start`
+- Renamed the `fix` command to `parse`
+
+#### Database
+- Store transactions and messages inside partitioned tables
+
+### New features
+#### CLI
+- Added a `genesis-file` subcommand to the `parse` command that allows you to parse the genesis file only

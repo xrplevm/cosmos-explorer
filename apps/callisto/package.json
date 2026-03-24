@@ -1,0 +1,12 @@
+{
+  "name": "@cosmos-explorer/callisto-app",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "make build",
+    "dev": "go run ./cmd/callisto",
+    "lint": "make lint",
+    "test": "make test-unit stop-docker-test",
+    "clean": "make clean"
+  }
+}

@@ -1,5 +1,7 @@
 # Price Domain Plan
 
+> **Historical document** — This was the initial planning doc for the price domain. The implementation is complete. See `packages/core/src/` for domain types, `packages/price/` for the price service, and `apps/explorer/src/app/(home)/` for usage.
+
 This file covers the home-page requirements for the price domain.
 
 ## Home Responsibilities
@@ -122,13 +124,13 @@ So price data should be normalized into:
 - `PricePoint`
 - `MarketSummary`
 
-## Home Implementation Tasks
+## Home Implementation Tasks (completed)
 
-1. define `Price` in `packages/core`
-2. add current-price query to the Callisto adapter
-3. create a price mapper
-4. expose price through the home stats hook
-5. implement the price card
+1. ~~define `Price` in `packages/core`~~
+2. ~~add current-price query to the Callisto adapter~~
+3. ~~create a price mapper~~
+4. ~~expose price through the server-side service layer~~
+5. ~~implement the price card~~
 
 ## Notes
 

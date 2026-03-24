@@ -1,0 +1,26 @@
+queue_rules:
+  - name: default
+    conditions:
+      - base~=cosmos/
+
+pull_request_rules:
+  - name: automerge with label automerge and branch protection passing
+    conditions:
+      - "#approved-reviews-by>1"
+      - label=automerge
+    actions:
+      queue:
+        name: default
+        method: squash
+        commit_message_template: >
+          {{ title }} (#{{ number }})
+          
+          {{ body }}
+  - name: backport patches to v0.47.x branch
+    conditions:
+      - base=cosmos/v0.50.x
+      - label=backport/v0.47.x
+    actions:
+      backport:
+        branches:
+          - cosmos/v0.47.x

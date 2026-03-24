@@ -1,0 +1,11 @@
+{
+  "name": "@cosmos-explorer/juno",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "go build ./...",
+    "lint": "golangci-lint run ./...",
+    "test": "go test ./...",
+    "clean": "rm -rf coverage.txt"
+  }
+}
