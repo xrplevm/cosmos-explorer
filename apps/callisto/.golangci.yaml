@@ -46,8 +46,6 @@ linters:
       - text: "G104:"
         linters:
           - gosec
-    max-issues-per-linter: 10000
-    max-same-issues: 10000
 
 formatters:
   enable:
