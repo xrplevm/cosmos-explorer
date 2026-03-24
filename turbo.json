@@ -12,6 +12,9 @@
     "lint": {
       "dependsOn": ["^build"]
     },
+    "@cosmos-explorer/juno#lint": {
+      "dependsOn": ["@cosmos-explorer/callisto-app#lint"]
+    },
     "typecheck": {
       "dependsOn": ["^build"]
     },
