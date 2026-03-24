@@ -12,7 +12,7 @@ require (
 	github.com/cosmos/gogoproto v1.4.12
 	github.com/go-co-op/gocron v1.13.0
 	github.com/golangci/golangci-lint v1.52.2
-	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/mux v1.8.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.7
 	github.com/prometheus/client_golang v1.19.0
