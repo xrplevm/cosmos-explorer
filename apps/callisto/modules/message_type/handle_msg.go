@@ -15,7 +15,7 @@ func (m *Module) HandleMsg(
 		msg.GetType(),
 		utils.GetModuleNameFromTypeURL(msg.GetType()),
 		utils.GetMsgFromTypeURL(msg.GetType()),
-		int64(tx.Height)))
+		tx.Height))
 
 	if err != nil {
 		return err

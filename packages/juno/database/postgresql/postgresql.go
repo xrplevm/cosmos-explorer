@@ -152,7 +152,7 @@ func (db *Database) SaveTx(tx *types.Transaction) error {
 
 	partitionSize := config.Cfg.Database.PartitionSize
 	if partitionSize > 0 {
-		partitionID = int64(tx.Height) / partitionSize
+		partitionID = tx.Height / partitionSize
 		err := db.CreatePartitionIfNotExists("transaction", partitionID)
 		if err != nil {
 			return err

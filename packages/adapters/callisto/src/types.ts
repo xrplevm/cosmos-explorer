@@ -1,7 +1,7 @@
 type Scalar = string | number | boolean | null;
 
-export type LatestBlocksResponse = {
-  blocks: Array<{
+export interface LatestBlocksResponse {
+  blocks: {
     height: Scalar;
     txs?: number | null;
     hash: string;
@@ -10,28 +10,28 @@ export type LatestBlocksResponse = {
       validatorInfo?: {
         operatorAddress: string;
       } | null;
-      validatorDescriptions?: Array<{
+      validatorDescriptions?: {
         moniker?: string | null;
         identity?: string | null;
-      }> | null;
+      }[] | null;
     } | null;
-  }>;
-};
+  }[];
+}
 
-export type BlockDetailsResponse = {
+export interface BlockDetailsResponse {
   block: LatestBlocksResponse['blocks'];
   transactions: LatestTransactionsResponse['transactions'];
-  preCommits: Array<{
+  preCommits: {
     validator?: {
       validatorInfo?: {
         operatorAddress: string;
       } | null;
     } | null;
-  }>;
-};
+  }[];
+}
 
-export type LatestTransactionsResponse = {
-  transactions: Array<{
+export interface LatestTransactionsResponse {
+  transactions: {
     height: Scalar;
     hash: string;
     success: boolean;
@@ -39,11 +39,11 @@ export type LatestTransactionsResponse = {
       timestamp: Scalar;
     };
     messages: unknown;
-  }>;
-};
+  }[];
+}
 
-export type TransactionDetailsResponse = {
-  transaction: Array<{
+export interface TransactionDetailsResponse {
+  transaction: {
     hash: string;
     height: Scalar;
     block: {
@@ -57,10 +57,10 @@ export type TransactionDetailsResponse = {
     messages: unknown;
     logs: unknown;
     rawLog?: string | null;
-  }>;
-};
+  }[];
+}
 
-export type ValidatorCountResponse = {
+export interface ValidatorCountResponse {
   activeTotal: {
     aggregate?: {
       count?: number | null;
@@ -71,82 +71,82 @@ export type ValidatorCountResponse = {
       count?: number | null;
     } | null;
   };
-};
+}
 
-export type ValidatorsResponse = {
-  stakingPool: Array<{
+export interface ValidatorsResponse {
+  stakingPool: {
     bondedTokens: Scalar;
-  }>;
-  validator: Array<{
-    validatorStatuses: Array<{
+  }[];
+  validator: {
+    validatorStatuses: {
       status: number;
       jailed: boolean;
-    }>;
-    validatorDescriptions: Array<{
+    }[];
+    validatorDescriptions: {
       moniker?: string | null;
       identity?: string | null;
-    }>;
-    validatorSigningInfos: Array<{
+    }[];
+    validatorSigningInfos: {
       missedBlocksCounter: Scalar;
       tombstoned: boolean;
-    }>;
+    }[];
     validatorInfo?: {
       operatorAddress: string;
     } | null;
-    validatorVotingPowers: Array<{
+    validatorVotingPowers: {
       votingPower: Scalar;
-    }>;
-    validatorCommissions: Array<{
+    }[];
+    validatorCommissions: {
       commission: Scalar;
-    }>;
-  }>;
-};
+    }[];
+  }[];
+}
 
-export type AverageBlockTimeResponse = {
-  averageBlockTime: Array<{
+export interface AverageBlockTimeResponse {
+  averageBlockTime: {
     averageTime: Scalar;
-  }>;
-};
+  }[];
+}
 
-export type ValidatorDetailsResponse = {
-  validator: Array<{
-    validatorStatuses: Array<{
+export interface ValidatorDetailsResponse {
+  validator: {
+    validatorStatuses: {
       status: number;
       jailed: boolean;
       height: Scalar;
-    }>;
-    validatorDescriptions: Array<{
+    }[];
+    validatorDescriptions: {
       moniker?: string | null;
       identity?: string | null;
       details?: string | null;
       website?: string | null;
-    }>;
-    validatorSigningInfos: Array<{
+    }[];
+    validatorSigningInfos: {
       missedBlocksCounter: Scalar;
       tombstoned: boolean;
-    }>;
+    }[];
     validatorInfo?: {
       operatorAddress: string;
       selfDelegateAddress?: string | null;
       maxRate?: Scalar | null;
     } | null;
-    validatorVotingPowers: Array<{
+    validatorVotingPowers: {
       votingPower: Scalar;
-    }>;
-    validatorCommissions: Array<{
+    }[];
+    validatorCommissions: {
       commission: Scalar;
-    }>;
-  }>;
-  blocks: Array<{
+    }[];
+  }[];
+  blocks: {
     height: Scalar;
     txs?: number | null;
     hash: string;
     timestamp: Scalar;
-  }>;
-};
+  }[];
+}
 
-export type ProposalsResponse = {
-  proposals: Array<{
+export interface ProposalsResponse {
+  proposals: {
     proposalId: number;
     title?: string | null;
     description?: string | null;
@@ -155,11 +155,11 @@ export type ProposalsResponse = {
     submitTime?: string | null;
     votingEndTime?: string | null;
     content?: unknown;
-  }>;
-};
+  }[];
+}
 
-export type ProposalDetailsResponse = {
-  proposal: Array<{
+export interface ProposalDetailsResponse {
+  proposal: {
     proposalId: number;
     title?: string | null;
     description?: string | null;
@@ -171,19 +171,19 @@ export type ProposalDetailsResponse = {
     votingStartTime?: string | null;
     metadata?: string | null;
     content?: unknown;
-  }>;
-  proposalTallyResult: Array<{
+  }[];
+  proposalTallyResult: {
     yes?: Scalar;
     no?: Scalar;
     abstain?: Scalar;
     noWithVeto?: Scalar;
-  }>;
-  stakingPool: Array<{
+  }[];
+  stakingPool: {
     bondedTokens?: Scalar | null;
-  }>;
-};
+  }[];
+}
 
-export type AccountCoinsResponse = {
+export interface AccountCoinsResponse {
   accountBalances?: {
     coins?: unknown;
   } | null;
@@ -193,33 +193,33 @@ export type AccountCoinsResponse = {
   unbondingBalance?: {
     coins?: unknown;
   } | null;
-};
+}
 
-export type AccountRewardsResponse = {
-  delegationRewards: Array<{
+export interface AccountRewardsResponse {
+  delegationRewards: {
     validatorAddress?: string | null;
     coins?: unknown;
-  }>;
-};
+  }[];
+}
 
-export type AccountDelegationsResponse = {
+export interface AccountDelegationsResponse {
   delegations?: {
-    delegations?: Array<{
+    delegations?: {
       validator_address?: string | null;
       coins?: unknown;
       delegator_address?: string | null;
-    }> | null;
+    }[] | null;
     pagination?: {
       total?: number | null;
     } | null;
   } | null;
-};
+}
 
-export type AccountWithdrawalAddressResponse = {
+export interface AccountWithdrawalAddressResponse {
   withdrawalAddress?: {
     address?: string | null;
   } | null;
-};
+}
 
 export type DailyStatsResponse = Record<
   string,
@@ -233,8 +233,8 @@ export type DailyStatsResponse = Record<
   }
 >;
 
-export type AccountMessagesResponse = {
-  messagesByAddress: Array<{
+export interface AccountMessagesResponse {
+  messagesByAddress: {
     transaction?: {
       height: Scalar;
       hash: string;
@@ -244,5 +244,5 @@ export type AccountMessagesResponse = {
         timestamp: Scalar;
       };
     } | null;
-  }>;
-};
+  }[];
+}

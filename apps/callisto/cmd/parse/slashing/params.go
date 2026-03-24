@@ -42,4 +42,4 @@ func paramsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			return slashingModule.UpdateParams(height)
 		},
 	}
-} 
+}

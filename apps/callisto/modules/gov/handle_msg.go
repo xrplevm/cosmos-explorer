@@ -84,7 +84,7 @@ func (m *Module) handleSubmitProposalEvent(tx *juno.Transaction, proposer string
 	}
 
 	// Get the proposal
-	proposal, err := m.source.Proposal(int64(tx.Height), proposalID)
+	proposal, err := m.source.Proposal(tx.Height, proposalID)
 	if err != nil {
 		if strings.Contains(err.Error(), codes.NotFound.String()) {
 			// query the proposal details using the latest height stored in db
@@ -164,7 +164,7 @@ func (m *Module) handleDepositEvent(tx *juno.Transaction, depositor string, even
 		return fmt.Errorf("error while getting proposal id: %s", err)
 	}
 
-	deposit, err := m.source.ProposalDeposit(int64(tx.Height), proposalID, depositor)
+	deposit, err := m.source.ProposalDeposit(tx.Height, proposalID, depositor)
 	if err != nil {
 		return fmt.Errorf("error while getting proposal deposit: %s", err)
 	}
@@ -174,7 +174,7 @@ func (m *Module) handleDepositEvent(tx *juno.Transaction, depositor string, even
 	}
 
 	return m.db.SaveDeposits([]types.Deposit{
-		types.NewDeposit(proposalID, depositor, deposit.Amount, txTimestamp, tx.TxHash, int64(tx.Height)),
+		types.NewDeposit(proposalID, depositor, deposit.Amount, txTimestamp, tx.TxHash, tx.Height),
 	})
 }
 
@@ -198,7 +198,7 @@ func (m *Module) handleVoteEvent(tx *juno.Transaction, voter string, events sdk.
 	}
 
 	for _, weightVoteOption := range weightVoteOptions {
-		vote := types.NewVote(proposalID, voter, weightVoteOption.Option, weightVoteOption.Weight, txTimestamp, int64(tx.Height))
+		vote := types.NewVote(proposalID, voter, weightVoteOption.Option, weightVoteOption.Weight, txTimestamp, tx.Height)
 		err = m.db.SaveVote(vote)
 
 		if err != nil {
@@ -207,5 +207,5 @@ func (m *Module) handleVoteEvent(tx *juno.Transaction, voter string, events sdk.
 	}
 
 	// update tally result for given proposal
-	return m.UpdateProposalTallyResult(proposalID, int64(tx.Height))
+	return m.UpdateProposalTallyResult(proposalID, tx.Height)
 }

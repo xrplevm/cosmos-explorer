@@ -60,10 +60,10 @@ func (m *Module) HandleMsgGrantAllowance(tx *juno.Transaction, msg *feegranttype
 	if err != nil {
 		return fmt.Errorf("error while getting new grant allowance: %s", err)
 	}
-	return m.db.SaveFeeGrantAllowance(types.NewFeeGrant(feeGrant, int64(tx.Height)))
+	return m.db.SaveFeeGrantAllowance(types.NewFeeGrant(feeGrant, tx.Height))
 }
 
 // HandleMsgRevokeAllowance allows to properly handle a MsgRevokeAllowance
 func (m *Module) HandleMsgRevokeAllowance(tx *juno.Transaction, msg *feegranttypes.MsgRevokeAllowance) error {
-	return m.db.DeleteFeeGrantAllowance(types.NewGrantRemoval(msg.Grantee, msg.Granter, int64(tx.Height)))
+	return m.db.DeleteFeeGrantAllowance(types.NewGrantRemoval(msg.Grantee, msg.Granter, tx.Height))
 }

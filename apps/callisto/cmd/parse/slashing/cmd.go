@@ -17,4 +17,4 @@ func NewSlashingCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	)
 
 	return cmd
-} 
+}

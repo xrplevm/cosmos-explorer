@@ -35,11 +35,11 @@ func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error 
 	switch msg.GetType() {
 	case "/cosmos.staking.v1beta1.MsgCreateValidator":
 		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &stakingtypes.MsgCreateValidator{})
-		return m.handleMsgCreateValidator(int64(tx.Height), cosmosMsg)
+		return m.handleMsgCreateValidator(tx.Height, cosmosMsg)
 
 	case "/cosmos.staking.v1beta1.MsgEditValidator":
 		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &stakingtypes.MsgEditValidator{})
-		return m.handleEditValidator(int64(tx.Height), cosmosMsg)
+		return m.handleEditValidator(tx.Height, cosmosMsg)
 
 	// update validators statuses, voting power
 	// and proposals validators satatus snapshots

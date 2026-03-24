@@ -203,7 +203,7 @@ function mapMessages(messages: unknown): TransactionDetail["messages"] {
 
     return {
       type: formatMessageType(type),
-      value: message,
+      value: message as unknown,
     };
   });
 }
@@ -214,14 +214,14 @@ function mapTokenAmount(value: unknown, denom: string): TokenAmount | null {
   }
 
   return {
-    amount: String(value),
+    amount: typeof value === "string" || typeof value === "number" ? String(value) : "",
     denom,
   };
 }
 
 function normalizeCoins(
   coins: unknown,
-): Array<{ denom: string; amount: string }> {
+): { denom: string; amount: string }[] {
   if (!Array.isArray(coins)) {
     return [];
   }
@@ -232,7 +232,8 @@ function normalizeCoins(
     }
 
     const denom = toStringValue((coin as { denom?: unknown }).denom);
-    const amount = String((coin as { amount?: unknown }).amount ?? "");
+    const rawAmount = (coin as { amount?: unknown }).amount;
+    const amount = typeof rawAmount === "string" || typeof rawAmount === "number" ? String(rawAmount) : "";
 
     if (!denom || !amount) {
       return [];

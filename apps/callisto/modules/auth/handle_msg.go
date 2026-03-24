@@ -54,7 +54,7 @@ func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error 
 		}
 	}
 
-	return m.RefreshAccounts(int64(tx.Height), moduleutils.FilterNonAccountAddresses(addresses))
+	return m.RefreshAccounts(tx.Height, moduleutils.FilterNonAccountAddresses(addresses))
 }
 
 func (m *Module) handleMsgCreateVestingAccount(msg *vestingtypes.MsgCreateVestingAccount, txTimestamp time.Time) error {

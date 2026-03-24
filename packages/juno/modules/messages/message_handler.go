@@ -17,5 +17,5 @@ func HandleMsg(
 		return err
 	}
 
-	return db.SaveMessage(int64(tx.Height), tx.TxHash, msg, addresses)
+	return db.SaveMessage(tx.Height, tx.TxHash, msg, addresses)
 }

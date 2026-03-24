@@ -13,9 +13,9 @@ export type ChartConfig = Record<
   }
 >;
 
-type ChartContextProps = {
+interface ChartContextProps {
   config: ChartConfig;
-};
+}
 
 const ChartContext = React.createContext<ChartContextProps | null>(null);
 
@@ -37,7 +37,7 @@ const ChartContainer = React.forwardRef<
   }
 >(({ id, className, children, config, ...props }, ref) => {
   const uniqueId = React.useId();
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  const chartId = `chart-${id ?? uniqueId.replace(/:/g, "")}`;
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -69,7 +69,7 @@ const ChartStyle = ({
   config: ChartConfig;
 }) => {
   const colorConfig = Object.entries(config).filter(
-    ([_, cfg]) => cfg.color || cfg.theme
+    ([_, cfg]) => cfg.color ?? cfg.theme
   );
   if (!colorConfig.length) return null;
 
@@ -79,8 +79,8 @@ const ChartStyle = ({
         __html: `
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color = itemConfig.color || itemConfig.theme?.["light"] || "";
-    const darkColor = itemConfig.theme?.["dark"] || color;
+    const color = itemConfig.color ?? itemConfig.theme?.light ?? "";
+    const darkColor = itemConfig.theme?.dark ?? color;
     return `
 [data-chart=${id}] {
   --color-${key}: ${color};
@@ -126,7 +126,7 @@ const ChartTooltipContent = React.forwardRef<
       formatter,
       color,
       nameKey,
-      labelKey,
+      labelKey: _labelKey,
     },
     ref
   ) => {
@@ -151,16 +151,14 @@ const ChartTooltipContent = React.forwardRef<
         )}
         <div className="grid gap-1.5">
           {payload.map((item, index) => {
-            const key = `${nameKey || item.dataKey || "value"}`;
+            const key = String(nameKey ?? item.dataKey ?? "value");
             const itemConfig = getPayloadConfigFromPayload(
               config,
               item,
               key
             );
-            const indicatorColor =
-              color ||
-              (item.payload as Record<string, string>)?.fill ||
-              item.color;
+            const payloadFill = (item.payload as Record<string, string | undefined>).fill;
+            const indicatorColor = color ?? payloadFill ?? item.color;
 
             return (
               <div
@@ -204,7 +202,7 @@ const ChartTooltipContent = React.forwardRef<
                       </span>
                     )}
                     <span className="text-muted-foreground">
-                      {itemConfig?.label || item.name}
+                      {itemConfig?.label ?? item.name}
                     </span>
                   </div>
                   {item.value != null && (
@@ -269,12 +267,12 @@ const ChartLegendContent = React.forwardRef<
         )}
       >
         {payload.map((item) => {
-          const key = `${nameKey || item.dataKey || "value"}`;
+          const key = String(nameKey ?? item.dataKey ?? "value");
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
           return (
             <div
-              key={item.value}
+              key={String(item.value)}
               className={cn(
                 "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
               )}

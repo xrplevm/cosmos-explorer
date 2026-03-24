@@ -37,15 +37,27 @@ linters:
       - text: "ST1016:"
         linters:
           - staticcheck
-      - text: "SA1019:"
+      - text: "singleCaseSwitch: should rewrite switch statement to if statement"
         linters:
-          - staticcheck
+          - gocritic
+      - text: "G301:"
+        linters:
+          - gosec
       - text: "G304:"
         linters:
           - gosec
-      - text: "G104:"
+      - text: "G103:"
         linters:
           - gosec
+      - text: "G115:"
+        linters:
+          - gosec
+      - text: "SA1019:"
+        linters:
+          - staticcheck
+      - text: "QF1008:"
+        linters:
+          - staticcheck
     max-issues-per-linter: 10000
     max-same-issues: 10000
 

@@ -19,5 +19,6 @@ coverage.txt
 # Configuration
 *.toml
 *.yaml
+!.golangci.yaml
 
 vendor/

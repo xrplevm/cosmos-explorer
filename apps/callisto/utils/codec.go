@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"github.com/evmos/evmos/v20/encoding"
-	"github.com/evmos/evmos/v20/x/erc20"
 	"sync"
 
 	"cosmossdk.io/x/evidence"
@@ -31,6 +29,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/gogoproto/proto"
+	"github.com/evmos/evmos/v20/encoding"
+	"github.com/evmos/evmos/v20/x/erc20"
 	"github.com/evmos/evmos/v20/x/evm"
 	"github.com/evmos/evmos/v20/x/feemarket"
 	"github.com/xrplevm/node/v6/x/poa"
