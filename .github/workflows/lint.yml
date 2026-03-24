@@ -57,7 +57,7 @@ jobs:
 
       - name: Lint juno
         if: env.GIT_DIFF != ''
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.3
           working-directory: packages/juno
@@ -65,7 +65,7 @@ jobs:
 
       - name: Lint callisto
         if: env.GIT_DIFF != ''
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.3
           working-directory: apps/callisto
