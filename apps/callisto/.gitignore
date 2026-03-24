@@ -2,6 +2,10 @@
 build/
 vendor/
 
+# Environment
+.env
+.env.*
+
 # Configuration
 *.toml
 *.json

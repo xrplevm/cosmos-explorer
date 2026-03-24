@@ -16,6 +16,10 @@ tools-stamp
 *.out
 coverage.txt
 
+# Environment
+.env
+.env.*
+
 # Configuration
 *.toml
 *.yaml
