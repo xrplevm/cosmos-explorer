@@ -94,8 +94,8 @@ importers:
         specifier: ^1
         version: 1.4.0
       typescript:
-        specifier: ^5
-        version: 5.9.3
+        specifier: ^6
+        version: 6.0.2
 
   apps/playground:
     dependencies:
@@ -152,8 +152,8 @@ importers:
         specifier: ^1
         version: 1.4.0
       typescript:
-        specifier: ^5
-        version: 5.9.3
+        specifier: ^6
+        version: 6.0.2
 
   packages/adapters/callisto:
     dependencies:
@@ -171,8 +171,8 @@ importers:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
       typescript:
-        specifier: ^5
-        version: 5.9.3
+        specifier: ^6
+        version: 6.0.2
 
   packages/config:
     dependencies:
@@ -187,8 +187,8 @@ importers:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
       typescript:
-        specifier: ^5
-        version: 5.9.3
+        specifier: ^6
+        version: 6.0.2
 
   packages/core:
     devDependencies:
@@ -199,8 +199,8 @@ importers:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
       typescript:
-        specifier: ^5
-        version: 5.9.3
+        specifier: ^6
+        version: 6.0.2
 
   packages/eslint-config:
     dependencies:
@@ -244,8 +244,8 @@ importers:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
       typescript:
-        specifier: ^5
-        version: 5.9.3
+        specifier: ^6
+        version: 6.0.2
 
   packages/ui:
     dependencies:
@@ -323,8 +323,8 @@ importers:
         specifier: ^4
         version: 4.2.1
       typescript:
-        specifier: ^5
-        version: 5.9.3
+        specifier: ^6
+        version: 6.0.2
 
   packages/utils:
     dependencies:
@@ -342,8 +342,8 @@ importers:
         specifier: ^9
         version: 9.39.4(jiti@2.6.1)
       typescript:
-        specifier: ^5
-        version: 5.9.3
+        specifier: ^6
+        version: 6.0.2
 
 packages:
 
@@ -2103,6 +2103,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@6.0.2:
+    resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
@@ -3803,6 +3808,8 @@ snapshots:
       prelude-ls: 1.2.1
 
   typescript@5.9.3: {}
+
+  typescript@6.0.2: {}
 
   undici-types@6.19.8: {}
 

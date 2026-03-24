@@ -67,6 +67,6 @@
     "eslint": "^9",
     "framer-motion": "^12.38.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^6"
   }
 }
