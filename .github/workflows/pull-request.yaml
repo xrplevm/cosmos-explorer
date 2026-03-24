@@ -1,0 +1,28 @@
+name: "Pull Request"
+
+on:
+  pull_request:
+    types: [ opened, synchronize ]
+
+jobs:
+  build-base:
+    uses: ./.github/workflows/build-base.yaml
+    secrets: inherit
+    with:
+      push: true
+      tag: ${{ github.sha }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-build-base
+      cancel-in-progress: true
+
+  build-callisto:
+    needs: [ build-base ]
+    uses: ./.github/workflows/build-callisto.yaml
+    secrets: inherit
+    with:
+      target: integration
+      push: false
+      tag: ${{ github.sha }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-build-callisto
+      cancel-in-progress: true

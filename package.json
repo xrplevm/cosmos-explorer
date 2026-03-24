@@ -10,7 +10,6 @@
     "build:callisto": "pnpm --filter @cosmos-explorer/callisto-app build",
     "start:callisto": "cd apps/callisto && ./build/callisto start",
     "start:callisto-db": "docker start callisto-db",
-    "typecheck": "turbo run typecheck",
     "build": "npx turbo run build && echo '🚀 Build completed'",
     "build:packages": "npx turbo run build --filter=\"./packages/**/*\" && echo '🚀 Build packages completed'",
     "clean": "npx turbo run clean && echo 'root: cleaning' && rimraf node_modules .turbo && echo '\n🧼 Clean completed'",
@@ -18,8 +17,8 @@
     "test:packages": "npx turbo run test --filter=\"./packages/**/*\" && echo '🧪 Test packages completed'",
     "lint": "npx turbo run lint && echo '🧹 Lint completed'",
     "lint:packages": "npx turbo run lint --filter=\"./packages/**/*\" && echo '🧹 Lint packages completed'",
-    "check-types": "npx turbo run check-types && echo '🔎 Check types completed'",
-    "check-types:packages": "npx turbo run check-types --filter=\"./packages/**/*\" && echo '🔎 Check types packages completed'"
+    "typecheck": "npx turbo run typecheck && echo '🔎 Check types completed'",
+    "typecheck:packages": "npx turbo run typecheck --filter=\"./packages/**/*\" && echo '🔎 Check types packages completed'"
   },
   "devDependencies": {
     "eslint": "^9",

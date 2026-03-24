@@ -7,7 +7,7 @@ export GO111MODULE = on
 ###                                   All                                   ###
 ###############################################################################
 
-all: lint test-unit install
+all: lint test install
 
 ###############################################################################
 ###                                Build flags                              ###
@@ -78,10 +78,10 @@ coverage:
 	@go tool cover --html=coverage.out
 .PHONY: coverage
 
-test-unit: start-docker-test
+test:
 	@echo "Executing unit tests..."
 	@go test -mod=readonly -v -coverprofile coverage.txt ./...
-.PHONY: test-unit
+.PHONY: test
 
 ###############################################################################
 ###                                Linting                                  ###
