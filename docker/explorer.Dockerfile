@@ -15,8 +15,9 @@ RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
     npx turbo run typecheck --filter=@cosmos-explorer/explorer
 
-# Chain config is provided via apps/explorer/.env at build time
-COPY apps/explorer/.env /project/apps/explorer/.env
+# Chain config env file — pass the path via ENV_FILE build arg (e.g. apps/explorer/.env.mainnet)
+ARG ENV_FILE=apps/explorer/.env
+COPY ${ENV_FILE} /project/apps/explorer/.env
 
 # Build explorer
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
