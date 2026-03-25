@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   transpilePackages: [
     "@cosmos-explorer/callisto",
     "@cosmos-explorer/config",
