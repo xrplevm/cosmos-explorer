@@ -52,6 +52,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Write explorer env file
+        run: echo "$EXPLORER_ENV" > /tmp/explorer.env
+        env:
+          EXPLORER_ENV: ${{ secrets.EXPLORER_ENV }}
+
       # Build docker image
       - name: Build docker image
         uses: docker/build-push-action@v5
@@ -64,11 +69,12 @@ jobs:
           target: ${{ inputs.target }}
           push: ${{ inputs.push }}
           tags: |
-            ghcr.io/xrplevm/cosmos-explorer/explorer:${{ env.TAG }}
+            ghcr.io/xrplevm/cosmos-explorer/explorer-${{ inputs.environment }}:${{ env.TAG }}
           outputs: type=image
           build-args: |
             BASE_IMAGE=ghcr.io/xrplevm/cosmos-explorer/base:${{ env.TAG }}
             TURBO_TEAM=peersyst
+          secret-files: |
+            explorer_env=/tmp/explorer.env
           secrets: |
             turbo_token=${{ secrets.TURBO_TOKEN }}
-            explorer_env=${{ secrets.EXPLORER_ENV }}
