@@ -49,5 +49,5 @@ func CreateGrpcConnection(cfg *GRPCConfig) (*grpc.ClientConn, error) {
 	}
 
 	address := HTTPProtocols.ReplaceAllString(cfg.Address, "")
-	return grpc.Dial(address, grpcOpts...)
+	return grpc.NewClient(address, grpcOpts...)
 }
