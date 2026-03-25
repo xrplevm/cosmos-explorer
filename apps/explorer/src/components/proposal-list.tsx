@@ -12,7 +12,7 @@ import { Separator } from "@cosmos-explorer/ui/separator";
 import { Input } from "@cosmos-explorer/ui/input";
 import { IconSearch as Search, IconX as X } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
-import { formatTimestamp } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import Link from "next/link";
 import type { ProposalSummary, ProposalStatus } from "@cosmos-explorer/core";
 
@@ -98,11 +98,11 @@ export function ProposalList({ proposals }: { proposals: ProposalSummary[] }) {
                   <CardDescription className="flex flex-wrap items-center gap-2 sm:gap-4">
                     <span>{proposal.type}</span>
                     <Separator orientation="vertical" className="h-3" />
-                    <span>Submitted {formatTimestamp(proposal.submitTime)}</span>
+                    <span>Submitted <Timestamp value={proposal.submitTime} /></span>
                     {proposal.votingEndTime && (
                       <>
                         <Separator orientation="vertical" className="h-3" />
-                        <span>Voting ends {formatTimestamp(proposal.votingEndTime)}</span>
+                        <span>Voting ends <Timestamp value={proposal.votingEndTime} /></span>
                       </>
                     )}
                   </CardDescription>

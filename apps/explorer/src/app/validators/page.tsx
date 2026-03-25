@@ -30,7 +30,7 @@ export default async function ValidatorsPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Bonded</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatTokenAmount(validatorSet.bonded, primaryToken, 0)}</p>
+            <p className="text-2xl font-bold">{formatTokenAmount(validatorSet.bonded, primaryToken)}</p>
           </CardContent>
         </Card>
         <Card>

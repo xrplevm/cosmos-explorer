@@ -12,9 +12,9 @@ import { StatusBadge } from "@/components/status-badge";
 import { decodeEthereumMessage } from "@/lib/ethereum-message-decode";
 import {
   formatHashMiddle,
-  formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import Link from "next/link";
 import type { TransactionDetailViewProps } from "../../types";
 import { DetailRow } from "../../shared/detail-row";
@@ -109,7 +109,7 @@ export function EthereumOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Timestamp">
-          <span>{formatTimestamp(transaction.timestamp)}</span>
+          <Timestamp value={transaction.timestamp} />
         </DetailRow>
         <Separator />
         <DetailRow label="Type">

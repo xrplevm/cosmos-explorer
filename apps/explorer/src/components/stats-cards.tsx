@@ -9,8 +9,8 @@ import { Skeleton } from "@cosmos-explorer/ui/skeleton";
 
 import {
   formatBlockTime,
-  formatTimestamp,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
 
@@ -34,7 +34,7 @@ export async function StatsCards() {
         </CardHeader>
         <CardContent className="text-xs text-muted-foreground">
           {stats.latestBlock?.timestamp
-            ? formatTimestamp(stats.latestBlock.timestamp)
+            ? <Timestamp value={stats.latestBlock.timestamp} />
             : "No block data"}
         </CardContent>
       </Card>

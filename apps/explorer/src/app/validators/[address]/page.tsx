@@ -26,8 +26,8 @@ import {
   formatHash,
   formatNumber,
   formatPercent,
-  formatTimestamp,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -254,7 +254,7 @@ export default async function ValidatorDetailPage({
                       </TableCell>
                       <TableCell>{block.txs}</TableCell>
                       <TableCell className="text-right text-muted-foreground">
-                        {formatTimestamp(block.timestamp)}
+                        <Timestamp value={block.timestamp} />
                       </TableCell>
                     </TableRow>
                   ))}

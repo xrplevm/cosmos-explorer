@@ -19,7 +19,8 @@ import Link from "next/link";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { StatusBadge } from "@/components/status-badge";
 import { TransactionSearch } from "@/components/transaction-search";
-import { formatHash, formatTimestamp } from "@/lib/formatters";
+import { formatHash } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { getServices } from "@/lib/services";
 import type { TransactionSummary } from "@cosmos-explorer/core";
 
@@ -169,7 +170,7 @@ export default async function TransactionsPage({
                         </div>
                       </TableCell>
                       <TableCell className="text-right text-muted-foreground">
-                        {formatTimestamp(tx.timestamp)}
+                        <Timestamp value={tx.timestamp} />
                       </TableCell>
                     </TableRow>
                   ))}

@@ -9,7 +9,6 @@ import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatHashMiddle,
-  formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
 import { parseJsonIfString } from "@/lib/parse-transaction-raw";
@@ -78,7 +77,7 @@ export function SubmitMisbehaviourOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Timestamp">
-          <span>{formatTimestamp(transaction.timestamp)}</span>
+          <Timestamp value={transaction.timestamp} />
         </DetailRow>
         <Separator />
         <DetailRow label="Type">

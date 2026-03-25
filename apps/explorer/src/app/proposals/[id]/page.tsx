@@ -18,9 +18,9 @@ import { StatusBadge } from "@/components/status-badge";
 import {
   formatNumber,
   formatPercent,
-  formatTimestamp,
   formatTokenAmount,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { DetailBackButton } from "@/components/detail-back-button";
 import { getServices } from "@/lib/services";
 import { getChainConfig } from "@/lib/config";
@@ -191,7 +191,7 @@ function ProposalTimeline({ proposal }: { proposal: ProposalDetail }) {
               <TimelineTitle>{p.label}</TimelineTitle>
               {p.timestamp != null && (
                 <TimelineDescription>
-                  {formatTimestamp(p.timestamp)}
+                  <Timestamp value={p.timestamp} />
                 </TimelineDescription>
               )}
             </TimelineContent>
@@ -280,7 +280,7 @@ export default async function ProposalDetailPage({
           </Row>
           <Separator />
           <Row label="Bonded Snapshot">
-            {formatTokenAmount(proposal.tally?.bondedTokens, primaryToken, 0)}
+            {formatTokenAmount(proposal.tally?.bondedTokens, primaryToken)}
           </Row>
           <Separator />
           <Row label="Metadata">
