@@ -23,6 +23,7 @@ import {
 } from "@/lib/formatters";
 import { DetailBackButton } from "@/components/detail-back-button";
 import { getServices } from "@/lib/services";
+import { getChainConfig } from "@/lib/config";
 import type {
   ProposalDetail,
   ProposalStatus,
@@ -208,6 +209,7 @@ export default async function ProposalDetailPage({
 }) {
   const { id } = await params;
   const { proposalService } = getServices();
+  const { network: { primaryToken } } = getChainConfig();
   const proposal = await proposalService.getProposalById(Number(id));
 
   if (proposal == null) {
@@ -278,7 +280,7 @@ export default async function ProposalDetailPage({
           </Row>
           <Separator />
           <Row label="Bonded Snapshot">
-            {formatTokenAmount(proposal.tally?.bondedTokens, 0)}
+            {formatTokenAmount(proposal.tally?.bondedTokens, primaryToken, 0)}
           </Row>
           <Separator />
           <Row label="Metadata">

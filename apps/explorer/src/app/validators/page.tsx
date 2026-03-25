@@ -5,10 +5,12 @@ import {
   formatTokenAmount,
 } from "@/lib/formatters";
 import { getServices } from "@/lib/services";
+import { getChainConfig } from "@/lib/config";
 
 export default async function ValidatorsPage() {
   const { validatorService } = getServices();
   const validatorSet = await validatorService.getValidatorSet();
+  const { network: { primaryToken } } = getChainConfig();
 
   return (
     <div className="space-y-6">
@@ -28,7 +30,7 @@ export default async function ValidatorsPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Bonded</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatTokenAmount(validatorSet.bonded, 0)}</p>
+            <p className="text-2xl font-bold">{formatTokenAmount(validatorSet.bonded, primaryToken, 0)}</p>
           </CardContent>
         </Card>
         <Card>

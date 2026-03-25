@@ -20,7 +20,7 @@ import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
 import {
-  formatCoinDisplay,
+  formatCoinTotal,
   formatHash,
   formatTokenAmount,
   formatTimestamp,
@@ -29,16 +29,6 @@ import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 
-function sumPrimaryAmounts(values: (string | null | undefined)[]): string {
-  const total = values.reduce((sum, value) => {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? sum + parsed : sum;
-  }, 0);
-
-  return total.toLocaleString(undefined, {
-    maximumFractionDigits: 6,
-  });
-}
 
 export default async function AccountDetailPage({
   params,
@@ -50,8 +40,9 @@ export default async function AccountDetailPage({
   const primaryToken = config.network.primaryToken;
   const { accountService } = getServices();
   const account = await accountService.getAccountByAddress(address);
-  const rewardTotal = sumPrimaryAmounts(
-    account.rewards.map((reward) => reward.amount?.amount),
+  const rewardTotal = formatCoinTotal(
+    account.rewards.map((reward) => reward.amount),
+    primaryToken,
   );
 
   return (
@@ -87,7 +78,7 @@ export default async function AccountDetailPage({
           <CardHeader className="pb-2">
             <CardDescription>Delegated</CardDescription>
             <CardTitle className="text-2xl">
-              {formatTokenAmount(account.delegationBalance, 0)}
+              {formatTokenAmount(account.delegationBalance, primaryToken, 0)}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -100,9 +91,7 @@ export default async function AccountDetailPage({
           <CardHeader className="pb-2">
             <CardDescription>Rewards</CardDescription>
             <CardTitle className="text-2xl">
-              {account.rewards.length === 0
-                ? "N/A"
-                : `${rewardTotal} ${account.rewards[0]?.amount?.denom ?? ""}`.trim()}
+              {account.rewards.length === 0 ? "N/A" : rewardTotal}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -135,7 +124,7 @@ export default async function AccountDetailPage({
               Unbonding
             </span>
             <div className="text-sm">
-              {formatTokenAmount(account.unbondingBalance, 0)}
+              {formatTokenAmount(account.unbondingBalance, primaryToken, 0)}
             </div>
           </div>
         </CardContent>
@@ -168,7 +157,7 @@ export default async function AccountDetailPage({
                           : balance.denom}
                       </TableCell>
                       <TableCell className="text-right font-mono">
-                        {formatCoinDisplay(balance, primaryToken)}
+                        {formatTokenAmount(balance, primaryToken)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -218,10 +207,10 @@ export default async function AccountDetailPage({
                           </Link>
                         </TableCell>
                         <TableCell className="text-right font-mono">
-                          {formatTokenAmount(delegation.amount, 0)}
+                          {formatTokenAmount(delegation.amount, primaryToken, 0)}
                         </TableCell>
                         <TableCell className="text-right font-mono text-green-400">
-                          {formatTokenAmount(reward?.amount, 6)}
+                          {formatTokenAmount(reward?.amount, primaryToken)}
                         </TableCell>
                       </TableRow>
                     );
