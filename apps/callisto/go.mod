@@ -25,7 +25,7 @@ require (
 	github.com/golangci/golangci-lint v1.55.2
 
 	// Database
-	github.com/jmoiron/sqlx v1.3.5
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 
 	// Config
