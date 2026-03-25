@@ -20,6 +20,15 @@ WORKDIR /project/apps/callisto
 RUN make build
 
 FROM debian:12 AS release
+
+# Install wget
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
+# Copy callisto binary to /usr/local/bin
+COPY --from=integration /project/apps/callisto/build/callisto /usr/local/bin/callisto
+
+# Make sure it's executable
+RUN chmod +x /usr/local/bin/callisto
+
 WORKDIR /app
-COPY --from=integration /project/apps/callisto/build/callisto /app/callisto
-ENTRYPOINT [ "/app/callisto" ]
+ENTRYPOINT [ "callisto" ]
