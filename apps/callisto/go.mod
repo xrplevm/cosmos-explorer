@@ -33,7 +33,7 @@ require (
 
 	// Observability
 	github.com/prometheus/client_golang v1.22.0
-	github.com/proullon/ramsql v0.1.3
+	github.com/proullon/ramsql v0.1.4
 	github.com/rs/zerolog v1.34.0
 
 	// CLI
