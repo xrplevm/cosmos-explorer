@@ -12,6 +12,10 @@ on:
       tag:
         required: true
         type: string
+      environment:
+        required: true
+        type: string
+        description: "Deployment environment (mainnet, testnet, devnet)"
 
 permissions:
   # Needed to configure aws credentials step
@@ -25,6 +29,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Shorten TAG in case of SHA
@@ -66,3 +71,4 @@ jobs:
             TURBO_TEAM=peersyst
           secrets: |
             turbo_token=${{ secrets.TURBO_TOKEN }}
+            explorer_env=${{ vars.EXPLORER_ENV }}
