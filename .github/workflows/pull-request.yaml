@@ -149,3 +149,15 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-build-callisto
       cancel-in-progress: true
+
+  build-explorer:
+    needs: [ build-base ]
+    uses: ./.github/workflows/build-explorer.yaml
+    secrets: inherit
+    with:
+      push: false
+      target: integration
+      tag: ${{ github.sha }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-build-explorer
+      cancel-in-progress: true

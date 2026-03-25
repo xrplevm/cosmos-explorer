@@ -17,9 +17,9 @@ RUN pnpm install
 
 # Build callisto (static binary for distroless)
 WORKDIR /project/apps/callisto
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags '-extldflags "-static"' -o build/callisto ./cmd/callisto
+RUN make build
 
-FROM gcr.io/distroless/static-debian12:debug AS release
+FROM debian:12 AS release
 WORKDIR /app
 COPY --from=integration /project/apps/callisto/build/callisto /app/callisto
 ENTRYPOINT [ "/app/callisto" ]

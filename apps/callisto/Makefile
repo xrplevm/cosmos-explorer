@@ -2,7 +2,7 @@ VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT  := $(shell git log -1 --format='%H')
 
 export GO111MODULE = on
-export CGO_ENABLED = 0
+export CGO_ENABLED = 1
 
 ###############################################################################
 ###                                   All                                   ###
