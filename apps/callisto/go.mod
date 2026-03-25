@@ -40,7 +40,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 
 	// Testing
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 
 	// XRPL EVM
 	github.com/xrplevm/node/v9 v9.0.0
