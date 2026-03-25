@@ -15,6 +15,7 @@ import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
 import type { TransactionDetailViewProps } from "../../types";
 import { DetailRow } from "../../shared/detail-row";
+import { Timestamp } from "@/components/timestamp";
 
 interface ChannelOpenConfirmValue {
   signer?: string;
