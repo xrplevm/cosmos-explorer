@@ -71,4 +71,4 @@ jobs:
             TURBO_TEAM=peersyst
           secrets: |
             turbo_token=${{ secrets.TURBO_TOKEN }}
-            explorer_env=${{ vars.EXPLORER_ENV }}
+            explorer_env=${{ secrets.EXPLORER_ENV }}

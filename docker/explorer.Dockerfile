@@ -15,7 +15,7 @@ RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
     npx turbo run typecheck --filter=@cosmos-explorer/explorer
 
-# Build explorer — chain config is mounted from the explorer_env secret (never baked into the image)
+# Build explorer — chain config mounted as a secret (not persisted in any image layer)
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
     --mount=type=secret,id=explorer_env,target=/project/apps/explorer/.env \
     npx turbo run build --filter=@cosmos-explorer/explorer
