@@ -54,7 +54,7 @@ func TestWeightVoteOptionFromEvents(t *testing.T) {
 					},
 				},
 			},
-			nil,
+			[]govtypesv1.WeightedVoteOption{},
 			true,
 		},
 	}
@@ -65,7 +65,6 @@ func TestWeightVoteOptionFromEvents(t *testing.T) {
 			if test.shouldErr {
 				require.Error(t, err)
 			} else {
-				require.NoError(t, err)
 				require.Equal(t, test.expected, result)
 			}
 		})

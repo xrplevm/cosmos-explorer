@@ -1,4 +1,4 @@
-version: "2"
+version: 2
 
 run:
   tests: false
@@ -24,6 +24,7 @@ linters:
       max-blank-identifiers: 3
     nolintlint:
       allow-unused: false
+      allow-leading-space: true
       require-explanation: false
       require-specific: false
   exclusions:
@@ -40,10 +41,13 @@ linters:
       - text: "SA1019:"
         linters:
           - staticcheck
-      - text: "G304:"
+      - text: "G115:"
         linters:
           - gosec
       - text: "G104:"
+        linters:
+          - gosec
+      - text: "G304:"
         linters:
           - gosec
 

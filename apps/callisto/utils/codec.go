@@ -3,6 +3,10 @@ package utils
 import (
 	"sync"
 
+	"github.com/cosmos/evm/encoding"
+	"github.com/cosmos/evm/x/erc20"
+	evmconfig "github.com/forbole/callisto/v4/types/evm_config"
+
 	"cosmossdk.io/x/evidence"
 	feegrantmodule "cosmossdk.io/x/feegrant/module"
 	"cosmossdk.io/x/upgrade"
@@ -28,12 +32,10 @@ import (
 	paramsclient "github.com/cosmos/cosmos-sdk/x/params/client"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/cosmos/evm/x/feemarket"
+	"github.com/cosmos/evm/x/vm"
 	"github.com/cosmos/gogoproto/proto"
-	"github.com/evmos/evmos/v20/encoding"
-	"github.com/evmos/evmos/v20/x/erc20"
-	"github.com/evmos/evmos/v20/x/evm"
-	"github.com/evmos/evmos/v20/x/feemarket"
-	"github.com/xrplevm/node/v6/x/poa"
+	"github.com/xrplevm/node/v9/x/poa"
 )
 
 var once sync.Once
@@ -41,7 +43,7 @@ var cdc *codec.ProtoCodec
 
 func GetCodec() codec.Codec {
 	once.Do(func() {
-		encodingConfig := encoding.MakeConfig()
+		encodingConfig := encoding.MakeConfig(evmconfig.Cfg.ChainID)
 		getBasicManagers().RegisterInterfaces(encodingConfig.InterfaceRegistry)
 		std.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 		cdc = codec.NewProtoCodec(encodingConfig.InterfaceRegistry)
@@ -76,7 +78,7 @@ func getBasicManagers() module.BasicManager {
 		vesting.AppModuleBasic{},
 		consensus.AppModuleBasic{},
 		poa.AppModuleBasic{},
-		evm.AppModuleBasic{},
+		vm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 		erc20.AppModuleBasic{},
 	)

@@ -1,0 +1,67 @@
+chain:
+  bech32_prefix: ethm
+  modules:
+    - modules
+    - message_type
+    - messages
+    - auth
+    - bank
+    - consensus
+    - feegrant
+    - gov
+    - slashing
+    - staking
+    - actions
+    - upgrade
+node:
+  type: remote
+  config:
+    rpc:
+      client_name: juno
+      address: https://cosmos-rpc.testnet.xrplevm.org
+      max_connections: 20
+    grpc:
+      address: cosmos-grpc.testnet.xrplevm.org:443
+      insecure: false
+    api:
+      address: https://cosmos-api.testnet.xrplevm.org
+parsing:
+  workers: 1
+  start_height: 5405153
+  average_block_time: 4s
+  listen_new_blocks: true
+  parse_old_blocks: true
+  parse_genesis: true
+database:
+  url: postgresql://user:password@localhost:5432/database?sslmode=disable&search_path=public
+  max_open_connections: 1
+  max_idle_connections: 1
+  partition_size: 100000
+  partition_batch: 1000
+  ssl_mode_enable: "false"
+  ssl_root_cert: ""
+  ssl_cert: ""
+  ssl_key: ""
+logging:
+  level: debug
+  format: text
+pricefeed:
+  tokens:
+    - name: PoA
+      units:
+        - denom: apoa
+          exponent: 0
+        - denom: poa
+          exponent: 6
+          price_id: cosmos
+    - name: XRP
+      units:
+        - denom: axrp
+          exponent: 0
+        - denom: xrp
+          exponent: 6
+actions:
+  host: 127.0.0.1
+  port: 3000
+evm:
+  chain_id: 1449000

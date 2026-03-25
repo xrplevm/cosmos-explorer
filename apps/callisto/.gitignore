@@ -2,15 +2,11 @@
 build/
 vendor/
 
-# Environment
-.env
-.env.*
-
 # Configuration
 *.toml
 *.json
-!package.json
 config.yaml
+.env
 
 # Coverage
 coverage.*
