@@ -1,5 +1,4 @@
 import type { ChainConfig } from "@cosmos-explorer/config";
-import type { TokenAmount } from "@cosmos-explorer/core";
 
 function parseFeePayload(
   fee: unknown,
@@ -68,22 +67,7 @@ export function formatTransactionFee(
   const parts = amounts
     .map((coin) => normalizeFeeCoin(coin))
     .filter((c): c is { denom: string; amount: string } => c != null)
-    .map(({ denom, amount }) => {
-      if (denom === primaryToken.denom) {
-        const n = Number(amount);
-        if (!Number.isFinite(n)) {
-          return `${amount} ${denom}`;
-        }
-        const human = n / 10 ** primaryToken.exponent;
-        return `${human.toLocaleString(undefined, {
-          maximumFractionDigits: 8,
-        })} ${primaryToken.displayDenom}`;
-      }
-
-      const num = Number(amount);
-      const formatted = Number.isFinite(num) ? num.toLocaleString() : amount;
-      return `${formatted} ${denom}`;
-    });
+    .map(({ denom, amount }) => formatTokenAmount({ denom, amount }, primaryToken, 8));
 
   return parts.length > 0 ? parts.join(", ") : "N/A";
 }
@@ -127,54 +111,67 @@ export function formatPercent(
   return value == null ? "N/A" : `${value.toFixed(fractionDigits)}%`;
 }
 
+/**
+ * Formats a token amount for display.
+ * When `primaryToken` is provided and the denom matches, converts from base units
+ * (e.g. axrp) to display units (e.g. XRP) using the configured exponent.
+ */
 export function formatTokenAmount(
-  value: TokenAmount | null | undefined,
-  fractionDigits = 2
+  value: { denom?: string; amount?: string | null } | null | undefined,
+  primaryToken?: { denom: string; displayDenom: string; exponent: number },
+  fractionDigits = 6,
 ): string {
   if (value == null) {
     return "N/A";
   }
 
-  const amount = Number(value.amount);
+  const denom = value.denom ?? "";
+  const raw = value.amount ?? "";
+  const amount = Number(raw);
 
   if (!Number.isFinite(amount)) {
-    return `${value.amount} ${value.denom}`;
+    return `${raw} ${denom}`.trim();
+  }
+
+  if (primaryToken != null && denom === primaryToken.denom) {
+    const human = amount / 10 ** primaryToken.exponent;
+    return `${human.toLocaleString(undefined, {
+      maximumFractionDigits: fractionDigits,
+    })} ${primaryToken.displayDenom}`;
   }
 
   return `${amount.toLocaleString(undefined, {
     maximumFractionDigits: fractionDigits,
-  })} ${value.denom}`;
+  })} ${denom}`.trim();
 }
 
 /**
- * Formats a single `{denom, amount}` coin for display.
- * If the coin uses the primary token denom, converts to display units using the exponent.
+ * Sums an array of coins sharing the same denom and formats the total.
+ * Returns "N/A" when the array is empty.
  */
+export function formatCoinTotal(
+  coins: ({ denom?: string; amount?: string | null } | null | undefined)[],
+  primaryToken: { denom: string; displayDenom: string; exponent: number },
+  fractionDigits = 6,
+): string {
+  const nonEmpty = coins.filter((c): c is NonNullable<typeof c> => c != null);
+  if (nonEmpty.length === 0) return "N/A";
+
+  const denom = nonEmpty[0]?.denom ?? primaryToken.denom;
+  const total = nonEmpty.reduce((sum, coin) => {
+    const n = Number(coin.amount);
+    return Number.isFinite(n) ? sum + n : sum;
+  }, 0);
+
+  return formatTokenAmount({ denom, amount: String(total) }, primaryToken, fractionDigits);
+}
+
+/** @deprecated Use `formatTokenAmount(coin, primaryToken)` instead. */
 export function formatCoinDisplay(
   coin: { denom?: string; amount?: string } | null | undefined,
   primaryToken: { denom: string; displayDenom: string; exponent: number },
 ): string {
-  if (coin == null) {
-    return "N/A";
-  }
-
-  const denom = coin.denom ?? "";
-  const raw = coin.amount ?? "0";
-
-  if (denom === primaryToken.denom) {
-    const n = Number(raw);
-    if (!Number.isFinite(n)) {
-      return `${raw} ${denom}`;
-    }
-    const human = n / 10 ** primaryToken.exponent;
-    return `${human.toLocaleString(undefined, {
-      maximumFractionDigits: 8,
-    })} ${primaryToken.displayDenom}`;
-  }
-
-  const num = Number(raw);
-  const formatted = Number.isFinite(num) ? num.toLocaleString() : raw;
-  return `${formatted} ${denom}`;
+  return formatTokenAmount(coin, primaryToken, 8);
 }
 
 /**

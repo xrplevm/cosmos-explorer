@@ -1,7 +1,7 @@
 {
   "adapterType": "callisto",
   "network": {
-    "chainId": "xrplevm_1440002-1",
+    "chainId": "xrplevm_1449000-1",
     "chainName": "XRPL EVM Sidechain",
     "chainEnv": "testnet",
     "bech32Prefix": "ethm",

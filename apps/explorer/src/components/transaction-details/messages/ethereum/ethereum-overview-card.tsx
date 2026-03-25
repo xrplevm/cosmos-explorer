@@ -68,11 +68,11 @@ export function EthereumOverviewCard({
           <>
             <Separator />
             <DetailRow label="Tx hash">
-              <div className="flex min-w-0 flex-wrap items-center gap-2">
-                <span className="min-w-0 flex-1 break-all font-mono text-xs">
+              <div className="flex min-w-0 flex-col gap-2 md:flex-row md:items-center md:gap-2">
+                <span className="min-w-0 w-full break-all font-mono text-xs md:min-w-0 md:flex-1">
                   {decoded.evmTxHash}
                 </span>
-                <div className="flex shrink-0 items-center gap-2">
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
                   <CopyButton
                     value={decoded.evmTxHash}
                     label="EVM tx hash"
