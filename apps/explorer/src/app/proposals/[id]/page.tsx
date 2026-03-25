@@ -29,7 +29,9 @@ import type {
   ProposalTally,
 } from "@cosmos-explorer/core";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { IconCheck as Check, IconClock as Clock, IconThumbUp as Vote, IconCoins as Coins } from "@tabler/icons-react";
+import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { ProposalContentRoot } from "@/components/proposal-content";
 
 function Row({
@@ -256,9 +258,23 @@ export default async function ProposalDetailPage({
           <Row label="Type">{proposal.type}</Row>
           <Separator />
           <Row label="Proposer">
-            <span className="font-mono text-xs break-all">
-              {proposal.proposer}
-            </span>
+            {proposal.proposer.length > 0 ? (
+              <div className="flex min-w-0 flex-nowrap items-center gap-2">
+                <Link
+                  href={`/account/${encodeURIComponent(proposal.proposer)}`}
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
+                >
+                  {proposal.proposer}
+                </Link>
+                <CopyButton
+                  value={proposal.proposer}
+                  label="proposer address"
+                  size="xs"
+                />
+              </div>
+            ) : (
+              <span className="font-mono text-xs break-all">N/A</span>
+            )}
           </Row>
           <Separator />
           <Row label="Bonded Snapshot">

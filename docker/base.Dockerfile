@@ -20,5 +20,9 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 COPY . /project
 # Install package and app dependencies
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm install
+# Lint packages
+RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run lint:packages
+# Typecheck packages
+RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run typecheck:packages
 # Build packages
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN pnpm run build:packages

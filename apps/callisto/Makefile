@@ -72,6 +72,11 @@ test-unit: start-docker-test
 ###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
+typecheck:
+	@echo "--> Running type check"
+	@go vet ./...
+.PHONY: typecheck
+
 lint:
 	@echo "--> Running linter"
 	@golangci-lint run --timeout=10m

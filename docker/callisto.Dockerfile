@@ -8,6 +8,13 @@ COPY apps/callisto /project/apps/callisto
 # Install callisto dependencies
 RUN pnpm install
 
+# Lint callisto
+RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
+    npx turbo run lint --filter=@cosmos-explorer/callisto-app
+# Typecheck callisto
+RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
+    npx turbo run typecheck --filter=@cosmos-explorer/callisto-app
+
 # Build callisto
 WORKDIR /project/apps/callisto
 RUN make build

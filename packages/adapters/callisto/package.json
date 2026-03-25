@@ -12,7 +12,7 @@
   "scripts": {
     "build": "../../core/node_modules/.bin/tsc --project tsconfig.json",
     "dev": "../../core/node_modules/.bin/tsc --project tsconfig.json --watch",
-    "typecheck": "../../core/node_modules/.bin/tsc --project tsconfig.json --noEmit",
+    "typecheck": "../../core/node_modules/.bin/tsc --project tsconfig.typecheck.json",
     "clean": "rm -rf dist",
     "lint": "eslint ."
   },

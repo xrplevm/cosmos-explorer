@@ -9,15 +9,11 @@
       "cache": false,
       "persistent": true
     },
-    "lint": {
-      "dependsOn": ["^build"]
-    },
+    "lint": {},
     "@cosmos-explorer/juno#lint": {
       "dependsOn": ["@cosmos-explorer/callisto-app#lint"]
     },
-    "typecheck": {
-      "dependsOn": ["^build", "build"]
-    },
+    "typecheck": {},
     "test": {},
     "clean": {
       "cache": false

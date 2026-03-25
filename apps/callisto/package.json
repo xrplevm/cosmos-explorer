@@ -6,6 +6,7 @@
     "build": "make build",
     "dev": "go run ./cmd/callisto",
     "lint": "make lint",
+    "typecheck": "make typecheck",
     "test": "make test-unit stop-docker-test",
     "clean": "make clean"
   }

@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "../../",
+    "lib": ["ES2022", "DOM"],
+    "paths": {
+      "@cosmos-explorer/core": ["packages/core/src/index.ts"]
+    },
+    "composite": false,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
