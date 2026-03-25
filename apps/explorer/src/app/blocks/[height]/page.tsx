@@ -18,7 +18,8 @@ import {
 import { DetailBackButton } from "@/components/detail-back-button";
 import { StatusBadge } from "@/components/status-badge";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
-import { formatHash, formatHashMiddle, formatTimestamp } from "@/lib/formatters";
+import { formatHash, formatHashMiddle } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -95,7 +96,7 @@ export default async function BlockDetailPage({
           </Row>
           <Separator />
           <Row label="Timestamp">
-            <span>{formatTimestamp(detail.overview.timestamp)}</span>
+            <Timestamp value={detail.overview.timestamp} />
           </Row>
           <Separator />
           <Row label="Proposer">

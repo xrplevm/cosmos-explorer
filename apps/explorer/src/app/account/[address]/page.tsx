@@ -23,8 +23,8 @@ import {
   formatCoinTotal,
   formatHash,
   formatTokenAmount,
-  formatTimestamp,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
@@ -78,7 +78,7 @@ export default async function AccountDetailPage({
           <CardHeader className="pb-2">
             <CardDescription>Delegated</CardDescription>
             <CardTitle className="text-2xl">
-              {formatTokenAmount(account.delegationBalance, primaryToken, 0)}
+              {formatTokenAmount(account.delegationBalance, primaryToken)}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -124,7 +124,7 @@ export default async function AccountDetailPage({
               Unbonding
             </span>
             <div className="text-sm">
-              {formatTokenAmount(account.unbondingBalance, primaryToken, 0)}
+              {formatTokenAmount(account.unbondingBalance, primaryToken)}
             </div>
           </div>
         </CardContent>
@@ -207,7 +207,7 @@ export default async function AccountDetailPage({
                           </Link>
                         </TableCell>
                         <TableCell className="text-right font-mono">
-                          {formatTokenAmount(delegation.amount, primaryToken, 0)}
+                          {formatTokenAmount(delegation.amount, primaryToken)}
                         </TableCell>
                         <TableCell className="text-right font-mono text-green-400">
                           {formatTokenAmount(reward?.amount, primaryToken)}
@@ -271,7 +271,7 @@ export default async function AccountDetailPage({
                         {transaction.height.toLocaleString()}
                       </TableCell>
                       <TableCell className="text-right text-muted-foreground">
-                        {formatTimestamp(transaction.timestamp)}
+                        <Timestamp value={transaction.timestamp} />
                       </TableCell>
                     </TableRow>
                   ))}

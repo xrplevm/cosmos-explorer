@@ -11,9 +11,9 @@ import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatHashMiddle,
-  formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import Link from "next/link";
 import { getCosmosSignerFromMessage } from "@/lib/cosmos-message-address";
 import type { TransactionDetailViewProps } from "../types";
@@ -59,7 +59,7 @@ export function TransactionOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Timestamp">
-          <span>{formatTimestamp(transaction.timestamp)}</span>
+          <Timestamp value={transaction.timestamp} />
         </DetailRow>
         <Separator />
         <DetailRow label="Type">

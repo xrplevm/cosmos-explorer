@@ -11,7 +11,8 @@ import {
 import { createFetcher } from "@cosmos-explorer/utils";
 
 import { useFetch } from "@/hooks/use-fetch";
-import { formatPrice, formatTimestamp } from "@/lib/formatters";
+import { formatPrice } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 
 interface MarketPriceCardProps {
   assetsByDenom: Record<string, string>;
@@ -56,7 +57,7 @@ export function MarketPriceCard({
       </CardHeader>
       <CardContent className="text-xs text-muted-foreground">
         {hasPrice && price.timestamp
-          ? `Updated ${formatTimestamp(price.timestamp)}`
+          ? <>Updated <Timestamp value={price.timestamp} /></>
           : status === "loading"
             ? "Fetching live market price"
             : "No market price data available"}

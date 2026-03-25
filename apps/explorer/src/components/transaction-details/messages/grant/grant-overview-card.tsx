@@ -9,9 +9,9 @@ import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatHashMiddle,
-  formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
 import type { TransactionDetailViewProps } from "../../types";
@@ -102,7 +102,7 @@ export function GrantOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Timestamp">
-          <span>{formatTimestamp(transaction.timestamp)}</span>
+          <Timestamp value={transaction.timestamp} />
         </DetailRow>
         <Separator />
         <DetailRow label="Type">
@@ -156,7 +156,7 @@ export function GrantOverviewCard({
           <>
             <Separator />
             <DetailRow label="Expiration">
-              <span>{formatTimestamp(expiration)}</span>
+              <Timestamp value={expiration} />
             </DetailRow>
           </>
         ) : null}

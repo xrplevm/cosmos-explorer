@@ -133,7 +133,7 @@ export function formatTokenAmount(
     return `${raw} ${denom}`.trim();
   }
 
-  if (primaryToken != null && denom === primaryToken.denom) {
+  if (denom === primaryToken?.denom) {
     const human = amount / 10 ** primaryToken.exponent;
     return `${human.toLocaleString(undefined, {
       maximumFractionDigits: fractionDigits,

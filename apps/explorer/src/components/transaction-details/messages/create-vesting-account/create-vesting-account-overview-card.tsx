@@ -8,11 +8,11 @@ import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
 import {
-  formatCoinDisplay,
+  formatTokenAmount,
   formatHashMiddle,
-  formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
 import type { TransactionDetailViewProps } from "../../types";
@@ -59,8 +59,8 @@ export function CreateVestingAccountOverviewCard({
   const endTime = root.end_time ?? root.endTime ?? data.end_time ?? data.endTime;
   const delayed = root.delayed ?? data.delayed;
 
-  const endTimeDisplay = endTime != null
-    ? formatTimestamp(typeof endTime === "number" ? new Date(endTime * 1000).toISOString() : endTime)
+  const endTimeValue = endTime != null
+    ? (typeof endTime === "number" ? new Date(endTime * 1000).toISOString() : endTime)
     : null;
 
   return (
@@ -95,7 +95,7 @@ export function CreateVestingAccountOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Timestamp">
-          <span>{formatTimestamp(transaction.timestamp)}</span>
+          <Timestamp value={transaction.timestamp} />
         </DetailRow>
         <Separator />
         <DetailRow label="Type">
@@ -143,7 +143,7 @@ export function CreateVestingAccountOverviewCard({
               <div className="space-y-1">
                 {amounts.map((coin, i) => (
                   <div key={i} className="font-mono text-xs">
-                    {formatCoinDisplay(coin, token)}
+                    {formatTokenAmount(coin, token)}
                   </div>
                 ))}
               </div>
@@ -151,11 +151,11 @@ export function CreateVestingAccountOverviewCard({
           </>
         ) : null}
 
-        {endTimeDisplay != null ? (
+        {endTimeValue != null ? (
           <>
             <Separator />
             <DetailRow label="End Time">
-              <span>{endTimeDisplay}</span>
+              <Timestamp value={endTimeValue} />
             </DetailRow>
           </>
         ) : null}

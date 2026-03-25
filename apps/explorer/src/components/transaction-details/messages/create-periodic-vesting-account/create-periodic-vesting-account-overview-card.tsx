@@ -9,9 +9,9 @@ import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatHashMiddle,
-  formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
 import type { TransactionDetailViewProps } from "../../types";
@@ -57,8 +57,8 @@ export function CreatePeriodicVestingAccountOverviewCard({
   const startTime = root.start_time ?? root.startTime ?? data.start_time ?? data.startTime;
   const periods = root.vesting_periods ?? root.vestingPeriods ?? data.vesting_periods ?? data.vestingPeriods;
 
-  const startTimeDisplay = startTime != null
-    ? formatTimestamp(typeof startTime === "number" ? new Date(startTime * 1000).toISOString() : startTime)
+  const startTimeValue = startTime != null
+    ? (typeof startTime === "number" ? new Date(startTime * 1000).toISOString() : startTime)
     : null;
 
   return (
@@ -93,7 +93,7 @@ export function CreatePeriodicVestingAccountOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Timestamp">
-          <span>{formatTimestamp(transaction.timestamp)}</span>
+          <Timestamp value={transaction.timestamp} />
         </DetailRow>
         <Separator />
         <DetailRow label="Type">
@@ -134,11 +134,11 @@ export function CreatePeriodicVestingAccountOverviewCard({
           </>
         ) : null}
 
-        {startTimeDisplay != null ? (
+        {startTimeValue != null ? (
           <>
             <Separator />
             <DetailRow label="Start Time">
-              <span>{startTimeDisplay}</span>
+              <Timestamp value={startTimeValue} />
             </DetailRow>
           </>
         ) : null}

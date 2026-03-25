@@ -8,11 +8,11 @@ import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { StatusBadge } from "@/components/status-badge";
 import {
-  formatCoinDisplay,
+  formatTokenAmount,
   formatHashMiddle,
-  formatTimestamp,
   formatTransactionFee,
 } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
 import { parseJsonIfString } from "@/lib/parse-transaction-raw";
 import Link from "next/link";
 import type { TransactionDetailViewProps } from "../../types";
@@ -86,7 +86,7 @@ export function MultiSendOverviewCard({
         </DetailRow>
         <Separator />
         <DetailRow label="Timestamp">
-          <span>{formatTimestamp(transaction.timestamp)}</span>
+          <Timestamp value={transaction.timestamp} />
         </DetailRow>
         <Separator />
         <DetailRow label="Type">
@@ -114,7 +114,7 @@ export function MultiSendOverviewCard({
                     {Array.isArray(entry.coins)
                       ? entry.coins.map((coin, j) => (
                           <div key={j} className="font-mono text-xs text-muted-foreground">
-                            {formatCoinDisplay(coin, token)}
+                            {formatTokenAmount(coin, token)}
                           </div>
                         ))
                       : null}
@@ -146,7 +146,7 @@ export function MultiSendOverviewCard({
                     {Array.isArray(entry.coins)
                       ? entry.coins.map((coin, j) => (
                           <div key={j} className="font-mono text-xs text-muted-foreground">
-                            {formatCoinDisplay(coin, token)}
+                            {formatTokenAmount(coin, token)}
                           </div>
                         ))
                       : null}
