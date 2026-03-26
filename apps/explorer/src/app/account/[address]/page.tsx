@@ -50,7 +50,7 @@ export default async function AccountDetailPage({
       <div className="flex items-start gap-2">
         <DetailBackButton href="/" />
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold tracking-tight">Account</h1>
+          <h1 className="text-lg font-bold tracking-tight sm:text-2xl">Account</h1>
           <div className="mt-1 flex items-center gap-1">
             <p className="font-mono text-sm text-muted-foreground break-all">
               {account.address}

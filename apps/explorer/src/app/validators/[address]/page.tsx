@@ -77,19 +77,19 @@ export default async function ValidatorDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <DetailBackButton href="/validators" />
-        <Avatar className="h-12 w-12">
+        <Avatar className="h-9 w-9 shrink-0 sm:h-12 sm:w-12">
           {validator.avatarUrl && (
             <AvatarImage src={validator.avatarUrl} alt={validator.moniker} />
           )}
-          <AvatarFallback className="text-lg">
+          <AvatarFallback className="text-sm sm:text-lg">
             {validator.moniker.slice(0, 2)}
           </AvatarFallback>
         </Avatar>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-lg font-bold tracking-tight sm:text-2xl">
               {validator.moniker}
             </h1>
             <StatusBadge status={toStatusLabel(validator.status)} />
