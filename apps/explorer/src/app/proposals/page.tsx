@@ -1,4 +1,5 @@
-import { Pagination, PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination";
+import { Pagination } from "@cosmos-explorer/ui/pagination";
+import { PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination-constants";
 import { ProposalList } from "@/components/proposal-list";
 import { getServices } from "@/lib/services";
 
@@ -33,7 +34,7 @@ export default async function ProposalsPage({
         currentPage={currentPage}
         pageSize={pageSize}
         hasNextPage={hasNextPage}
-        buildHref={(page, size) => `/proposals?page=${String(page)}&pageSize=${String(size)}`}
+        basePath="/proposals"
       />
     </div>
   );

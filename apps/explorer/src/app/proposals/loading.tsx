@@ -30,20 +30,15 @@ export default function ProposalsLoading() {
         ))}
       </div>
 
-      {/* Pagination skeleton */}
       <nav className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Skeleton className="h-4 w-20" />
-          <div className="flex items-center gap-0.5">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-8 w-8 rounded-md" />
-            ))}
-          </div>
+          <Skeleton className="h-4 w-8" />
+          <Skeleton className="h-8 w-16 rounded-md" />
         </div>
         <div className="flex items-center gap-1">
           <Skeleton className="h-8 w-24 rounded-md" />
           <Skeleton className="h-4 w-14 mx-2" />
-          <Skeleton className="h-8 w-20 rounded-md" />
+          <Skeleton className="h-8 w-16 rounded-md" />
         </div>
       </nav>
     </div>

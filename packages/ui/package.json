@@ -17,6 +17,7 @@
     "./input": "./src/components/ui/input.tsx",
     "./label": "./src/components/ui/label.tsx",
     "./pagination": "./src/components/ui/pagination.tsx",
+    "./pagination-constants": "./src/components/ui/pagination-constants.ts",
     "./popover": "./src/components/ui/popover.tsx",
     "./scroll-area": "./src/components/ui/scroll-area.tsx",
     "./select": "./src/components/ui/select.tsx",

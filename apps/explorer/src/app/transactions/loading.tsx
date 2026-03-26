@@ -53,17 +53,13 @@ export default function TransactionsLoading() {
 
       <nav className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Skeleton className="h-9 w-24" />
-          <div className="flex items-center gap-0.5">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-9 w-8" />
-            ))}
-          </div>
+          <Skeleton className="h-4 w-8" />
+          <Skeleton className="h-8 w-16 rounded-md" />
         </div>
         <div className="flex items-center gap-1">
-          <Skeleton className="h-9 w-24" />
-          <Skeleton className="h-9 w-16" />
-          <Skeleton className="h-9 w-20" />
+          <Skeleton className="h-8 w-24 rounded-md" />
+          <Skeleton className="h-4 w-14 mx-2" />
+          <Skeleton className="h-8 w-16 rounded-md" />
         </div>
       </nav>
     </div>

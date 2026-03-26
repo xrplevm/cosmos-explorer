@@ -1,13 +1,16 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { PAGE_SIZE_OPTIONS } from "./pagination-constants";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 import { cn } from "../../lib/utils";
 import { buttonVariants } from "./button";
-
-export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
 
 interface PaginationProps {
   currentPage: number;
   pageSize: number;
   hasNextPage: boolean;
-  buildHref: (page: number, pageSize: number) => string;
+  basePath: string;
 }
 
 function PaginationLink({
@@ -43,43 +46,49 @@ function PaginationLink({
   );
 }
 
-function PageSizeLinks({
+function PageSizeSelect({
   currentPageSize,
-  buildHref,
+  basePath,
 }: {
   currentPageSize: number;
-  buildHref: (page: number, pageSize: number) => string;
+  basePath: string;
 }) {
+  const router = useRouter();
+
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground">Show rows:</span>
-      <div className="flex items-center gap-0.5">
-        {PAGE_SIZE_OPTIONS.map((size) => (
-          <a
-            key={size}
-            href={buildHref(1, size)}
-            className={cn(
-              buttonVariants({ variant: size === currentPageSize ? "default" : "outline", size: "sm" }),
-              "min-w-8",
-              size === currentPageSize && "pointer-events-none",
-            )}
-          >
-            {size}
-          </a>
-        ))}
-      </div>
+      <span className="text-sm text-muted-foreground">Rows:</span>
+      <Select
+        value={String(currentPageSize)}
+        onValueChange={(value) => {
+          router.push(`${basePath}?page=1&pageSize=${value}`);
+        }}
+      >
+        <SelectTrigger className="h-8 w-[70px] text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {PAGE_SIZE_OPTIONS.map((size) => (
+            <SelectItem key={size} value={String(size)} className="text-xs">
+              {size}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
 
-export function Pagination({ currentPage, pageSize, hasNextPage, buildHref }: PaginationProps) {
+export function Pagination({ currentPage, pageSize, hasNextPage, basePath }: PaginationProps) {
+  const href = (page: number, size: number) => `${basePath}?page=${page}&pageSize=${size}`;
+
   return (
     <nav className="flex items-center justify-between" aria-label="Pagination">
-      <PageSizeLinks currentPageSize={pageSize} buildHref={buildHref} />
+      <PageSizeSelect currentPageSize={pageSize} basePath={basePath} />
 
       <div className="flex items-center gap-1">
         <PaginationLink
-          href={buildHref(currentPage - 1, pageSize)}
+          href={href(currentPage - 1, pageSize)}
           disabled={currentPage <= 1}
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -93,7 +102,7 @@ export function Pagination({ currentPage, pageSize, hasNextPage, buildHref }: Pa
         </span>
 
         <PaginationLink
-          href={buildHref(currentPage + 1, pageSize)}
+          href={href(currentPage + 1, pageSize)}
           disabled={!hasNextPage}
         >
           Next

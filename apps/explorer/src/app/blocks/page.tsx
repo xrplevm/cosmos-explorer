@@ -7,7 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
-import { Pagination, PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination";
+import { Pagination } from "@cosmos-explorer/ui/pagination";
+import { PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination-constants";
 import Link from "next/link";
 
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
@@ -156,7 +157,7 @@ export default async function BlocksPage({
           currentPage={currentPage}
           pageSize={pageSize}
           hasNextPage={hasNextPage}
-          buildHref={(page, size) => `/blocks?page=${String(page)}&pageSize=${String(size)}`}
+          basePath="/blocks"
         />
       )}
     </div>
