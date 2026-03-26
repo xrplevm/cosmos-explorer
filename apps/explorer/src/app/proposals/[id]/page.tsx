@@ -14,6 +14,7 @@ import {
   TimelineDescription,
 } from "@cosmos-explorer/ui/timeline";
 import { Separator } from "@cosmos-explorer/ui/separator";
+import { PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination-constants";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatNumber,
@@ -28,12 +29,15 @@ import type {
   ProposalDetail,
   ProposalStatus,
   ProposalTally,
+  VoteOption,
 } from "@cosmos-explorer/core";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 import { IconCheck as Check, IconClock as Clock, IconThumbUp as Vote, IconCoins as Coins } from "@tabler/icons-react";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { ProposalContentRoot } from "@/components/proposal-content";
+import { ProposalVotesCard, ProposalVotesCardSkeleton } from "@/components/proposal-votes-card";
 
 function Row({
   label,
@@ -202,12 +206,40 @@ function ProposalTimeline({ proposal }: { proposal: ProposalDetail }) {
   );
 }
 
+const DEFAULT_VOTE_PAGE_SIZE = 25;
+
+function parsePositiveInt(
+  value: string | string[] | undefined,
+  fallback: number,
+): number {
+  const num = typeof value === "string" ? Number(value) : NaN;
+  return Number.isFinite(num) && num >= 1 ? num : fallback;
+}
+
 export default async function ProposalDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
+  const resolvedSearchParams = await searchParams;
+
+  const votePage = parsePositiveInt(resolvedSearchParams.page, 1);
+  const rawVotePageSize = parsePositiveInt(resolvedSearchParams.pageSize, DEFAULT_VOTE_PAGE_SIZE);
+  const votePageSize = (PAGE_SIZE_OPTIONS as readonly number[]).includes(rawVotePageSize)
+    ? rawVotePageSize
+    : DEFAULT_VOTE_PAGE_SIZE;
+
+  const VALID_VOTE_FILTERS = ["yes", "no", "abstain", "noWithVeto"] as const;
+  const rawVoteFilter = resolvedSearchParams.voteFilter;
+  const voteFilter: VoteOption | "all" =
+    typeof rawVoteFilter === "string" &&
+    (VALID_VOTE_FILTERS as readonly string[]).includes(rawVoteFilter)
+      ? (rawVoteFilter as VoteOption)
+      : "all";
+
   const { proposalService } = getServices();
   const { network: { primaryToken } } = getChainConfig();
   const proposal = await proposalService.getProposalById(Number(id));
@@ -290,6 +322,16 @@ export default async function ProposalDetailPage({
           </Row>
         </CardContent>
       </Card>
+
+      <Suspense fallback={<ProposalVotesCardSkeleton />}>
+        <ProposalVotesCard
+          proposalId={Number(id)}
+          page={votePage}
+          pageSize={votePageSize}
+          basePath={`/proposals/${id}`}
+          voteFilter={voteFilter}
+        />
+      </Suspense>
 
       <div className="grid gap-6 lg:grid-cols-10">
         <div className="lg:col-span-7">

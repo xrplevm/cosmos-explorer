@@ -2,12 +2,13 @@ import {
   type IProposalService,
   type ProposalDetail,
   type ProposalSummary,
+  type ProposalVote,
 } from '@cosmos-explorer/core';
 import { type Fetcher } from '@cosmos-explorer/utils';
 
-import { mapProposalDetail, mapProposals } from '../mappers';
-import { PROPOSAL_DETAILS_QUERY, PROPOSALS_QUERY } from '../queries';
-import type { ProposalDetailsResponse, ProposalsResponse } from '../types';
+import { mapProposalDetail, mapProposals, mapProposalVotes } from '../mappers';
+import { PROPOSAL_DETAILS_QUERY, PROPOSALS_QUERY, PROPOSAL_VOTES_QUERY, PROPOSAL_VOTES_FILTERED_QUERY } from '../queries';
+import type { ProposalDetailsResponse, ProposalVotesResponse, ProposalsResponse } from '../types';
 
 export class CallistoProposalService implements IProposalService {
   constructor(
@@ -45,5 +46,51 @@ export class CallistoProposalService implements IProposalService {
     });
 
     return mapProposalDetail(response, this.primaryDenom);
+  }
+
+  async getProposalVotes(
+    proposalId: number,
+    params?: { limit?: number; offset?: number; option?: string | null }
+  ): Promise<{ votes: ProposalVote[]; total: number }> {
+    const optionMap: Record<string, string> = {
+      yes: 'VOTE_OPTION_YES',
+      no: 'VOTE_OPTION_NO',
+      abstain: 'VOTE_OPTION_ABSTAIN',
+      noWithVeto: 'VOTE_OPTION_NO_WITH_VETO',
+    };
+
+    const hasuraOption = params?.option ? (optionMap[params.option] ?? null) : null;
+
+    if (hasuraOption) {
+      const response = await this.fetcher.graphql<
+        ProposalVotesResponse,
+        { proposalId: number; limit: number; offset: number; option: string }
+      >({
+        query: PROPOSAL_VOTES_FILTERED_QUERY,
+        variables: {
+          proposalId,
+          limit: params?.limit ?? 25,
+          offset: params?.offset ?? 0,
+          option: hasuraOption,
+        },
+        operationName: 'ProposalVotesFiltered',
+      });
+      return mapProposalVotes(response);
+    }
+
+    const response = await this.fetcher.graphql<
+      ProposalVotesResponse,
+      { proposalId: number; limit: number; offset: number }
+    >({
+      query: PROPOSAL_VOTES_QUERY,
+      variables: {
+        proposalId,
+        limit: params?.limit ?? 25,
+        offset: params?.offset ?? 0,
+      },
+      operationName: 'ProposalVotes',
+    });
+
+    return mapProposalVotes(response);
   }
 }

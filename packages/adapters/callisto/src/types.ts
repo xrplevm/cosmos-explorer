@@ -92,6 +92,7 @@ export interface ValidatorsResponse {
     }[];
     validatorInfo?: {
       operatorAddress: string;
+      selfDelegateAddress?: string | null;
     } | null;
     validatorVotingPowers: {
       votingPower: Scalar;
@@ -181,6 +182,21 @@ export interface ProposalDetailsResponse {
   stakingPool: {
     bondedTokens?: Scalar | null;
   }[];
+}
+
+export interface ProposalVotesResponse {
+  proposal_vote: {
+    voter_address: string;
+    option: string;
+    height: number | string;
+    timestamp?: string | null;
+    weight: string;
+  }[];
+  proposal_vote_aggregate: {
+    aggregate?: {
+      count?: number | null;
+    } | null;
+  };
 }
 
 export interface AccountCoinsResponse {

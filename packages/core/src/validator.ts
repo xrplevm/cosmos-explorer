@@ -9,6 +9,7 @@ export type ValidatorStatus = 'active' | 'inactive' | 'jailed' | 'unknown';
 
 export interface Validator {
   address: string;
+  selfDelegateAddress: string;
   moniker: string;
   avatarUrl: string | null;
   status: ValidatorStatus;

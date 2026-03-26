@@ -191,6 +191,7 @@ export const VALIDATORS_QUERY = `
       }
       validatorInfo: validator_info {
         operatorAddress: operator_address
+        selfDelegateAddress: self_delegate_address
       }
       validatorVotingPowers: validator_voting_powers(offset: 0, limit: 1, order_by: { height: desc }) {
         votingPower: voting_power
@@ -283,6 +284,56 @@ export const PROPOSAL_DETAILS_QUERY = `
     }
     stakingPool: proposal_staking_pool_snapshot(where: { proposal_id: { _eq: $proposalId } }) {
       bondedTokens: bonded_tokens
+    }
+  }
+`;
+
+export const PROPOSAL_VOTES_QUERY = `
+  query ProposalVotes($proposalId: Int!, $limit: Int = 25, $offset: Int = 0) {
+    proposal_vote(
+      where: { proposal_id: { _eq: $proposalId } }
+      order_by: { height: asc }
+      limit: $limit
+      offset: $offset
+    ) {
+      voter_address
+      option
+      height
+      timestamp
+      weight
+    }
+    proposal_vote_aggregate(where: { proposal_id: { _eq: $proposalId } }) {
+      aggregate {
+        count
+      }
+    }
+  }
+`;
+
+export const PROPOSAL_VOTES_FILTERED_QUERY = `
+  query ProposalVotesFiltered($proposalId: Int!, $limit: Int = 25, $offset: Int = 0, $option: String!) {
+    proposal_vote(
+      where: {
+        proposal_id: { _eq: $proposalId }
+        option: { _eq: $option }
+      }
+      order_by: { height: asc }
+      limit: $limit
+      offset: $offset
+    ) {
+      voter_address
+      option
+      height
+      timestamp
+      weight
+    }
+    proposal_vote_aggregate(where: {
+      proposal_id: { _eq: $proposalId }
+      option: { _eq: $option }
+    }) {
+      aggregate {
+        count
+      }
     }
   }
 `;

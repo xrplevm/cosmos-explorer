@@ -26,6 +26,8 @@ export {
   type IValidatorService,
 } from './validator';
 export {
+  type VoteOption,
+  type ProposalVote,
   type ProposalStatus,
   type ProposalSummary,
   type ProposalTally,

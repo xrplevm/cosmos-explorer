@@ -7,6 +7,8 @@ import type {
   ProposalDetail,
   ProposalStatus,
   ProposalSummary,
+  ProposalVote,
+  VoteOption,
   TokenAmount,
   TransactionDetail,
   TransactionSummary,
@@ -26,6 +28,7 @@ import type {
   LatestBlocksResponse,
   LatestTransactionsResponse,
   ProposalDetailsResponse,
+  ProposalVotesResponse,
   ProposalsResponse,
   TransactionDetailsResponse,
   ValidatorCountResponse,
@@ -301,6 +304,7 @@ export function mapValidatorSet(
 
       return {
         address: row.validatorInfo?.operatorAddress ?? "",
+        selfDelegateAddress: row.validatorInfo?.selfDelegateAddress ?? "",
         moniker:
           row.validatorDescriptions[0]?.moniker ??
           row.validatorInfo?.operatorAddress ??
@@ -567,6 +571,37 @@ export function mapWithdrawalAddress(
   response: AccountWithdrawalAddressResponse,
 ): string | null {
   return response.withdrawalAddress?.address ?? null;
+}
+
+function mapVoteOption(value: string): VoteOption {
+  switch (value) {
+    case 'VOTE_OPTION_YES':
+      return 'yes';
+    case 'VOTE_OPTION_NO':
+      return 'no';
+    case 'VOTE_OPTION_ABSTAIN':
+      return 'abstain';
+    case 'VOTE_OPTION_NO_WITH_VETO':
+      return 'noWithVeto';
+    default:
+      return 'unknown';
+  }
+}
+
+export function mapProposalVotes(
+  response: ProposalVotesResponse,
+): { votes: ProposalVote[]; total: number } {
+  const votes: ProposalVote[] = response.proposal_vote.map((row) => ({
+    voterAddress: row.voter_address,
+    option: mapVoteOption(row.option),
+    weight: row.weight,
+    height: toNumber(row.height),
+    timestamp: row.timestamp ?? null,
+  }));
+
+  const total = response.proposal_vote_aggregate.aggregate?.count ?? 0;
+
+  return { votes, total };
 }
 
 export function buildAccountOverview(params: {
