@@ -28,7 +28,7 @@ func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error 
 		return nil
 	}
 
-	log.Debug().Str("module", "feegrant").Str("hash", tx.TxHash).Int64("height", tx.Height).Msg(fmt.Sprintf("handling feegrant message %s", msg.GetType()))
+	log.Debug().Str("module", "feegrant").Str("hash", tx.TxHash).Uint64("height", uint64(tx.Height)).Msg(fmt.Sprintf("handling feegrant message %s", msg.GetType()))
 
 	switch msg.GetType() {
 	case "/cosmos.feegrant.v1beta1.MsgGrantAllowance":

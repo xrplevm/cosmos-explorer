@@ -2,6 +2,8 @@ ARG BASE_IMAGE=base
 FROM ${BASE_IMAGE} AS integration
 ARG TURBO_TEAM=peersyst
 ENV TURBO_TEAM=$TURBO_TEAM
+ARG NETWORK=mainnet
+ENV NETWORK=$NETWORK
 
 # Include explorer
 COPY apps/explorer /project/apps/explorer
@@ -15,7 +17,7 @@ RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
     npx turbo run typecheck --filter=@cosmos-explorer/explorer
 
-# Build explorer
+# Build explorer — chain config mounted as a secret (not persisted in any image layer)
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
     npx turbo run build --filter=@cosmos-explorer/explorer
 

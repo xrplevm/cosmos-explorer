@@ -12,6 +12,10 @@ on:
       tag:
         required: true
         type: string
+      environment:
+        required: true
+        type: string
+        description: "Deployment environment (mainnet, testnet, devnet)"
 
 permissions:
   # Needed to configure aws credentials step
@@ -59,10 +63,11 @@ jobs:
           target: ${{ inputs.target }}
           push: ${{ inputs.push }}
           tags: |
-            ghcr.io/xrplevm/cosmos-explorer/explorer:${{ env.TAG }}
+            ghcr.io/xrplevm/cosmos-explorer/explorer-${{ inputs.environment }}:${{ env.TAG }}
           outputs: type=image
           build-args: |
             BASE_IMAGE=ghcr.io/xrplevm/cosmos-explorer/base:${{ env.TAG }}
             TURBO_TEAM=peersyst
+            NETWORK=${{ inputs.environment }}
           secrets: |
             turbo_token=${{ secrets.TURBO_TOKEN }}

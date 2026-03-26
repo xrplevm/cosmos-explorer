@@ -1,7 +1,7 @@
 version: "3.6"
 services:
     hasura:
-        image: hasura/graphql-engine:v2.6.1.cli-migrations-v3.ubuntu.arm64
+        image: hasura/graphql-engine:v2.6.1.cli-migrations-v3${HASURA_IMAGE_SUFFIX:-}
         restart: always
         environment:
             ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
@@ -11,11 +11,10 @@ services:
             ## enable debugging mode. It is recommended to disable this in production
             HASURA_GRAPHQL_DEV_MODE: "true"
             HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-            ACTION_BASE_URL: http://localhost:3000
+            ACTION_BASE_URL: http://host.docker.internal:3000
         volumes:
             - ./hasura/metadata:/hasura-metadata
         ports:
-            - "3000:3000"
             - "8080:8080"
 
     database:

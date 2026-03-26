@@ -12,6 +12,7 @@ import (
 	"github.com/forbole/callisto/v4/utils"
 
 	"github.com/forbole/callisto/v4/types/config"
+	evmconfig "github.com/forbole/callisto/v4/types/evm_config"
 
 	"github.com/forbole/callisto/v4/database"
 	"github.com/forbole/callisto/v4/modules"
@@ -20,6 +21,8 @@ import (
 func main() {
 	initCfg := initcmd.NewConfig().
 		WithConfigCreator(config.Creator)
+
+	evmconfig.Cfg = evmconfig.ReadConfigFromFile()
 
 	cdc := utils.GetCodec()
 	parseCfg := parsetypes.NewConfig().

@@ -17,7 +17,7 @@ jobs:
       cancel-in-progress: true
 
   build-callisto:
-    needs: [ build-base ]
+    needs: [build-base]
     uses: ./.github/workflows/build-callisto.yaml
     secrets: inherit
     with:
@@ -28,14 +28,41 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}-build-callisto
       cancel-in-progress: true
 
-  build-explorer:
-    needs: [ build-base ]
+  build-explorer-mainnet:
+    needs: [build-base]
     uses: ./.github/workflows/build-explorer.yaml
     secrets: inherit
     with:
       push: true
       target: release
       tag: ${{ github.sha }}
+      environment: mainnet
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-build-explorer
+      group: ${{ github.workflow }}-${{ github.ref }}-build-explorer-mainnet
+      cancel-in-progress: true
+
+  build-explorer-testnet:
+    needs: [build-base]
+    uses: ./.github/workflows/build-explorer.yaml
+    secrets: inherit
+    with:
+      push: true
+      target: release
+      tag: ${{ github.sha }}
+      environment: testnet
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-build-explorer-testnet
+      cancel-in-progress: true
+
+  build-explorer-devnet:
+    needs: [build-base]
+    uses: ./.github/workflows/build-explorer.yaml
+    secrets: inherit
+    with:
+      push: true
+      target: release
+      tag: ${{ github.sha }}
+      environment: devnet
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-build-explorer-devnet
       cancel-in-progress: true

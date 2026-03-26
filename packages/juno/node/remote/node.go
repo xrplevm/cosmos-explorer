@@ -105,7 +105,6 @@ func (cp *Node) getGenesisChunksStartingFrom(id uint) ([]byte, error) {
 		return nil, fmt.Errorf("error while decoding genesis chunk %d out of %d", id, res.TotalChunks)
 	}
 
-	//nolint:gosec
 	if id == uint(res.TotalChunks-1) {
 		return bz, nil
 	}
