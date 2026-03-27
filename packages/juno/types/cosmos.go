@@ -143,8 +143,8 @@ type TxResponse struct {
 	// Use int64 (not uint64) because some chains return gas_wanted: -1 for failed ante handler txs.
 	Tx        *Tx   `json:"tx,omitempty"`
 	Height    int64 `json:"height,string,omitempty"`
-	GasWanted int64 `json:"gas_wanted,omitempty"`
-	GasUsed   int64 `json:"gas_used,omitempty"`
+	GasWanted int64 `json:"gas_wanted,string,omitempty"`
+	GasUsed   int64 `json:"gas_used,string,omitempty"`
 }
 
 // -------------------------------------------------------------------------------------------------------------------
