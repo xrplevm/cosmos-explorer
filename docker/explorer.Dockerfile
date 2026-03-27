@@ -28,9 +28,9 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-COPY --from=integration /project/apps/explorer/public ./public
 COPY --from=integration /project/apps/explorer/.next/standalone ./
-COPY --from=integration /project/apps/explorer/.next/static ./.next/static
+COPY --from=integration /project/apps/explorer/public ./apps/explorer/public
+COPY --from=integration /project/apps/explorer/.next/static ./apps/explorer/.next/static
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "apps/explorer/server.js"]
