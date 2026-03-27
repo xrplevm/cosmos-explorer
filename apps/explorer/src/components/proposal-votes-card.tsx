@@ -9,11 +9,11 @@ interface ProposalVotesCardProps {
   proposalId: number;
 }
 
-export type SerializableValidator = {
+export interface SerializableValidator {
   moniker: string;
   address: string;
   avatarUrl: string | null;
-};
+}
 
 export async function ProposalVotesCard({ proposalId }: ProposalVotesCardProps) {
   const { proposalService, validatorService } = getServices();

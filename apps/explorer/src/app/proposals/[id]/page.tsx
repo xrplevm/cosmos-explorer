@@ -14,7 +14,6 @@ import {
   TimelineDescription,
 } from "@cosmos-explorer/ui/timeline";
 import { Separator } from "@cosmos-explorer/ui/separator";
-import { PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination-constants";
 import { StatusBadge } from "@/components/status-badge";
 import {
   formatNumber,
@@ -205,31 +204,12 @@ function ProposalTimeline({ proposal }: { proposal: ProposalDetail }) {
   );
 }
 
-const DEFAULT_VOTE_PAGE_SIZE = 25;
-
-function parsePositiveInt(
-  value: string | string[] | undefined,
-  fallback: number,
-): number {
-  const num = typeof value === "string" ? Number(value) : NaN;
-  return Number.isFinite(num) && num >= 1 ? num : fallback;
-}
-
 export default async function ProposalDetailPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
-  const resolvedSearchParams = await searchParams;
-
-  const votePage = parsePositiveInt(resolvedSearchParams.page, 1);
-  const rawVotePageSize = parsePositiveInt(resolvedSearchParams.pageSize, DEFAULT_VOTE_PAGE_SIZE);
-  const votePageSize = (PAGE_SIZE_OPTIONS as readonly number[]).includes(rawVotePageSize)
-    ? rawVotePageSize
-    : DEFAULT_VOTE_PAGE_SIZE;
 
   const { proposalService } = getServices();
   const { network: { primaryToken } } = getChainConfig();

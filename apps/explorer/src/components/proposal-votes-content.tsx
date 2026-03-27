@@ -76,7 +76,7 @@ export function ProposalVotesContent({
               <button
                 key={f.value}
                 type="button"
-                onClick={() => handleFilter(f.value)}
+                onClick={() => { handleFilter(f.value); }}
                 className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
                   isActive
                     ? f.activeClass
@@ -97,7 +97,7 @@ export function ProposalVotesContent({
             <button
               type="button"
               disabled={page <= 1}
-              onClick={() => setPage((p) => p - 1)}
+              onClick={() => { setPage((p) => p - 1); }}
               className="rounded-md border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
             >
               Previous
@@ -108,7 +108,7 @@ export function ProposalVotesContent({
             <button
               type="button"
               disabled={page >= totalPages}
-              onClick={() => setPage((p) => p + 1)}
+              onClick={() => { setPage((p) => p + 1); }}
               className="rounded-md border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
             >
               Next

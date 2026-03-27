@@ -65,7 +65,7 @@ export function ProposalVotesTable({
   validatorMap,
 }: {
   votes: ProposalVote[];
-  validatorMap: Record<string, SerializableValidator>;
+  validatorMap: Partial<Record<string, SerializableValidator>>;
 }) {
   if (votes.length === 0) {
     return (
