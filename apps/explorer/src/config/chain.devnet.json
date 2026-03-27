@@ -36,5 +36,10 @@
     "proposals": true,
     "accounts": true,
     "evmSearch": false
+  },
+  "explorerUrls": {
+    "mainnet": "https://governance.xrplevm.org",
+    "testnet": "https://governance.testnet.xrplevm.org",
+    "devnet": "https://governance.devnet.xrplevm.org"
   }
 }

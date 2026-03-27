@@ -42,6 +42,9 @@ export const ChainConfigSchema = z.object({
     accounts: z.boolean().default(true),
     evmSearch: z.boolean().default(false),
   }),
+  explorerUrls: z
+    .record(z.enum(["mainnet", "testnet", "devnet"]), z.string().url())
+    .optional(),
 });
 
 export type ChainConfig = z.infer<typeof ChainConfigSchema>;

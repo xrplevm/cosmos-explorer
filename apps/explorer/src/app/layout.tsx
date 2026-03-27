@@ -5,6 +5,7 @@ import { getChainConfig } from "@/lib/config";
 import { Sidebar } from "@/components/sidebar";
 import { Footer } from "@/components/footer";
 import { GlobalSearch } from "@/components/global-search";
+import { NetworkSwitcher } from "@/components/network-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import "./globals.css";
 
@@ -49,6 +50,12 @@ export default function RootLayout({
                 evmSearch={config.features.evmSearch}
                 accounts={config.features.accounts}
               />
+              {config.explorerUrls && (
+                <NetworkSwitcher
+                  chainEnv={config.network.chainEnv}
+                  explorerUrls={config.explorerUrls}
+                />
+              )}
               <ThemeToggle />
             </header>
             <main className="relative min-h-[calc(100vh-3.5rem-1px)] overflow-hidden p-4 md:p-6">
