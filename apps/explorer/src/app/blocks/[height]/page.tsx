@@ -56,7 +56,7 @@ export default async function BlockDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start gap-2">
+      <div className="flex items-center gap-2">
         <DetailBackButton href="/blocks" />
         <div className="min-w-0 flex-1">
           <h1 className="text-lg font-bold tracking-tight sm:text-2xl">

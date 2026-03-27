@@ -92,11 +92,11 @@ export function Sidebar({ title: _title, chainEnv }: { title: string; chainEnv: 
                 className={cn(
                   "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
                   active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
+                    ? "bg-sidebar-accent text-primary font-medium border-l-2 border-primary pl-[10px]"
+                    : "text-muted-foreground hover:text-primary hover:bg-sidebar-accent/50"
                 )}
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className={cn("h-4 w-4", active && "text-success")} />
                 {item.name}
               </Link>
             );
@@ -105,7 +105,7 @@ export function Sidebar({ title: _title, chainEnv }: { title: string; chainEnv: 
 
         <div className="border-t border-sidebar-border p-4">
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-green-500" />
+            <div className="h-2 w-2 rounded-full bg-success" />
             <span className="text-xs text-muted-foreground capitalize">{chainEnv}</span>
           </div>
         </div>

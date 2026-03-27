@@ -21,7 +21,7 @@ export async function BlocksTable() {
           <CardTitle>Latest Blocks</CardTitle>
           <Link
             href="/blocks"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-primary-soft hover:text-primary transition-colors"
           >
             See More
           </Link>
@@ -40,7 +40,7 @@ export async function BlocksTable() {
           <CardTitle>Latest Blocks</CardTitle>
           <Link
             href="/blocks"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-sm text-primary-soft hover:text-primary transition-colors"
           >
             See More
           </Link>

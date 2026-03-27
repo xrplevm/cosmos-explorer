@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
+import { Skeleton } from "@cosmos-explorer/ui/skeleton";
 import { createFetcher } from "@cosmos-explorer/utils";
 
 import { useFetch } from "@/hooks/use-fetch";
@@ -51,7 +52,7 @@ export function MarketPriceCard({
           {hasPrice
             ? formatPrice(price.priceUsd)
             : status === "loading"
-              ? "Loading..."
+              ? <Skeleton className="h-8 w-20" />
               : "Unavailable"}
         </CardTitle>
       </CardHeader>
@@ -59,7 +60,7 @@ export function MarketPriceCard({
         {hasPrice && price.timestamp
           ? <>Updated <Timestamp value={price.timestamp} /></>
           : status === "loading"
-            ? "Fetching live market price"
+            ? <Skeleton className="h-3 w-32" />
             : "No market price data available"}
       </CardContent>
     </Card>

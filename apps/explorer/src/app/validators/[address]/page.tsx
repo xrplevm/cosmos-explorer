@@ -88,12 +88,10 @@ export default async function ValidatorDetailPage({
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-lg font-bold tracking-tight sm:text-2xl">
-              {validator.moniker}
-            </h1>
-            <StatusBadge status={toStatusLabel(validator.status)} />
-          </div>
+          <StatusBadge status={toStatusLabel(validator.status)} />
+          <h1 className="mt-2 text-lg font-bold tracking-tight sm:text-2xl">
+            {validator.moniker}
+          </h1>
         </div>
       </div>
 

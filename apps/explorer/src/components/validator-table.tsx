@@ -11,11 +11,18 @@ import {
 } from "@cosmos-explorer/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@cosmos-explorer/ui/avatar";
 import { Input } from "@cosmos-explorer/ui/input";
-import { IconSearch as Search, IconX as X } from "@tabler/icons-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@cosmos-explorer/ui/select";
+import { IconSearch as Search, IconX as X, IconCircleCheckFilled, IconCircleFilled, IconGavel } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import { formatPercent } from "@/lib/formatters";
 import Link from "next/link";
-import type { Validator } from "@cosmos-explorer/core";
+import type { Validator, ValidatorStatus } from "@cosmos-explorer/core";
 
 function toStatusLabel(status: string): string {
   switch (status) {
@@ -32,41 +39,76 @@ function toStatusLabel(status: string): string {
 
 export function ValidatorTable({ validators }: { validators: Validator[] }) {
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ValidatorStatus | "all">("all");
 
   const filtered = useMemo(() => {
+    let result = validators;
+    if (statusFilter !== "all") {
+      result = result.filter((v) => v.status === statusFilter);
+    }
     const q = search.trim().toLowerCase();
-    if (q.length === 0) return validators;
-    return validators.filter(
-      (v) =>
-        v.moniker.toLowerCase().includes(q) ||
-        v.address.toLowerCase().includes(q),
-    );
-  }, [search, validators]);
+    if (q.length > 0) {
+      result = result.filter(
+        (v) =>
+          v.moniker.toLowerCase().includes(q) ||
+          v.address.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [search, statusFilter, validators]);
 
   return (
     <div className="space-y-4">
-      <div className="relative w-full sm:w-72">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search by name or address..."
-          className="pl-9 pr-8"
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); }}
-        />
-        {search.length > 0 && (
-          <button
-            type="button"
-            onClick={() => { setSearch(""); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search by name or address..."
+            className="pl-9 pr-8"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); }}
+          />
+          {search.length > 0 && (
+            <button
+              type="button"
+              onClick={() => { setSearch(""); }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as ValidatorStatus | "all"); }}>
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="active">
+              <span className="flex items-center gap-2">
+                <IconCircleCheckFilled className="h-3.5 w-3.5 text-success" />
+                Active
+              </span>
+            </SelectItem>
+            <SelectItem value="inactive">
+              <span className="flex items-center gap-2">
+                <IconCircleFilled className="h-3.5 w-3.5" />
+                Inactive
+              </span>
+            </SelectItem>
+            <SelectItem value="jailed">
+              <span className="flex items-center gap-2">
+                <IconGavel className="h-3.5 w-3.5 text-destructive" />
+                Jailed
+              </span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {filtered.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
-          No validators found matching your search.
+          No validators found matching your filters.
         </p>
       ) : (
         <div className="overflow-x-auto">
@@ -86,7 +128,7 @@ export function ValidatorTable({ validators }: { validators: Validator[] }) {
                 <TableRow key={v.address}>
                   <TableCell className="text-muted-foreground">{index + 1}</TableCell>
                   <TableCell>
-                    <Link href={`/validators/${v.address}`} className="flex items-center gap-3 hover:text-foreground">
+                    <Link href={`/validators/${v.address}`} className="flex items-center gap-3 hover:text-primary transition-colors">
                       <Avatar className="h-7 w-7">
                         {v.avatarUrl && <AvatarImage src={v.avatarUrl} alt={v.moniker} />}
                         <AvatarFallback className="text-xs">{v.moniker.slice(0, 2)}</AvatarFallback>

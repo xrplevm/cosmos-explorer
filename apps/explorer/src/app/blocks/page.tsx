@@ -112,11 +112,11 @@ export default async function BlocksPage({
                   {visibleBlocks.map((block) => (
                     <TableRow key={block.height}>
                       <TableCell className="font-mono text-sm">
-                        <Link href={`/blocks/${String(block.height)}`} className="text-foreground hover:underline">
+                        <Link href={`/blocks/${String(block.height)}`} className="text-primary-soft hover:text-primary transition-colors">
                           #{block.height.toLocaleString()}
                         </Link>
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">
+                      <TableCell className="font-mono text-xs text-primary-soft">
                         <div className="flex items-center gap-1">
                           {formatHash(block.hash)}
                           <CopyButton value={block.hash} label="block hash" size="xs" />
@@ -124,7 +124,7 @@ export default async function BlocksPage({
                       </TableCell>
                       <TableCell>{block.txs}</TableCell>
                       <TableCell>
-                        <Link href={`/validators/${block.proposer}`} className="flex items-center gap-2 hover:text-foreground">
+                        <Link href={`/validators/${block.proposer}`} className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
                           {block.proposerAvatarUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img

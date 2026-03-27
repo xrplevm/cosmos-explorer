@@ -21,7 +21,7 @@ const columns: Column<Block>[] = [
     render: (block) => (
       <Link
         href={`/blocks/${String(block.height)}`}
-        className="font-mono text-sm text-foreground hover:underline"
+        className="font-mono text-sm text-primary-soft hover:text-primary transition-colors"
       >
         {block.height.toLocaleString()}
       </Link>
@@ -47,7 +47,7 @@ const columns: Column<Block>[] = [
         )}
         <Link
           href={`/validators/${block.proposer}`}
-          className="text-sm text-foreground hover:underline truncate max-w-[120px]"
+          className="text-sm text-muted-foreground hover:text-primary transition-colors truncate max-w-[120px]"
         >
           {block.proposerMoniker ?? block.proposer}
         </Link>
@@ -59,7 +59,7 @@ const columns: Column<Block>[] = [
     header: "Hash",
     className: "hidden sm:table-cell",
     render: (block) => (
-      <span className="font-mono text-sm text-muted-foreground">
+      <span className="font-mono text-sm text-primary-soft">
         {formatHash(block.hash)}
       </span>
     ),

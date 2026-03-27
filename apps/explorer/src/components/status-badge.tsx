@@ -1,11 +1,11 @@
 import { Badge } from "@cosmos-explorer/ui/badge";
 import {
   IconCircleCheckFilled,
-  IconLoader2,
   IconCircleXFilled,
   IconCircleFilled,
   IconGavel,
   IconCoinFilled,
+  IconClockHour4,
 } from "@tabler/icons-react";
 
 export function StatusBadge({ status }: { status: string }) {
@@ -20,7 +20,7 @@ export function StatusBadge({ status }: { status: string }) {
     case "Pending":
       return (
         <Badge variant="outline" className="text-muted-foreground">
-          <IconLoader2 className="h-3.5 w-3.5 animate-spin" />
+          <IconClockHour4 className="h-3.5 w-3.5" />
           {status}
         </Badge>
       );
@@ -69,7 +69,7 @@ export function StatusBadge({ status }: { status: string }) {
     case "Voting":
       return (
         <Badge variant="outline" className="text-muted-foreground">
-          <IconLoader2 className="h-3.5 w-3.5 animate-spin text-blue-500" />
+          <IconClockHour4 className="h-3.5 w-3.5 text-blue-500" />
           {status}
         </Badge>
       );

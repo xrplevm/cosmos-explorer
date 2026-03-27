@@ -29,7 +29,6 @@ import type {
   ProposalDetail,
   ProposalStatus,
   ProposalTally,
-  VoteOption,
 } from "@cosmos-explorer/core";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -232,14 +231,6 @@ export default async function ProposalDetailPage({
     ? rawVotePageSize
     : DEFAULT_VOTE_PAGE_SIZE;
 
-  const VALID_VOTE_FILTERS = ["yes", "no", "abstain", "noWithVeto"] as const;
-  const rawVoteFilter = resolvedSearchParams.voteFilter;
-  const voteFilter: VoteOption | "all" =
-    typeof rawVoteFilter === "string" &&
-    (VALID_VOTE_FILTERS as readonly string[]).includes(rawVoteFilter)
-      ? (rawVoteFilter as VoteOption)
-      : "all";
-
   const { proposalService } = getServices();
   const { network: { primaryToken } } = getChainConfig();
   const proposal = await proposalService.getProposalById(Number(id));
@@ -264,7 +255,7 @@ export default async function ProposalDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start gap-2">
+      <div className="flex items-center gap-2">
         <DetailBackButton href="/proposals" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -324,13 +315,7 @@ export default async function ProposalDetailPage({
       </Card>
 
       <Suspense fallback={<ProposalVotesCardSkeleton />}>
-        <ProposalVotesCard
-          proposalId={Number(id)}
-          page={votePage}
-          pageSize={votePageSize}
-          basePath={`/proposals/${id}`}
-          voteFilter={voteFilter}
-        />
+        <ProposalVotesCard proposalId={Number(id)} />
       </Suspense>
 
       <div className="grid gap-6 lg:grid-cols-10">

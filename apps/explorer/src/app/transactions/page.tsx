@@ -128,7 +128,7 @@ export default async function TransactionsPage({
                         <div className="flex items-center gap-1">
                           <Link
                             href={`/transactions/${tx.hash}`}
-                            className="font-mono text-sm text-foreground hover:underline"
+                            className="font-mono text-sm text-primary-soft hover:text-primary transition-colors"
                           >
                             {formatHash(tx.hash)}
                           </Link>
@@ -159,7 +159,7 @@ export default async function TransactionsPage({
                         <div className="flex items-center justify-end gap-1">
                           <Link
                             href={`/blocks/${String(tx.height)}`}
-                            className="text-foreground hover:underline"
+                            className="text-primary-soft hover:text-primary transition-colors"
                           >
                             #{tx.height.toLocaleString()}
                           </Link>

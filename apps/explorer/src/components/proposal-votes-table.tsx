@@ -12,7 +12,8 @@ import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@cosmos-explorer/ui/avatar";
 import { Timestamp } from "@/components/timestamp";
 import { formatHash } from "@/lib/formatters";
-import type { ProposalVote, Validator, VoteOption } from "@cosmos-explorer/core";
+import type { ProposalVote, VoteOption } from "@cosmos-explorer/core";
+import type { SerializableValidator } from "@/components/proposal-votes-card";
 import {
   IconThumbUp,
   IconThumbDown,
@@ -61,10 +62,10 @@ function getVoteBadge(option: VoteOption) {
 
 export function ProposalVotesTable({
   votes,
-  validatorByDelegate,
+  validatorMap,
 }: {
   votes: ProposalVote[];
-  validatorByDelegate: Map<string, Validator>;
+  validatorMap: Record<string, SerializableValidator>;
 }) {
   if (votes.length === 0) {
     return (
@@ -88,7 +89,7 @@ export function ProposalVotesTable({
         </TableHeader>
         <TableBody>
           {votes.map((vote) => {
-            const validator = validatorByDelegate.get(vote.voterAddress);
+            const validator = validatorMap[vote.voterAddress];
             return (
               <TableRow key={`${vote.voterAddress}-${String(vote.height)}`}>
                 <TableCell>
