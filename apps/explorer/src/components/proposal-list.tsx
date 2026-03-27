@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   Card,
   CardDescription,
@@ -10,11 +11,49 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { Input } from "@cosmos-explorer/ui/input";
-import { IconSearch as Search, IconX as X } from "@tabler/icons-react";
+import {
+  IconSearch as Search,
+  IconX as X,
+  IconRocket,
+  IconBan,
+  IconCoins,
+  IconAdjustments,
+  IconFileText,
+  IconUserPlus,
+  IconUserMinus,
+  IconFile,
+} from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import { Timestamp } from "@/components/timestamp";
 import Link from "next/link";
 import type { ProposalSummary, ProposalStatus } from "@cosmos-explorer/core";
+
+function ProposalTypeIcon({ type }: { type: string }) {
+  const configs: Record<string, { icon: React.ReactNode; bg: string; color: string }> = {
+    SoftwareUpgrade:         { icon: <IconRocket className="h-4 w-4" />,      bg: "bg-blue-500/15",   color: "text-blue-400" },
+    SoftwareUpgradeProposal: { icon: <IconRocket className="h-4 w-4" />,      bg: "bg-blue-500/15",   color: "text-blue-400" },
+    CancelUpgrade:           { icon: <IconBan className="h-4 w-4" />,         bg: "bg-red-500/15",    color: "text-red-400" },
+    CancelSoftwareUpgrade:   { icon: <IconBan className="h-4 w-4" />,         bg: "bg-red-500/15",    color: "text-red-400" },
+    CancelSoftwareUpgradeProposal: { icon: <IconBan className="h-4 w-4" />,   bg: "bg-red-500/15",    color: "text-red-400" },
+    CommunityPoolSpend:      { icon: <IconCoins className="h-4 w-4" />,       bg: "bg-amber-500/15",  color: "text-amber-400" },
+    CommunityPoolSpendProposal: { icon: <IconCoins className="h-4 w-4" />,    bg: "bg-amber-500/15",  color: "text-amber-400" },
+    ParameterChange:         { icon: <IconAdjustments className="h-4 w-4" />, bg: "bg-violet-500/15", color: "text-violet-400" },
+    ParameterChangeProposal: { icon: <IconAdjustments className="h-4 w-4" />, bg: "bg-violet-500/15", color: "text-violet-400" },
+    UpdateParams:            { icon: <IconAdjustments className="h-4 w-4" />, bg: "bg-violet-500/15", color: "text-violet-400" },
+    Text:                    { icon: <IconFileText className="h-4 w-4" />,     bg: "bg-zinc-500/15",   color: "text-zinc-400" },
+    TextProposal:            { icon: <IconFileText className="h-4 w-4" />,     bg: "bg-zinc-500/15",   color: "text-zinc-400" },
+    AddValidator:            { icon: <IconUserPlus className="h-4 w-4" />,    bg: "bg-green-500/15",  color: "text-green-400" },
+    RemoveValidator:         { icon: <IconUserMinus className="h-4 w-4" />,   bg: "bg-orange-500/15", color: "text-orange-400" },
+  };
+
+  const cfg = configs[type] ?? { icon: <IconFile className="h-4 w-4" />, bg: "bg-zinc-500/15", color: "text-zinc-400" };
+
+  return (
+    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${cfg.bg} ${cfg.color}`}>
+      {cfg.icon}
+    </div>
+  );
+}
 
 function toStatusLabel(status: ProposalStatus): string {
   switch (status) {
@@ -82,33 +121,45 @@ export function ProposalList({ proposals }: { proposals: ProposalSummary[] }) {
             </CardContent>
           </Card>
         ) : (
-          filtered.map((proposal) => (
-            <Link key={proposal.id} href={`/proposals/${String(proposal.id)}`} className="block">
-              <Card className="transition-colors hover:bg-accent/30">
+          filtered.map((proposal, i) => (
+            <motion.div
+              key={proposal.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+            >
+            <Link href={`/proposals/${String(proposal.id)}`} className="block">
+              <Card className="card-hover transition-colors hover:bg-accent/30">
                 <CardHeader>
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="shrink-0 text-sm font-mono text-muted-foreground">
-                        #{proposal.id}
-                      </span>
-                      <CardTitle className="text-base truncate">{proposal.title}</CardTitle>
-                    </div>
-                    <StatusBadge status={toStatusLabel(proposal.status)} />
-                  </div>
-                  <CardDescription className="flex flex-wrap items-center gap-2 sm:gap-4">
-                    <span>{proposal.type}</span>
-                    <Separator orientation="vertical" className="h-3" />
-                    <span>Submitted <Timestamp value={proposal.submitTime} /></span>
-                    {proposal.votingEndTime && (
-                      <>
+                  <div className="flex items-center gap-3">
+                    <ProposalTypeIcon type={proposal.type} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="shrink-0 text-xs font-mono text-muted-foreground">
+                            #{proposal.id}
+                          </span>
+                          <CardTitle className="text-base truncate">{proposal.title}</CardTitle>
+                        </div>
+                        <StatusBadge status={toStatusLabel(proposal.status)} />
+                      </div>
+                      <CardDescription className="flex flex-wrap items-center gap-2 sm:gap-4 mt-1">
+                        <span>{proposal.type}</span>
                         <Separator orientation="vertical" className="h-3" />
-                        <span>Voting ends <Timestamp value={proposal.votingEndTime} /></span>
-                      </>
-                    )}
-                  </CardDescription>
+                        <span>Submitted <Timestamp value={proposal.submitTime} /></span>
+                        {proposal.votingEndTime && (
+                          <>
+                            <Separator orientation="vertical" className="h-3" />
+                            <span>Voting ends <Timestamp value={proposal.votingEndTime} /></span>
+                          </>
+                        )}
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
               </Card>
             </Link>
+            </motion.div>
           ))
         )}
       </div>

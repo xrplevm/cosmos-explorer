@@ -12,12 +12,14 @@ import { Separator } from "@cosmos-explorer/ui/separator";
 function ContentCard({
   title,
   children,
+  className,
 }: {
   title: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <Card>
+    <Card className={className}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>

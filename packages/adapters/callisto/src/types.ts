@@ -184,6 +184,36 @@ export interface ProposalDetailsResponse {
   }[];
 }
 
+export interface ActiveProposalsResponse {
+  proposal: {
+    proposalId: number;
+    title?: string | null;
+    description?: string | null;
+    proposer?: string | null;
+    status?: string | null;
+    submitTime?: string | null;
+    votingEndTime?: string | null;
+    votingStartTime?: string | null;
+    depositEndTime?: string | null;
+    metadata?: string | null;
+    content?: unknown;
+  }[];
+}
+
+export interface ActiveProposalsDataResponse {
+  proposal_tally_result: {
+    proposalId: number;
+    yes?: Scalar;
+    no?: Scalar;
+    abstain?: Scalar;
+    noWithVeto?: Scalar;
+  }[];
+  proposal_staking_pool_snapshot: {
+    proposalId: number;
+    bondedTokens?: Scalar | null;
+  }[];
+}
+
 export interface ProposalVotesResponse {
   proposal_vote: {
     voter_address: string;

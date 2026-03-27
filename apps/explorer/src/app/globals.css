@@ -7,4 +7,43 @@
 
 @theme {
   --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
+
+  --animate-bar-fill: bar-fill 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-page-enter: page-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-up: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes bar-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Progress bar fill animation */
+.bar-animated {
+  transform-origin: left;
+  animation: var(--animate-bar-fill);
+}
+
+/* Page-level content entry */
+.page-enter {
+  animation: var(--animate-page-enter);
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 24px oklch(0 0 0 / 0.3);
 }

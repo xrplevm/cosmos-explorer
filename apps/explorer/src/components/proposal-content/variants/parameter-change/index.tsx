@@ -1,5 +1,4 @@
 import { ProposalContent } from "../../shared/proposal-content-parts";
-import { RawContentSection } from "../../shared/raw-content-section";
 import type { ProposalContentViewProps, ProposalContentItem } from "../../types";
 
 interface ParamChange {
@@ -20,7 +19,6 @@ export function ParameterChangeContent({ proposal }: ProposalContentViewProps) {
   const changes = content?.changes;
 
   return (
-    <div className="space-y-6">
       <ProposalContent.Card title="Parameter Change">
         <ProposalContent.Description>{proposal.description}</ProposalContent.Description>
         <ProposalContent.AddressField label="Authority" address={content?.authority} />
@@ -56,8 +54,5 @@ export function ParameterChangeContent({ proposal }: ProposalContentViewProps) {
           </ProposalContent.Row>
         )}
       </ProposalContent.Card>
-
-      <RawContentSection content={proposal.content} />
-    </div>
   );
 }

@@ -47,6 +47,7 @@ export type ProposalDetail = ProposalSummary & {
 
 export interface IProposalService {
   getProposals(params?: { limit?: number; offset?: number }): Promise<ProposalSummary[]>;
+  getActiveProposals(limit?: number): Promise<ProposalDetail[]>;
   getProposalById(id: number): Promise<ProposalDetail | null>;
   getProposalVotes(
     proposalId: number,

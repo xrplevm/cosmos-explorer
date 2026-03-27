@@ -49,27 +49,30 @@ export function AnimatedTableBody<T>({
 
   return (
     <TableBody>
-      {data.map((row) => {
+      {data.map((row, rowIndex) => {
         const isNew = newKeys.has(rowKey(row));
         return (
-          <TableRow key={rowKey(row)}>
+          <motion.tr
+            key={rowKey(row)}
+            initial={
+              isNew
+                ? { opacity: 0, y: -10, backgroundColor: "oklch(0.53 0.274 290.728 / 0.10)" }
+                : false
+            }
+            animate={{ opacity: 1, y: 0, backgroundColor: "oklch(0.53 0.274 290.728 / 0)" }}
+            transition={{
+              opacity: { duration: 0.3, ease: "easeOut", delay: rowIndex * 0.04 },
+              y: { duration: 0.32, ease: [0.22, 1, 0.36, 1], delay: rowIndex * 0.04 },
+              backgroundColor: { duration: 1.2, ease: "easeOut" },
+            }}
+            className="border-b border-border hover:bg-muted/50"
+          >
             {columns.map((col) => (
               <TableCell key={col.key} className={col.className}>
-                <motion.div
-                  initial={isNew ? { opacity: 0, height: 0 } : false}
-                  animate={{ opacity: 1, height: "auto" }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  style={{
-                    overflow: "hidden",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {col.render(row)}
-                </motion.div>
+                {col.render(row)}
               </TableCell>
             ))}
-          </TableRow>
+          </motion.tr>
         );
       })}
     </TableBody>

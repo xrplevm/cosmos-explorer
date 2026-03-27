@@ -18,7 +18,6 @@ import { StatusBadge } from "@/components/status-badge";
 import {
   formatNumber,
   formatPercent,
-  formatTokenAmount,
 } from "@/lib/formatters";
 import { Timestamp } from "@/components/timestamp";
 import { DetailBackButton } from "@/components/detail-back-button";
@@ -34,8 +33,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { IconCheck as Check, IconClock as Clock, IconThumbUp as Vote, IconCoins as Coins } from "@tabler/icons-react";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
-import { ProposalContentRoot } from "@/components/proposal-content";
+import { RawContentSection } from "@/components/proposal-content/shared/raw-content-section";
 import { ProposalVotesCard, ProposalVotesCardSkeleton } from "@/components/proposal-votes-card";
+import { getGovParams } from "@/lib/gov-params";
 
 function Row({
   label,
@@ -90,32 +90,44 @@ function getTallyTotal(tally: ProposalTally | null): number {
   }, 0);
 }
 
-function VoteBar({
-  yes,
-  no,
-  abstain,
-  veto,
+
+function ProgressBar({
+  value,
+  threshold,
+  colorClass,
+  label,
 }: {
-  yes: number | null;
-  no: number | null;
-  abstain: number | null;
-  veto: number | null;
+  value: number | null;
+  threshold: number;
+  colorClass: string;
+  label: string;
 }) {
-  if (yes == null || no == null || abstain == null || veto == null) {
-    return (
-      <p className="text-sm text-muted-foreground">No tally data available.</p>
-    );
-  }
+  const filled = value != null ? Math.min(value, 100) : 0;
+  const reached = value != null && value >= threshold;
 
   return (
-    <div className="flex h-3 w-full overflow-hidden rounded-full bg-muted">
-      <div className="bg-green-500" style={{ width: `${yes}%` }} />
-      <div className="bg-red-500" style={{ width: `${no}%` }} />
-      <div className="bg-zinc-400" style={{ width: `${abstain}%` }} />
-      <div className="bg-yellow-500" style={{ width: `${veto}%` }} />
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">{label}</span>
+        <span className={reached ? "font-semibold text-green-400" : "text-muted-foreground"}>
+          {value != null ? `${value.toFixed(2)}%` : "N/A"}
+          <span className="text-muted-foreground font-normal"> / {threshold}% required</span>
+        </span>
+      </div>
+      <div className="relative h-3 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className={`h-full bar-animated ${reached ? "bg-green-500" : colorClass}`}
+          style={{ width: `${filled}%` }}
+        />
+        <div
+          className="absolute top-0 h-full w-px bg-white/60 z-10"
+          style={{ left: `${threshold}%` }}
+        />
+      </div>
     </div>
   );
 }
+
 
 type TimelinePhase = "submitted" | "deposit" | "voting" | "result";
 
@@ -212,8 +224,11 @@ export default async function ProposalDetailPage({
   const { id } = await params;
 
   const { proposalService } = getServices();
-  const { network: { primaryToken } } = getChainConfig();
-  const proposal = await proposalService.getProposalById(Number(id));
+  const { network: { endpoints } } = getChainConfig();
+  const [proposal, govParams] = await Promise.all([
+    proposalService.getProposalById(Number(id)),
+    endpoints.cosmosApi ? getGovParams(endpoints.cosmosApi) : Promise.resolve(null),
+  ]);
 
   if (proposal == null) {
     notFound();
@@ -233,8 +248,41 @@ export default async function ProposalDetailPage({
     ? toVotePercent(proposal.tally.noWithVeto, tallyTotal)
     : null;
 
+  // Governance params (from network or fallback)
+  const quorumThreshold = govParams?.quorum ?? 66.7;
+  const yesThreshold = govParams?.threshold ?? 66.7;
+  const vetoThreshold = govParams?.vetoThreshold ?? 33.4;
+  const expeditedYesThreshold = govParams?.expeditedThreshold ?? 80;
+  const expeditedMaxSeconds = govParams?.expeditedVotingPeriodSeconds ?? 86400;
+
+  // Detect expedited by comparing voting period to expedited_voting_period from network
+  const isExpedited = (() => {
+    if (!proposal.votingStartTime || !proposal.votingEndTime) return false;
+    const durationSeconds =
+      (new Date(proposal.votingEndTime).getTime() - new Date(proposal.votingStartTime).getTime()) / 1000;
+    return durationSeconds <= expeditedMaxSeconds * 2; // 2x buffer for clock drift
+  })();
+  const activeYesThreshold = isExpedited ? expeditedYesThreshold : yesThreshold;
+
+  // Governance thresholds
+  const bondedAmount = proposal.tally?.bondedTokens ? Number(proposal.tally.bondedTokens.amount) : 0;
+  const turnoutPct = bondedAmount > 0 ? Math.min((tallyTotal / bondedAmount) * 100, 100) : null;
+  const quorumReached = turnoutPct != null && turnoutPct >= quorumThreshold;
+
+  const yesRaw = Number(proposal.tally?.yes ?? 0);
+  const noRaw = Number(proposal.tally?.no ?? 0);
+  const vetoRaw = Number(proposal.tally?.noWithVeto ?? 0);
+  const nonAbstainTotal = yesRaw + noRaw + vetoRaw;
+  const yesThresholdPct = nonAbstainTotal > 0 ? (yesRaw / nonAbstainTotal) * 100 : null;
+  const vetoPct = tallyTotal > 0 ? (vetoRaw / tallyTotal) * 100 : null;
+  const isVetoed = vetoPct != null && vetoPct >= vetoThreshold;
+  const yesPasses = yesThresholdPct != null && yesThresholdPct >= activeYesThreshold;
+
+
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-2">
         <DetailBackButton href="/proposals" />
         <div className="min-w-0 flex-1">
@@ -251,11 +299,126 @@ export default async function ProposalDetailPage({
         </div>
       </div>
 
+      {/* 1. Voting + Timeline */}
+      <div className="grid gap-6 lg:grid-cols-10">
+        <div className="lg:col-span-7">
+          <Card className="h-full">
+            <CardHeader className="flex flex-row items-center gap-3">
+              <CardTitle>Voting</CardTitle>
+              {isExpedited && (
+                <span className="rounded-full bg-purple-500/15 px-2 py-0.5 text-xs font-semibold text-purple-400 border border-purple-500/30">
+                  Expedited
+                </span>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {/* Quorum */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">Quorum</span>
+                    <span className="text-xs text-muted-foreground">{quorumThreshold}% required</span>
+                  </div>
+                  {quorumReached ? (
+                    <span className="rounded-full bg-green-500/15 px-2 py-0.5 text-xs font-semibold text-green-400 border border-green-500/30">
+                      Reached ✓
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-zinc-500/15 px-2 py-0.5 text-xs text-zinc-400 border border-zinc-500/30">
+                      Not reached
+                    </span>
+                  )}
+                </div>
+                <ProgressBar
+                  value={turnoutPct}
+                  threshold={quorumThreshold}
+                  colorClass="bg-amber-500"
+                  label=""
+                />
+              </div>
+
+              <div className="border-t border-border" />
+
+              {/* Vote distribution */}
+              <div className="space-y-3">
+                <span className="text-sm font-medium">Vote Distribution</span>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <div className="rounded-lg border border-border p-3">
+                    <p className="text-xs text-muted-foreground">Yes</p>
+                    <p className="mt-1 text-lg font-bold text-green-400">{formatPercent(yes)}</p>
+                    <p className="text-xs text-muted-foreground">{proposal.tally ? formatNumber(Number(proposal.tally.yes)) : "0"}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <p className="text-xs text-muted-foreground">No</p>
+                    <p className="mt-1 text-lg font-bold text-red-400">{formatPercent(no)}</p>
+                    <p className="text-xs text-muted-foreground">{proposal.tally ? formatNumber(Number(proposal.tally.no)) : "0"}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <p className="text-xs text-muted-foreground">Abstain</p>
+                    <p className="mt-1 text-lg font-bold text-zinc-400">{formatPercent(abstain)}</p>
+                    <p className="text-xs text-muted-foreground">{proposal.tally ? formatNumber(Number(proposal.tally.abstain)) : "0"}</p>
+                  </div>
+                  <div className="rounded-lg border border-border p-3">
+                    <p className="text-xs text-muted-foreground">No with Veto</p>
+                    <p className="mt-1 text-lg font-bold text-yellow-400">{formatPercent(veto)}</p>
+                    <p className="text-xs text-muted-foreground">{proposal.tally ? formatNumber(Number(proposal.tally.noWithVeto)) : "0"}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-border" />
+
+              {/* Yes threshold */}
+              <ProgressBar
+                value={yesThresholdPct}
+                threshold={activeYesThreshold}
+                colorClass="bg-blue-500"
+                label="Yes votes (excl. Abstain)"
+              />
+
+              <div className="border-t border-border" />
+
+              {/* Expected outcome */}
+              {proposal.tally && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Expected Outcome</span>
+                  {quorumReached && yesPasses ? (
+                    <span className="rounded-full bg-green-500/15 px-3 py-1 text-sm font-semibold text-green-400 border border-green-500/30">
+                      Approved ✓
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-red-500/15 px-3 py-1 text-sm font-semibold text-red-400 border border-red-500/30">
+                      Not Approved
+                    </span>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-3">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle>Timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProposalTimeline proposal={proposal} />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* 2. Details */}
       <Card>
         <CardHeader>
           <CardTitle>Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-0">
+          <p className="pb-3 text-sm text-muted-foreground leading-relaxed">
+            {proposal.description || "No description available."}
+          </p>
+          <Separator />
           <Row label="Status">
             <StatusBadge status={toStatusLabel(proposal.status)} />
           </Row>
@@ -281,84 +444,16 @@ export default async function ProposalDetailPage({
               <span className="font-mono text-xs break-all">N/A</span>
             )}
           </Row>
-          <Separator />
-          <Row label="Bonded Snapshot">
-            {formatTokenAmount(proposal.tally?.bondedTokens, primaryToken)}
-          </Row>
-          <Separator />
-          <Row label="Metadata">
-            <span className="font-mono text-xs break-all">
-              {proposal.metadata ?? "N/A"}
-            </span>
-          </Row>
         </CardContent>
       </Card>
 
+      {/* 3. Votes */}
       <Suspense fallback={<ProposalVotesCardSkeleton />}>
         <ProposalVotesCard proposalId={Number(id)} />
       </Suspense>
 
-      <div className="grid gap-6 lg:grid-cols-10">
-        <div className="lg:col-span-7">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Voting</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <VoteBar yes={yes} no={no} abstain={abstain} veto={veto} />
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs text-muted-foreground">Yes ({proposal.tally ? formatNumber(Number(proposal.tally.yes)) : "0"})</p>
-                  <p className="mt-1 text-xl font-bold text-green-400">
-                    {formatPercent(yes)}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs text-muted-foreground">No ({proposal.tally ? formatNumber(Number(proposal.tally.no)) : "0"})</p>
-                  <p className="mt-1 text-xl font-bold text-red-400">
-                    {formatPercent(no)}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs text-muted-foreground">Abstain ({proposal.tally ? formatNumber(Number(proposal.tally.abstain)) : "0"})</p>
-                  <p className="mt-1 text-xl font-bold">
-                    {formatPercent(abstain)}
-                  </p>
-                </div>
-                <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs text-muted-foreground">No with Veto ({proposal.tally ? formatNumber(Number(proposal.tally.noWithVeto)) : "0"})</p>
-                  <p className="mt-1 text-xl font-bold text-yellow-400">
-                    {formatPercent(veto)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-3">
-                <p className="text-xs text-muted-foreground">
-                  Total Votes: <span className="font-medium text-foreground">{formatNumber(tallyTotal)}</span>
-                </p>
-                {proposal.tally?.bondedTokens != null && (
-                  <p className="text-xs text-muted-foreground">
-                    Turnout: <span className="font-medium text-foreground">{formatPercent(tallyTotal > 0 && Number(proposal.tally.bondedTokens.amount) > 0 ? (tallyTotal / Number(proposal.tally.bondedTokens.amount)) * 100 : null)}</span>
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="lg:col-span-3">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ProposalTimeline proposal={proposal} />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <ProposalContentRoot proposal={proposal} />
+      {/* 4. Raw content */}
+      <RawContentSection content={proposal.content} />
     </div>
   );
 }

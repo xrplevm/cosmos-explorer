@@ -27,6 +27,8 @@ import type {
   BlockDetailsResponse,
   LatestBlocksResponse,
   LatestTransactionsResponse,
+  ActiveProposalsResponse,
+  ActiveProposalsDataResponse,
   ProposalDetailsResponse,
   ProposalVotesResponse,
   ProposalsResponse,
@@ -481,6 +483,44 @@ function mapProposalSummaryRow(
 
 export function mapProposals(response: ProposalsResponse): ProposalSummary[] {
   return response.proposals.map(mapProposalSummaryRow);
+}
+
+export function mapActiveProposals(
+  response: ActiveProposalsResponse,
+  denom: string,
+  tallyByProposalId: Map<number, { yes: string; no: string; abstain: string; noWithVeto: string }> = new Map(),
+  bondedByProposalId: Map<number, string> = new Map(),
+): ProposalDetail[] {
+  return response.proposal.map((proposal) => {
+    const tallyRow = tallyByProposalId.get(proposal.proposalId);
+    const bondedTokens = bondedByProposalId.get(proposal.proposalId);
+    return {
+      id: proposal.proposalId,
+      title: proposal.title ?? "",
+      description: proposal.description ?? "",
+      proposer: proposal.proposer ?? "",
+      status: mapProposalStatus(proposal.status),
+      type: mapProposalType(proposal.content),
+      submitTime: proposal.submitTime ?? null,
+      votingEndTime: proposal.votingEndTime ?? null,
+      metadata: proposal.metadata ?? null,
+      content: proposal.content ?? null,
+      depositEndTime: proposal.depositEndTime ?? null,
+      votingStartTime: proposal.votingStartTime ?? null,
+      tally: tallyRow
+        ? {
+            yes: tallyRow.yes,
+            no: tallyRow.no,
+            abstain: tallyRow.abstain,
+            noWithVeto: tallyRow.noWithVeto,
+            bondedTokens:
+              bondedTokens == null
+                ? null
+                : { amount: bondedTokens, denom },
+          }
+        : null,
+    };
+  });
 }
 
 export function mapProposalDetail(
