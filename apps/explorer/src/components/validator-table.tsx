@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   Table,
   TableBody,
@@ -125,7 +126,13 @@ export function ValidatorTable({ validators }: { validators: Validator[] }) {
             </TableHeader>
             <TableBody>
               {filtered.map((v, index) => (
-                <TableRow key={v.address}>
+                <motion.tr
+                  key={v.address}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.28, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                  className="border-b border-border hover:bg-muted/50 transition-colors"
+                >
                   <TableCell className="text-muted-foreground">{index + 1}</TableCell>
                   <TableCell>
                     <Link href={`/validators/${v.address}`} className="flex items-center gap-3 hover:text-primary transition-colors">
@@ -146,7 +153,7 @@ export function ValidatorTable({ validators }: { validators: Validator[] }) {
                     {formatPercent(v.commission == null ? null : v.commission * 100)}
                   </TableCell>
                   <TableCell className="text-right">{v.missedBlocksCounter.toLocaleString()}</TableCell>
-                </TableRow>
+                </motion.tr>
               ))}
             </TableBody>
           </Table>

@@ -261,6 +261,44 @@ export const PROPOSALS_QUERY = `
   }
 `;
 
+export const ACTIVE_PROPOSALS_QUERY = `
+  query ActiveProposals($limit: Int = 5) {
+    proposal(
+      where: { status: { _eq: "PROPOSAL_STATUS_VOTING_PERIOD" } }
+      order_by: { id: desc }
+      limit: $limit
+    ) {
+      proposalId: id
+      title
+      description
+      proposer: proposer_address
+      status
+      submitTime: submit_time
+      votingEndTime: voting_end_time
+      votingStartTime: voting_start_time
+      depositEndTime: deposit_end_time
+      metadata
+      content
+    }
+  }
+`;
+
+export const ACTIVE_PROPOSALS_DATA_QUERY = `
+  query ActiveProposalsData($proposalIds: [Int!]!) {
+    proposal_tally_result(where: { proposal_id: { _in: $proposalIds } }) {
+      proposalId: proposal_id
+      yes
+      no
+      abstain
+      noWithVeto: no_with_veto
+    }
+    proposal_staking_pool_snapshot(where: { proposal_id: { _in: $proposalIds } }) {
+      proposalId: proposal_id
+      bondedTokens: bonded_tokens
+    }
+  }
+`;
+
 export const PROPOSAL_DETAILS_QUERY = `
   query ProposalDetails($proposalId: Int!) {
     proposal: proposal(where: { id: { _eq: $proposalId } }, limit: 1) {

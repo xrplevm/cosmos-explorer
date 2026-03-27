@@ -67,7 +67,7 @@ export default function RootLayout({
                 aria-hidden
                 className="pointer-events-none absolute bottom-0 -right-40 h-[800px] w-[500px] bg-[url('/bg-lines-right.png')] bg-contain bg-right-bottom bg-no-repeat"
               />
-              <div className="relative">{children}</div>
+              <div className="relative page-enter">{children}</div>
             </main>
             <Footer />
           </div>

@@ -1,5 +1,4 @@
 import { ProposalContent } from "../../shared/proposal-content-parts";
-import { RawContentSection } from "../../shared/raw-content-section";
 import type { ProposalContentViewProps, ProposalContentItem } from "../../types";
 
 interface CommunityPoolSpendValue extends ProposalContentItem {
@@ -14,15 +13,11 @@ export function CommunityPoolSpendContent({ proposal }: ProposalContentViewProps
     : undefined;
 
   return (
-    <div className="space-y-6">
       <ProposalContent.Card title="Community Pool Spend">
         <ProposalContent.Description>{proposal.description}</ProposalContent.Description>
         <ProposalContent.AddressField label="Recipient" address={content?.recipient} />
         <ProposalContent.CoinList label="Amount" coins={content?.amount} />
         <ProposalContent.AddressField label="Authority" address={content?.authority} />
       </ProposalContent.Card>
-
-      <RawContentSection content={proposal.content} />
-    </div>
   );
 }

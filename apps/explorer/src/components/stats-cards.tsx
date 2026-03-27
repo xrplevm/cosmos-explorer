@@ -25,7 +25,7 @@ export async function StatsCards() {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <Card>
+      <Card className="card-hover">
         <CardHeader className="pb-2">
           <CardDescription>Latest Block</CardDescription>
           <CardTitle className="text-2xl">
@@ -39,7 +39,7 @@ export async function StatsCards() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="card-hover">
         <CardHeader className="pb-2">
           <CardDescription>Average Block Time</CardDescription>
           <CardTitle className="text-2xl">
@@ -57,7 +57,7 @@ export async function StatsCards() {
         denom={config.network.primaryToken.denom}
       />
 
-      <Card>
+      <Card className="card-hover">
         <CardHeader className="pb-2">
           <CardDescription>Active Validators</CardDescription>
           <CardTitle className="text-2xl">

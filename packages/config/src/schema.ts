@@ -17,6 +17,8 @@ export const ChainConfigSchema = z.object({
       graphqlWs: z.string().url().optional(),
       /** Base URL for the EVM block explorer (e.g. `https://explorer.testnet.xrplevm.org`). */
       evmExplorer: z.string().url().optional(),
+      /** Base URL for the Cosmos REST API (e.g. `https://cosmos-api.testnet.xrplevm.org`). */
+      cosmosApi: z.string().url().optional(),
     }),
   }),
   price: z.object({

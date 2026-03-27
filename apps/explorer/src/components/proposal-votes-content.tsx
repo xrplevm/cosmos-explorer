@@ -35,7 +35,7 @@ const VOTE_FILTERS: {
   { value: "didNotVote", label: "Did Not Vote", icon: <IconCircleOff className="h-3.5 w-3.5" />, activeClass: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30" },
 ];
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 10;
 
 interface ProposalVotesContentProps {
   votes: ProposalVote[];

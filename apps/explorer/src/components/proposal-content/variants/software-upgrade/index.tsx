@@ -1,5 +1,4 @@
 import { ProposalContent } from "../../shared/proposal-content-parts";
-import { RawContentSection } from "../../shared/raw-content-section";
 import type { ProposalContentViewProps, ProposalContentItem } from "../../types";
 
 interface UpgradePlan {
@@ -39,7 +38,6 @@ export function SoftwareUpgradeContent({ proposal }: ProposalContentViewProps) {
   const binaries = parseBinaries(plan?.info);
 
   return (
-    <div className="space-y-6">
       <ProposalContent.Card title="Software Upgrade">
         <ProposalContent.Description>{proposal.description}</ProposalContent.Description>
         <ProposalContent.TextField label="Upgrade Name" value={plan?.name} />
@@ -72,8 +70,5 @@ export function SoftwareUpgradeContent({ proposal }: ProposalContentViewProps) {
         )}
         <ProposalContent.CodeBlock label="Upgraded Client State" value={plan?.upgraded_client_state} />
       </ProposalContent.Card>
-
-      <RawContentSection content={proposal.content} />
-    </div>
   );
 }

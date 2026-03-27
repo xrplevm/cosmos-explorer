@@ -1,5 +1,4 @@
 import { ProposalContent } from "../../shared/proposal-content-parts";
-import { RawContentSection } from "../../shared/raw-content-section";
 import type { ProposalContentViewProps, ProposalContentItem } from "../../types";
 
 interface UpdateParamsValue extends ProposalContentItem {
@@ -13,14 +12,10 @@ export function UpdateParamsContent({ proposal }: ProposalContentViewProps) {
     : undefined;
 
   return (
-    <div className="space-y-6">
       <ProposalContent.Card title="Update Parameters">
         <ProposalContent.Description>{proposal.description}</ProposalContent.Description>
         <ProposalContent.AddressField label="Authority" address={content?.authority} />
         <ProposalContent.CodeBlock label="Parameters" value={content?.params} />
       </ProposalContent.Card>
-
-      <RawContentSection content={proposal.content} />
-    </div>
   );
 }
