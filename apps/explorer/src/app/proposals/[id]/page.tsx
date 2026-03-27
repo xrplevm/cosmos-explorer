@@ -308,54 +308,27 @@ export default async function ProposalDetailPage({
               <VoteBar yes={yes} no={no} abstain={abstain} veto={veto} />
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs text-muted-foreground">Yes</p>
+                  <p className="text-xs text-muted-foreground">Yes ({proposal.tally ? formatNumber(Number(proposal.tally.yes)) : "0"})</p>
                   <p className="mt-1 text-xl font-bold text-green-400">
                     {formatPercent(yes)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs text-muted-foreground">No</p>
+                  <p className="text-xs text-muted-foreground">No ({proposal.tally ? formatNumber(Number(proposal.tally.no)) : "0"})</p>
                   <p className="mt-1 text-xl font-bold text-red-400">
                     {formatPercent(no)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs text-muted-foreground">Abstain</p>
+                  <p className="text-xs text-muted-foreground">Abstain ({proposal.tally ? formatNumber(Number(proposal.tally.abstain)) : "0"})</p>
                   <p className="mt-1 text-xl font-bold">
                     {formatPercent(abstain)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-xs text-muted-foreground">No with Veto</p>
+                  <p className="text-xs text-muted-foreground">No with Veto ({proposal.tally ? formatNumber(Number(proposal.tally.noWithVeto)) : "0"})</p>
                   <p className="mt-1 text-xl font-bold text-yellow-400">
                     {formatPercent(veto)}
-                  </p>
-                </div>
-              </div>
-              <Separator />
-              <div className="grid grid-cols-2 gap-x-8 gap-y-3 pt-2 sm:grid-cols-4">
-                <div>
-                  <p className="text-xs text-muted-foreground">Yes Votes</p>
-                  <p className="mt-1 text-sm font-medium">
-                    {proposal.tally ? formatNumber(Number(proposal.tally.yes)) : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">No Votes</p>
-                  <p className="mt-1 text-sm font-medium">
-                    {proposal.tally ? formatNumber(Number(proposal.tally.no)) : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Abstain Votes</p>
-                  <p className="mt-1 text-sm font-medium">
-                    {proposal.tally ? formatNumber(Number(proposal.tally.abstain)) : "N/A"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Veto Votes</p>
-                  <p className="mt-1 text-sm font-medium">
-                    {proposal.tally ? formatNumber(Number(proposal.tally.noWithVeto)) : "N/A"}
                   </p>
                 </div>
               </div>

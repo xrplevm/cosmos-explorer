@@ -34,11 +34,21 @@ export async function ProposalVotesCard({ proposalId }: ProposalVotesCardProps) 
     }
   }
 
+  const voterAddresses = new Set(votes.map((v) => v.voterAddress));
+  const didNotVote: SerializableValidator[] = validatorSet.items
+    .filter((v) => v.selfDelegateAddress && !voterAddresses.has(v.selfDelegateAddress))
+    .map((v) => ({
+      moniker: v.moniker,
+      address: v.address,
+      avatarUrl: v.avatarUrl,
+    }));
+
   return (
     <ProposalVotesContent
       votes={votes}
       total={total}
       validatorMap={validatorMap}
+      didNotVote={didNotVote}
     />
   );
 }

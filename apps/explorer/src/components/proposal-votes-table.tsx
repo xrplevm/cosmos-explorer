@@ -19,6 +19,7 @@ import {
   IconThumbDown,
   IconMinus,
   IconHandStop,
+  IconCircleOff,
 } from "@tabler/icons-react";
 
 function getVoteBadge(option: VoteOption) {
@@ -63,11 +64,13 @@ function getVoteBadge(option: VoteOption) {
 export function ProposalVotesTable({
   votes,
   validatorMap,
+  didNotVote = [],
 }: {
   votes: ProposalVote[];
   validatorMap: Partial<Record<string, SerializableValidator>>;
+  didNotVote?: SerializableValidator[];
 }) {
-  if (votes.length === 0) {
+  if (votes.length === 0 && didNotVote.length === 0) {
     return (
       <p className="py-8 text-center text-sm text-muted-foreground">
         No votes found.
@@ -154,6 +157,46 @@ export function ProposalVotesTable({
               </TableRow>
             );
           })}
+          {didNotVote.map((v) => (
+            <TableRow key={`no-vote-${v.address}`}>
+              <TableCell>
+                <div className="flex items-center gap-3">
+                  <Link href={`/validators/${encodeURIComponent(v.address)}`}>
+                    <Avatar className="h-8 w-8 shrink-0">
+                      {v.avatarUrl && (
+                        <AvatarImage src={v.avatarUrl} alt={v.moniker} />
+                      )}
+                      <AvatarFallback className="text-xs">
+                        {v.moniker.slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Link>
+                  <Link
+                    href={`/validators/${encodeURIComponent(v.address)}`}
+                    className="text-sm font-medium text-primary-soft hover:text-primary transition-colors"
+                  >
+                    {v.moniker}
+                  </Link>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1">
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {formatHash(v.address)}
+                  </span>
+                  <CopyButton value={v.address} label="address" size="xs" />
+                </div>
+              </TableCell>
+              <TableCell>
+                <Badge className="gap-1 border-transparent bg-zinc-500/20 text-zinc-400">
+                  <IconCircleOff className="h-3 w-3" />
+                  Did Not Vote
+                </Badge>
+              </TableCell>
+              <TableCell className="text-muted-foreground">—</TableCell>
+              <TableCell className="text-right text-muted-foreground">—</TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>
