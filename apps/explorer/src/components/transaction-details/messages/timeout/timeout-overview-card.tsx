@@ -76,7 +76,7 @@ export function TimeoutOverviewCard({
         <DetailRow label="Block">
           <Link
             href={`/blocks/${String(transaction.height)}`}
-            className="font-mono text-foreground hover:underline"
+            className="font-mono text-primary-soft hover:text-primary transition-colors"
           >
             #{transaction.height.toLocaleString()}
           </Link>
@@ -97,7 +97,7 @@ export function TimeoutOverviewCard({
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
                   href={`/account/${encodeURIComponent(signer)}`}
-                  className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary-soft hover:text-primary transition-colors"
                 >
                   {signer}
                 </Link>

@@ -119,7 +119,7 @@ export default async function BlockDetailPage({
               )}
               <Link
                 href={`/validators/${detail.overview.proposer}`}
-                className="text-sm text-foreground hover:underline"
+                className="text-sm text-primary-soft hover:text-primary transition-colors"
               >
                 {detail.overview.proposerMoniker ?? detail.overview.proposer}
               </Link>
@@ -164,7 +164,7 @@ export default async function BlockDetailPage({
                       <TableCell>
                         <Link
                           href={`/transactions/${tx.hash}`}
-                          className="font-mono text-sm text-foreground hover:underline"
+                          className="font-mono text-sm text-primary-soft hover:text-primary transition-colors"
                         >
                           {formatHash(tx.hash)}
                         </Link>

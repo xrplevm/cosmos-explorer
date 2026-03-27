@@ -83,7 +83,7 @@ export function EthereumOverviewCard({
                       href={evmExplorerTxHref}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-foreground hover:underline"
+                      className="text-primary-soft hover:text-primary transition-colors"
                     >
                       View on EVM explorer
                     </a>
@@ -102,7 +102,7 @@ export function EthereumOverviewCard({
         <DetailRow label="Block">
           <Link
             href={`/blocks/${String(transaction.height)}`}
-            className="font-mono text-foreground hover:underline"
+            className="font-mono text-primary-soft hover:text-primary transition-colors"
           >
             #{transaction.height.toLocaleString()}
           </Link>
@@ -126,7 +126,7 @@ export function EthereumOverviewCard({
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
                   href={`/account/${encodeURIComponent(decoded.from)}`}
-                  className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary-soft hover:text-primary transition-colors"
                 >
                   {decoded.from}
                 </Link>
@@ -150,7 +150,7 @@ export function EthereumOverviewCard({
                 <div className="flex min-w-0 flex-nowrap items-center gap-2">
                   <Link
                     href={`/account/${encodeURIComponent(decoded.to)}`}
-                    className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
+                    className="min-w-0 flex-1 break-all font-mono text-xs text-primary-soft hover:text-primary transition-colors"
                   >
                     {decoded.to}
                   </Link>

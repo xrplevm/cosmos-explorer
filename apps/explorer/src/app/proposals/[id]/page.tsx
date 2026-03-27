@@ -267,7 +267,7 @@ export default async function ProposalDetailPage({
               <div className="flex min-w-0 flex-nowrap items-center gap-2">
                 <Link
                   href={`/account/${encodeURIComponent(proposal.proposer)}`}
-                  className="min-w-0 flex-1 break-all font-mono text-xs text-foreground hover:underline"
+                  className="min-w-0 flex-1 break-all font-mono text-xs text-primary-soft hover:text-primary transition-colors"
                 >
                   {proposal.proposer}
                 </Link>

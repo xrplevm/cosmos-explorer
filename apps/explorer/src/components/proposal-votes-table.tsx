@@ -115,7 +115,7 @@ export function ProposalVotesTable({
                     {validator ? (
                       <Link
                         href={`/validators/${encodeURIComponent(validator.address)}`}
-                        className="text-sm font-medium text-foreground hover:underline"
+                        className="text-sm font-medium text-primary-soft hover:text-primary transition-colors"
                       >
                         {validator.moniker}
                       </Link>
@@ -143,7 +143,7 @@ export function ProposalVotesTable({
                 <TableCell className="font-mono text-sm">
                   <Link
                     href={`/blocks/${String(vote.height)}`}
-                    className="text-foreground hover:underline"
+                    className="text-primary-soft hover:text-primary transition-colors"
                   >
                     #{vote.height.toLocaleString()}
                   </Link>

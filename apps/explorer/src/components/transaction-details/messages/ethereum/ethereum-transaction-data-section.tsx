@@ -30,7 +30,7 @@ export function EthereumTransactionDataSection({
               href={evmHref}
               target="_blank"
               rel="noreferrer"
-              className="text-sm text-foreground hover:underline"
+              className="text-sm text-primary-soft hover:text-primary transition-colors"
             >
               View on EVM explorer
             </a>

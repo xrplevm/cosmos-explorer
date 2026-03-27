@@ -75,7 +75,7 @@ export function UnjailOverviewCard({
         <DetailRow label="Block">
           <Link
             href={`/blocks/${String(transaction.height)}`}
-            className="font-mono text-foreground hover:underline"
+            className="font-mono text-primary-soft hover:text-primary transition-colors"
           >
             #{transaction.height.toLocaleString()}
           </Link>
