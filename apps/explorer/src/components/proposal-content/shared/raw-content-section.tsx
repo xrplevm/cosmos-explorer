@@ -14,7 +14,7 @@ import {
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { cn } from "@cosmos-explorer/ui/lib/utils";
 import type { ContentMessage } from "./message-helpers";
-import { MessagesView } from "./messages-view";
+import { MessagesView } from "./messages";
 
 export function RawContentSection({ content }: { content: unknown }) {
   const { resolvedTheme } = useTheme();
