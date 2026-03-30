@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Card,
@@ -14,46 +14,12 @@ import { Input } from "@cosmos-explorer/ui/input";
 import {
   IconSearch as Search,
   IconX as X,
-  IconRocket,
-  IconBan,
-  IconCoins,
-  IconAdjustments,
-  IconFileText,
-  IconUserPlus,
-  IconUserMinus,
-  IconFile,
 } from "@tabler/icons-react";
+import { ProposalIcon } from "@cosmos-explorer/ui/proposal-icon";
 import { StatusBadge } from "@/components/status-badge";
 import { Timestamp } from "@/components/timestamp";
 import Link from "next/link";
 import type { ProposalSummary, ProposalStatus } from "@cosmos-explorer/core";
-
-function ProposalTypeIcon({ type }: { type: string }) {
-  const configs: Record<string, { icon: React.ReactNode; bg: string; color: string }> = {
-    SoftwareUpgrade:         { icon: <IconRocket className="h-4 w-4" />,      bg: "bg-blue-500/15",   color: "text-blue-400" },
-    SoftwareUpgradeProposal: { icon: <IconRocket className="h-4 w-4" />,      bg: "bg-blue-500/15",   color: "text-blue-400" },
-    CancelUpgrade:           { icon: <IconBan className="h-4 w-4" />,         bg: "bg-red-500/15",    color: "text-red-400" },
-    CancelSoftwareUpgrade:   { icon: <IconBan className="h-4 w-4" />,         bg: "bg-red-500/15",    color: "text-red-400" },
-    CancelSoftwareUpgradeProposal: { icon: <IconBan className="h-4 w-4" />,   bg: "bg-red-500/15",    color: "text-red-400" },
-    CommunityPoolSpend:      { icon: <IconCoins className="h-4 w-4" />,       bg: "bg-amber-500/15",  color: "text-amber-400" },
-    CommunityPoolSpendProposal: { icon: <IconCoins className="h-4 w-4" />,    bg: "bg-amber-500/15",  color: "text-amber-400" },
-    ParameterChange:         { icon: <IconAdjustments className="h-4 w-4" />, bg: "bg-violet-500/15", color: "text-violet-400" },
-    ParameterChangeProposal: { icon: <IconAdjustments className="h-4 w-4" />, bg: "bg-violet-500/15", color: "text-violet-400" },
-    UpdateParams:            { icon: <IconAdjustments className="h-4 w-4" />, bg: "bg-violet-500/15", color: "text-violet-400" },
-    Text:                    { icon: <IconFileText className="h-4 w-4" />,     bg: "bg-zinc-500/15",   color: "text-zinc-400" },
-    TextProposal:            { icon: <IconFileText className="h-4 w-4" />,     bg: "bg-zinc-500/15",   color: "text-zinc-400" },
-    AddValidator:            { icon: <IconUserPlus className="h-4 w-4" />,    bg: "bg-green-500/15",  color: "text-green-400" },
-    RemoveValidator:         { icon: <IconUserMinus className="h-4 w-4" />,   bg: "bg-orange-500/15", color: "text-orange-400" },
-  };
-
-  const cfg = configs[type] ?? { icon: <IconFile className="h-4 w-4" />, bg: "bg-zinc-500/15", color: "text-zinc-400" };
-
-  return (
-    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${cfg.bg} ${cfg.color}`}>
-      {cfg.icon}
-    </div>
-  );
-}
 
 function toStatusLabel(status: ProposalStatus): string {
   switch (status) {
@@ -132,7 +98,7 @@ export function ProposalList({ proposals }: { proposals: ProposalSummary[] }) {
               <Card className="card-hover transition-colors hover:bg-accent/30">
                 <CardHeader>
                   <div className="flex items-center gap-3">
-                    <ProposalTypeIcon type={proposal.type} />
+                    <ProposalIcon type={proposal.type} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2 min-w-0">

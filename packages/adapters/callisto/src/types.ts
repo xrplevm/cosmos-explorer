@@ -214,6 +214,14 @@ export interface ActiveProposalsDataResponse {
   }[];
 }
 
+export interface ProposalDepositsResponse {
+  proposal_deposit: {
+    depositor_address: string;
+    amount: { denom: string; amount: string }[] | null;
+    timestamp?: string | null;
+  }[];
+}
+
 export interface ProposalVotesResponse {
   proposal_vote: {
     voter_address: string;

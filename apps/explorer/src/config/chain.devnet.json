@@ -13,7 +13,7 @@
     "endpoints": {
       "graphqlHttp": "https://governance.devnet.xrplevm.org/v1/graphql",
       "evmExplorer": "https://explorer.devnet.xrplevm.org",
-      "cosmosApi": "https://cosmos-api.devnet.xrplevm.org"
+      "cosmosRpc": "https://cosmos-rpc.devnet.xrplevm.org"
     }
   },
   "price": {

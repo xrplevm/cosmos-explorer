@@ -45,6 +45,20 @@ export type ProposalDetail = ProposalSummary & {
   tally: ProposalTally | null;
 };
 
+export interface ProposalDeposit {
+  depositorAddress: string;
+  amount: { denom: string; amount: string }[];
+  timestamp: string | null;
+}
+
+export interface GovParams {
+  quorum: number;
+  threshold: number;
+  vetoThreshold: number;
+  expeditedThreshold: number;
+  expeditedVotingPeriodSeconds: number;
+}
+
 export interface IProposalService {
   getProposals(params?: { limit?: number; offset?: number }): Promise<ProposalSummary[]>;
   getActiveProposals(limit?: number): Promise<ProposalDetail[]>;
@@ -53,4 +67,6 @@ export interface IProposalService {
     proposalId: number,
     params?: { limit?: number; offset?: number; option?: VoteOption | null }
   ): Promise<{ votes: ProposalVote[]; total: number }>;
+  getProposalDeposits(proposalId: number): Promise<ProposalDeposit[]>;
+  getGovParams(): Promise<GovParams | null>;
 }

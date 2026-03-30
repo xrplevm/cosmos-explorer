@@ -326,6 +326,19 @@ export const PROPOSAL_DETAILS_QUERY = `
   }
 `;
 
+export const PROPOSAL_DEPOSITS_QUERY = `
+  query ProposalDeposits($proposalId: Int!) {
+    proposal_deposit(
+      where: { proposal_id: { _eq: $proposalId } }
+      order_by: { height: desc }
+    ) {
+      depositor_address
+      amount
+      timestamp
+    }
+  }
+`;
+
 export const PROPOSAL_VOTES_QUERY = `
   query ProposalVotes($proposalId: Int!, $limit: Int = 25, $offset: Int = 0) {
     proposal_vote(

@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@cosmos-explorer/ui/card";
+import { VotingCount } from "@cosmos-explorer/ui/voting-count";
 import { ProposalVotesTable } from "@/components/proposal-votes-table";
 import type { ProposalVote, VoteOption } from "@cosmos-explorer/core";
 import type { SerializableValidator } from "@/components/proposal-votes-card";
@@ -62,7 +63,8 @@ export function ProposalVotesContent({
   }, [votes, total, didNotVote]);
 
   const filtered = useMemo(() => {
-    if (filter === "all" || filter === "didNotVote") return votes;
+    if (filter === "didNotVote") return [];
+    if (filter === "all") return votes;
     return votes.filter((v) => v.option === filter);
   }, [votes, filter]);
 
@@ -97,26 +99,12 @@ export function ProposalVotesContent({
             })
           </span>
         </CardTitle>
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {VOTE_FILTERS.map((f) => {
-            const isActive = filter === f.value;
-            return (
-              <button
-                key={f.value}
-                type="button"
-                onClick={() => { handleFilter(f.value); }}
-                className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
-                  isActive
-                    ? f.activeClass
-                    : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
-                }`}
-              >
-                {f.icon}
-                {f.label} ({voteCounts[f.value] ?? 0})
-              </button>
-            );
-          })}
-        </div>
+        <VotingCount
+          filters={VOTE_FILTERS}
+          active={filter}
+          onFilterChange={(v) => { handleFilter(v as FilterValue); }}
+          counts={voteCounts}
+        />
       </CardHeader>
       <CardContent>
         <ProposalVotesTable

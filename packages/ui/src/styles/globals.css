@@ -102,6 +102,11 @@
   --color-sidebar-ring: oklch(0.60 0.25 290.728);
 }
 
+@keyframes bar-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
 @layer base {
   * {
     @apply border-border;

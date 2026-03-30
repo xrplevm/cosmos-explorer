@@ -3,17 +3,28 @@ import {
   type ProposalDetail,
   type ProposalSummary,
   type ProposalVote,
+  type ProposalDeposit,
+  type GovParams,
 } from '@cosmos-explorer/core';
-import { type Fetcher } from '@cosmos-explorer/utils';
+import { type Fetcher, type CosmosRpcClient } from '@cosmos-explorer/utils';
 
 import { mapProposalDetail, mapActiveProposals, mapProposals, mapProposalVotes } from '../mappers';
-import { ACTIVE_PROPOSALS_QUERY, ACTIVE_PROPOSALS_DATA_QUERY, PROPOSAL_DETAILS_QUERY, PROPOSALS_QUERY, PROPOSAL_VOTES_QUERY, PROPOSAL_VOTES_FILTERED_QUERY } from '../queries';
-import type { ActiveProposalsResponse, ActiveProposalsDataResponse, ProposalDetailsResponse, ProposalVotesResponse, ProposalsResponse } from '../types';
+import { ACTIVE_PROPOSALS_QUERY, ACTIVE_PROPOSALS_DATA_QUERY, PROPOSAL_DETAILS_QUERY, PROPOSAL_DEPOSITS_QUERY, PROPOSALS_QUERY, PROPOSAL_VOTES_QUERY, PROPOSAL_VOTES_FILTERED_QUERY } from '../queries';
+import type { ActiveProposalsResponse, ActiveProposalsDataResponse, ProposalDetailsResponse, ProposalDepositsResponse, ProposalVotesResponse, ProposalsResponse } from '../types';
+
+const FALLBACK_GOV_PARAMS: GovParams = {
+  quorum: 66.7,
+  threshold: 66.7,
+  vetoThreshold: 33.4,
+  expeditedThreshold: 80,
+  expeditedVotingPeriodSeconds: 86400,
+};
 
 export class CallistoProposalService implements IProposalService {
   constructor(
     private readonly fetcher: Fetcher,
-    private readonly primaryDenom = 'axrp'
+    private readonly primaryDenom = 'axrp',
+    private readonly cosmosRpc?: CosmosRpcClient,
   ) {}
 
   async getProposals(params?: {
@@ -92,6 +103,23 @@ export class CallistoProposalService implements IProposalService {
     return mapProposalDetail(response, this.primaryDenom);
   }
 
+  async getProposalDeposits(proposalId: number): Promise<ProposalDeposit[]> {
+    const response = await this.fetcher.graphql<
+      ProposalDepositsResponse,
+      { proposalId: number }
+    >({
+      query: PROPOSAL_DEPOSITS_QUERY,
+      variables: { proposalId },
+      operationName: 'ProposalDeposits',
+    });
+
+    return response.proposal_deposit.map((d) => ({
+      depositorAddress: d.depositor_address,
+      amount: d.amount ?? [],
+      timestamp: d.timestamp ?? null,
+    }));
+  }
+
   async getProposalVotes(
     proposalId: number,
     params?: { limit?: number; offset?: number; option?: string | null }
@@ -136,5 +164,30 @@ export class CallistoProposalService implements IProposalService {
     });
 
     return mapProposalVotes(response);
+  }
+
+  async getGovParams(): Promise<GovParams | null> {
+    if (!this.cosmosRpc) return null;
+
+    try {
+      const data = await this.cosmosRpc.getGovParams();
+
+      const params = data?.params;
+      if (!params) return FALLBACK_GOV_PARAMS;
+
+      const expeditedSeconds = params.expedited_voting_period
+        ? parseFloat(params.expedited_voting_period.replace('s', ''))
+        : FALLBACK_GOV_PARAMS.expeditedVotingPeriodSeconds;
+
+      return {
+        quorum: parseFloat(params.quorum ?? '0') * 100,
+        threshold: parseFloat(params.threshold ?? '0') * 100,
+        vetoThreshold: parseFloat(params.veto_threshold ?? '0') * 100,
+        expeditedThreshold: parseFloat(params.expedited_threshold ?? '0') * 100,
+        expeditedVotingPeriodSeconds: expeditedSeconds,
+      };
+    } catch {
+      return FALLBACK_GOV_PARAMS;
+    }
   }
 }

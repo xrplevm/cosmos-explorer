@@ -32,6 +32,8 @@ export {
   type ProposalSummary,
   type ProposalTally,
   type ProposalDetail,
+  type ProposalDeposit,
+  type GovParams,
   type IProposalService,
 } from './proposal';
 export {

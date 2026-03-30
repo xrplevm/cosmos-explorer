@@ -123,6 +123,14 @@ export {
   type TimelineItemProps,
   type TimelineDotProps,
 } from "./components/ui/timeline";
+export { ProgressBar, type ProgressBarProps } from "./components/ui/progress-bar";
+export { ProposalIcon } from "./components/ui/proposal-icon";
+export {
+  PROPOSAL_ICON_CONFIGS,
+  DEFAULT_PROPOSAL_ICON_CONFIG,
+  type ProposalIconConfig,
+} from "./components/ui/proposal-icon.constants";
+export { VotingCount, type VoteFilter } from "./components/ui/voting-count";
 export { cn } from "./lib/utils";
 
 // Error components

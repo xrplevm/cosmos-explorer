@@ -32,12 +32,24 @@ export function VotingCountdown({
   endTime: string;
   startTime: string | null;
 }) {
-  const [time, setTime] = useState<TimeLeft>(() => calcTimeLeft(endTime));
+  const [time, setTime] = useState<TimeLeft | null>(null);
 
   useEffect(() => {
+    setTime(calcTimeLeft(endTime));
     const id = setInterval(() => setTime(calcTimeLeft(endTime)), 1000);
     return () => clearInterval(id);
   }, [endTime]);
+
+  if (time == null) {
+    return (
+      <div className="space-y-1.5">
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          Voting ends in
+        </p>
+        <div className="h-5" />
+      </div>
+    );
+  }
 
   if (time.total <= 0) {
     return (

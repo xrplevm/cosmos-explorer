@@ -1,0 +1,18 @@
+- If you create a new component should go into the design system
+- Follow tailwind best practices. If you add the colors in this way the project will become unmaintainable.
+- Globals should not know about custom css.
+- ProgressBar should be a component in the design system
+- MiniBar should be a ProgressBar?
+- In the proposals detail page and utils and make the code more readable and maintainable. There are too many things in the proposal detail page.
+- Create a ProposalIcon component for the proposal type.
+- Remove the animation from the validators table.
+- Now in the HOME the tables are broken.
+- Move each component into the design system in the proposals section.
+- Rework the raw content section using the composition skill
+- Do not create a ValidatorRow component, try to find a prev component for this.
+- The configs for the components keep it in constants.ts or similar in a separate file.
+- VotingCount should be a component in the design system.
+- Remove the changes in the animated table body.
+- Remove the frontend design skill.
+- For the connection with the COSMOS API I prefer to create an scalable RPC connection do not use the RPC Api.
+- GovernanceService should follow the same practices as other and use the RPC Client using the fetcher.

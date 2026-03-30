@@ -1,60 +1,13 @@
 import Link from "next/link";
-import { getServices } from "@/lib/services";
-import { getChainConfig } from "@/lib/config";
-import { getGovParams } from "@/lib/gov-params";
+import { getServices, getCachedGovParams } from "@/lib/services";
 import { VotingCountdown } from "@/components/voting-countdown";
-import type { ProposalDetail, ProposalTally } from "@cosmos-explorer/core";
-
-// ── helpers ───────────────────────────────────────────────────────────────────
-
-function getTallyTotal(tally: ProposalTally | null): number {
-  if (!tally) return 0;
-  return ["yes", "no", "abstain", "noWithVeto"].reduce((sum, key) => {
-    const v = Number(tally[key as keyof ProposalTally] ?? 0);
-    return Number.isFinite(v) ? sum + v : sum;
-  }, 0);
-}
+import { ProgressBar } from "@cosmos-explorer/ui/progress-bar";
+import { getTallyTotal } from "@/lib/proposal-voting";
+import type { ProposalDetail } from "@cosmos-explorer/core";
 
 function isProposalExpired(endTime: string | null): boolean {
   if (!endTime) return false;
   return new Date(endTime).getTime() < Date.now();
-}
-
-// ── Mini progress bar ─────────────────────────────────────────────────────────
-
-function MiniBar({
-  label,
-  value,
-  threshold,
-  colorClass,
-}: {
-  label: string;
-  value: number | null;
-  threshold: number;
-  colorClass: string;
-}) {
-  const filled = value != null ? Math.min(value, 100) : 0;
-  const reached = value != null && value >= threshold;
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-[10px]">
-        <span className="text-muted-foreground">{label}</span>
-        <span className={reached ? "font-semibold text-green-400" : "text-muted-foreground"}>
-          {value != null ? `${value.toFixed(1)}%` : "N/A"} / {threshold}%
-        </span>
-      </div>
-      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
-        <div
-          className={`h-full bar-animated ${reached ? "bg-green-500" : colorClass}`}
-          style={{ width: `${filled}%` }}
-        />
-        <div
-          className="absolute top-0 h-full w-px bg-white/40"
-          style={{ left: `${threshold}%` }}
-        />
-      </div>
-    </div>
-  );
 }
 
 // ── Proposal strip ────────────────────────────────────────────────────────────
@@ -105,7 +58,7 @@ function ProposalStrip({
   return (
     <Link
       href={`/proposals/${proposal.id}`}
-      className="flex w-full items-center rounded-lg border border-primary/40 bg-accent/20 px-3 py-2.5 transition-colors hover:border-border hover:bg-background/50"
+      className="flex w-full items-center rounded-lg border border-border bg-accent/20 px-3 py-2.5 transition-colors hover:bg-background/50"
     >
       {/* Left: badges + title + countdown */}
       <div className="min-w-0 w-1/2">
@@ -134,17 +87,19 @@ function ProposalStrip({
 
       {/* Right: bars + outcome */}
       <div className="flex w-1/2 flex-col gap-1.5 pl-4">
-        <MiniBar
+        <ProgressBar
           label="Quorum"
           value={turnoutPct}
           threshold={quorumThreshold}
           colorClass="bg-amber-500"
+          size="sm"
         />
-        <MiniBar
+        <ProgressBar
           label="Yes"
           value={yesThresholdPct}
           threshold={activeYesThreshold}
           colorClass="bg-blue-500"
+          size="sm"
         />
         <div className="flex justify-end pt-0.5">
           {approved ? (
@@ -171,7 +126,43 @@ export function ActiveProposalsWidgetSkeleton() {
         <div className="h-4 w-36 animate-pulse rounded bg-muted" />
         <div className="h-4 w-24 animate-pulse rounded bg-muted" />
       </div>
-      <div className="h-14 animate-pulse rounded-lg bg-muted" />
+      <div className="flex w-full items-center rounded-lg border border-border bg-accent/20 px-3 py-2.5">
+        {/* Left: badges + title + countdown placeholder */}
+        <div className="w-1/2 space-y-2">
+          <div className="flex items-center gap-1.5">
+            <div className="h-3 w-8 animate-pulse rounded bg-muted" />
+            <div className="h-4 w-14 animate-pulse rounded-full bg-muted" />
+          </div>
+          <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+          <div className="space-y-1.5 pt-1">
+            <div className="h-2.5 w-16 animate-pulse rounded bg-muted" />
+            <div className="flex items-end gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center gap-0.5">
+                  <div className="h-4 w-6 animate-pulse rounded bg-muted" />
+                  <div className="h-1.5 w-5 animate-pulse rounded bg-muted" />
+                </div>
+              ))}
+            </div>
+            <div className="h-1 w-full animate-pulse rounded-full bg-muted" />
+          </div>
+        </div>
+        {/* Right: progress bars + outcome placeholder */}
+        <div className="flex w-1/2 flex-col gap-1.5 pl-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="space-y-1">
+              <div className="flex justify-between">
+                <div className="h-2.5 w-10 animate-pulse rounded bg-muted" />
+                <div className="h-2.5 w-16 animate-pulse rounded bg-muted" />
+              </div>
+              <div className="h-1.5 w-full animate-pulse rounded-full bg-muted" />
+            </div>
+          ))}
+          <div className="flex justify-end pt-0.5">
+            <div className="h-4 w-20 animate-pulse rounded-full bg-muted" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -180,11 +171,10 @@ export function ActiveProposalsWidgetSkeleton() {
 
 export async function ActiveProposalsWidget() {
   const { proposalService } = getServices();
-  const { network: { endpoints } } = getChainConfig();
 
   const [allProposals, govParams] = await Promise.all([
     proposalService.getActiveProposals(5),
-    endpoints.cosmosApi ? getGovParams(endpoints.cosmosApi) : Promise.resolve(null),
+    getCachedGovParams(),
   ]);
 
   // Filter out proposals whose voting period has already ended (stale DB status)

@@ -27,6 +27,7 @@ import {
 import { Timestamp } from "@/components/timestamp";
 import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 
@@ -36,6 +37,10 @@ export default async function AccountDetailPage({
   params: Promise<{ address: string }>;
 }) {
   const { address } = await params;
+
+  if (address.includes("valoper")) {
+    redirect(`/validators/${encodeURIComponent(address)}`);
+  }
   const config = getChainConfig();
   const primaryToken = config.network.primaryToken;
   const { accountService } = getServices();
