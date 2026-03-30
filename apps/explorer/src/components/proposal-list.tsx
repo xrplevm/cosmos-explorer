@@ -95,7 +95,7 @@ export function ProposalList({ proposals }: { proposals: ProposalSummary[] }) {
               transition={{ duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
             >
             <Link href={`/proposals/${String(proposal.id)}`} className="block">
-              <Card className="card-hover transition-colors hover:bg-accent/30">
+              <Card className="transition-[transform,colors] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px hover:shadow-[0_4px_24px_oklch(0_0_0/0.3)] hover:bg-accent/30">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <ProposalIcon type={proposal.type} />

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getServices, getCachedGovParams } from "@/lib/services";
 import { VotingCountdown } from "@/components/voting-countdown";
 import { ProgressBar } from "@cosmos-explorer/ui/progress-bar";
-import { getTallyTotal } from "@/lib/proposal-voting";
+import { computeVotingMetrics } from "@/lib/proposal-voting";
+import type { VotingMetrics } from "@/lib/proposal-voting";
 import type { ProposalDetail } from "@cosmos-explorer/core";
 
 function isProposalExpired(endTime: string | null): boolean {
@@ -14,47 +15,11 @@ function isProposalExpired(endTime: string | null): boolean {
 
 function ProposalStrip({
   proposal,
-  quorumThreshold,
-  yesThreshold,
-  expeditedYesThreshold,
-  expeditedMaxSeconds,
+  metrics,
 }: {
   proposal: ProposalDetail;
-  quorumThreshold: number;
-  yesThreshold: number;
-  expeditedYesThreshold: number;
-  expeditedMaxSeconds: number;
+  metrics: VotingMetrics;
 }) {
-  const tallyTotal = getTallyTotal(proposal.tally);
-  const bondedAmount = proposal.tally?.bondedTokens
-    ? Number(proposal.tally.bondedTokens.amount)
-    : 0;
-  const turnoutPct =
-    bondedAmount > 0 ? Math.min((tallyTotal / bondedAmount) * 100, 100) : null;
-
-  const yesRaw = Number(proposal.tally?.yes ?? 0);
-  const noRaw = Number(proposal.tally?.no ?? 0);
-  const vetoRaw = Number(proposal.tally?.noWithVeto ?? 0);
-  const nonAbstain = yesRaw + noRaw + vetoRaw;
-  const yesThresholdPct = nonAbstain > 0 ? (yesRaw / nonAbstain) * 100 : null;
-  const vetoPct = tallyTotal > 0 ? (vetoRaw / tallyTotal) * 100 : null;
-
-  const durationSeconds =
-    proposal.votingStartTime && proposal.votingEndTime
-      ? (new Date(proposal.votingEndTime).getTime() -
-          new Date(proposal.votingStartTime).getTime()) /
-        1000
-      : null;
-  const isExpedited =
-    durationSeconds != null && durationSeconds <= expeditedMaxSeconds * 2;
-  const activeYesThreshold = isExpedited ? expeditedYesThreshold : yesThreshold;
-
-  const quorumReached = turnoutPct != null && turnoutPct >= quorumThreshold;
-  const yesPasses =
-    yesThresholdPct != null && yesThresholdPct >= activeYesThreshold;
-  const isVetoed = vetoPct != null && vetoPct >= 33.4;
-  const approved = quorumReached && yesPasses && !isVetoed;
-
   return (
     <Link
       href={`/proposals/${proposal.id}`}
@@ -66,12 +31,12 @@ function ProposalStrip({
           <span className="font-mono text-[10px] text-muted-foreground">#{proposal.id}</span>
           <span
             className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold border ${
-              isExpedited
+              metrics.isExpedited
                 ? "bg-purple-500/15 text-purple-400 border-purple-500/30"
                 : "bg-zinc-500/15 text-zinc-400 border-zinc-500/30"
             }`}
           >
-            {isExpedited ? "Expedited" : "Regular"}
+            {metrics.isExpedited ? "Expedited" : "Regular"}
           </span>
         </div>
         <p className="truncate text-sm font-semibold leading-snug">{proposal.title}</p>
@@ -89,20 +54,20 @@ function ProposalStrip({
       <div className="flex w-1/2 flex-col gap-1.5 pl-4">
         <ProgressBar
           label="Quorum"
-          value={turnoutPct}
-          threshold={quorumThreshold}
+          value={metrics.turnoutPct}
+          threshold={metrics.quorumThreshold}
           colorClass="bg-amber-500"
           size="sm"
         />
         <ProgressBar
           label="Yes"
-          value={yesThresholdPct}
-          threshold={activeYesThreshold}
+          value={metrics.yesThresholdPct}
+          threshold={metrics.activeYesThreshold}
           colorClass="bg-blue-500"
           size="sm"
         />
         <div className="flex justify-end pt-0.5">
-          {approved ? (
+          {metrics.approved ? (
             <span className="rounded-full bg-green-500/15 px-2 py-0.5 text-[10px] font-semibold text-green-400 border border-green-500/30">
               Approved ✓
             </span>
@@ -184,13 +149,14 @@ export async function ActiveProposalsWidget() {
 
   if (proposals.length === 0) return null;
 
-  const quorumThreshold = govParams?.quorum ?? 66.7;
-  const yesThreshold = govParams?.threshold ?? 66.7;
-  const expeditedYesThreshold = govParams?.expeditedThreshold ?? 80;
-  const expeditedMaxSeconds = govParams?.expeditedVotingPeriodSeconds ?? 86400;
-
   // Show only the most recent proposal
   const featured = proposals[0];
+  const metrics = computeVotingMetrics(
+    featured.tally,
+    govParams,
+    featured.votingStartTime,
+    featured.votingEndTime,
+  );
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -209,13 +175,7 @@ export async function ActiveProposalsWidget() {
         </Link>
       </div>
 
-      <ProposalStrip
-        proposal={featured}
-        quorumThreshold={quorumThreshold}
-        yesThreshold={yesThreshold}
-        expeditedYesThreshold={expeditedYesThreshold}
-        expeditedMaxSeconds={expeditedMaxSeconds}
-      />
+      <ProposalStrip proposal={featured} metrics={metrics} />
     </div>
   );
 }

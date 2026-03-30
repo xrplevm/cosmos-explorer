@@ -29,6 +29,8 @@ export interface VotingMetrics {
   quorumReached: boolean;
   yesThresholdPct: number | null;
   yesPasses: boolean;
+  isVetoed: boolean;
+  approved: boolean;
 }
 
 export function computeVotingMetrics(
@@ -68,6 +70,9 @@ export function computeVotingMetrics(
   const nonAbstainTotal = yesRaw + noRaw + vetoRaw;
   const yesThresholdPct = nonAbstainTotal > 0 ? (yesRaw / nonAbstainTotal) * 100 : null;
   const yesPasses = yesThresholdPct != null && yesThresholdPct >= activeYesThreshold;
+  const vetoPct = tallyTotal > 0 ? (vetoRaw / tallyTotal) * 100 : null;
+  const isVetoed = vetoPct != null && vetoPct >= vetoThreshold;
+  const approved = quorumReached && yesPasses && !isVetoed;
 
   return {
     yes,
@@ -84,5 +89,7 @@ export function computeVotingMetrics(
     quorumReached,
     yesThresholdPct,
     yesPasses,
+    isVetoed,
+    approved,
   };
 }
