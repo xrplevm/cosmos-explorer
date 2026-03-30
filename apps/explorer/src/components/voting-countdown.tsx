@@ -36,8 +36,8 @@ export function VotingCountdown({
 
   useEffect(() => {
     setTime(calcTimeLeft(endTime));
-    const id = setInterval(() => setTime(calcTimeLeft(endTime)), 1000);
-    return () => clearInterval(id);
+    const id = setInterval(() => { setTime(calcTimeLeft(endTime)); }, 1000);
+    return () => { clearInterval(id); };
   }, [endTime]);
 
   if (time == null) {

@@ -79,9 +79,9 @@ export function AddValidatorContent({ proposal }: ProposalContentViewProps) {
   // Single validator — show full details
   if (messages.length === 1) {
     const content = messages[0];
-    const desc = content?.description;
-    const moniker = content?.moniker ?? desc?.moniker;
-    const commission = content?.commission;
+    const desc = content.description;
+    const moniker = content.moniker ?? desc?.moniker;
+    const commission = content.commission;
 
     return (
       <ProposalContent.Card title="Add Validator">
@@ -89,7 +89,7 @@ export function AddValidatorContent({ proposal }: ProposalContentViewProps) {
         <ProposalContent.TextField label="Moniker" value={moniker} />
         <ProposalContent.AddressField
           label="Validator Address"
-          address={content?.validator_address ?? content?.validatorAddress}
+          address={content.validator_address ?? content.validatorAddress}
         />
         <ProposalContent.AddressField label="Authority" address={authority} />
         <ProposalContent.MonoField label="Identity" value={desc?.identity} />
@@ -116,7 +116,7 @@ export function AddValidatorContent({ proposal }: ProposalContentViewProps) {
         )}
         <ProposalContent.MonoField
           label="Min Self Delegation"
-          value={content?.min_self_delegation ?? content?.minSelfDelegation}
+          value={content.min_self_delegation ?? content.minSelfDelegation}
         />
       </ProposalContent.Card>
     );

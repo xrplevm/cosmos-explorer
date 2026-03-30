@@ -43,7 +43,7 @@ export function MessageDescription({ msg, typeName }: { msg: ContentMessage; typ
   }
 
   if (typeName.includes("CommunityPoolSpend")) {
-    const recipient = msg.recipient as string | undefined;
+    const recipient = msg.recipient;
     return (
       <span>
         Community pool spend

@@ -7,7 +7,10 @@ import {
   TransactionsTable,
   TransactionsTableSkeleton,
 } from "@/components/transactions-table";
-import { ActiveProposalsWidget, ActiveProposalsWidgetSkeleton } from "@/components/active-proposals-widget";
+import {
+  ActiveProposalsWidget,
+  ActiveProposalsWidgetSkeleton,
+} from "@/components/active-proposals-widget";
 
 export const dynamic = "force-dynamic";
 

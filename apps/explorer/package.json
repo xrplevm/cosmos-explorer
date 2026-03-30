@@ -20,6 +20,7 @@
     "@cosmos-explorer/utils": "workspace:*",
     "@tabler/icons-react": "^3.40.0",
     "@uiw/react-json-view": "2.0.0-alpha.41",
+    "bech32": "^2.0.0",
     "ethers": "^6",
     "framer-motion": "^12.38.0",
     "next": "^16",
