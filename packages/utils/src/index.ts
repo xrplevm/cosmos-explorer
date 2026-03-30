@@ -23,3 +23,13 @@ export {
   type GraphQlRequest,
 } from './fetcher';
 export { resolveKeybaseAvatar, resolveKeybaseAvatars } from './keybase';
+export { RpcClient, createRpcClient, type RpcClientOptions } from './rpc-client';
+export {
+  CosmosRpcClient,
+  createCosmosRpcClient,
+  type CosmosGovParams,
+  type CosmosGovVote,
+  type CosmosGovVotesResponse,
+  type CosmosStakingPool,
+  type CosmosStakingParams,
+} from './cosmos-rpc';

@@ -10,6 +10,13 @@ const nextConfig: NextConfig = {
     "@cosmos-explorer/ui",
     "@cosmos-explorer/utils",
   ],
+  redirects: async () => [
+    {
+      source: "/xrplevm",
+      destination: "/",
+      permanent: true,
+    },
+  ],
 };
 
 export default nextConfig;

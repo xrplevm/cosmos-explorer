@@ -1,7 +1,3 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { TableBody, TableCell, TableRow } from "./table";
 import type { Column } from "./data-table";
 
@@ -16,62 +12,17 @@ export function AnimatedTableBody<T>({
   data,
   rowKey,
 }: AnimatedTableBodyProps<T>) {
-  const prevFirstKey = useRef<string | number | undefined>(
-    data[0] ? rowKey(data[0]) : undefined,
-  );
-  const prevKeysRef = useRef<Set<string | number>>(
-    new Set(data.map((r) => rowKey(r))),
-  );
-  const [newKeys, setNewKeys] = useState<Set<string | number>>(new Set());
-
-  useEffect(() => {
-    const currentFirst = data[0] ? rowKey(data[0]) : undefined;
-    if (currentFirst != null && currentFirst !== prevFirstKey.current) {
-      const prevKeys = prevKeysRef.current;
-      const fresh = new Set<string | number>();
-      for (const row of data) {
-        const k = rowKey(row);
-        if (prevKeys.has(k)) break;
-        fresh.add(k);
-      }
-      setNewKeys(fresh);
-      prevFirstKey.current = currentFirst;
-      prevKeysRef.current = new Set(data.map((r) => rowKey(r)));
-
-      const timeout = setTimeout(() => {
-        setNewKeys(new Set());
-      }, 1500);
-      return () => {
-        clearTimeout(timeout);
-      };
-    }
-  }, [data, rowKey]);
-
   return (
     <TableBody>
-      {data.map((row) => {
-        const isNew = newKeys.has(rowKey(row));
-        return (
-          <TableRow key={rowKey(row)}>
-            {columns.map((col) => (
-              <TableCell key={col.key} className={col.className}>
-                <motion.div
-                  initial={isNew ? { opacity: 0, height: 0 } : false}
-                  animate={{ opacity: 1, height: "auto" }}
-                  transition={{ duration: 1.5, ease: "easeOut" }}
-                  style={{
-                    overflow: "hidden",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  {col.render(row)}
-                </motion.div>
-              </TableCell>
-            ))}
-          </TableRow>
-        );
-      })}
+      {data.map((row) => (
+        <TableRow key={rowKey(row)}>
+          {columns.map((col) => (
+            <TableCell key={col.key} className={col.className}>
+              {col.render(row)}
+            </TableCell>
+          ))}
+        </TableRow>
+      ))}
     </TableBody>
   );
 }

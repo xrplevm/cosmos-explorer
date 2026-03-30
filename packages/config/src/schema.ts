@@ -17,6 +17,8 @@ export const ChainConfigSchema = z.object({
       graphqlWs: z.string().url().optional(),
       /** Base URL for the EVM block explorer (e.g. `https://explorer.testnet.xrplevm.org`). */
       evmExplorer: z.string().url().optional(),
+      /** Base URL for the Cosmos RPC endpoint (e.g. `https://cosmos-rpc.testnet.xrplevm.org`). */
+      cosmosRpc: z.string().url().optional(),
     }),
   }),
   price: z.object({

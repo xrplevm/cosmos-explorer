@@ -12,22 +12,26 @@ import {
   CardTitle,
 } from "@cosmos-explorer/ui/card";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@cosmos-explorer/ui/tabs";
 import { cn } from "@cosmos-explorer/ui/lib/utils";
+import type { ContentMessage } from "./message-helpers";
+import { MessagesView } from "./messages";
 
 export function RawContentSection({ content }: { content: unknown }) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState("json");
+  const [showRaw, setShowRaw] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const messages = useMemo(() => {
+    if (!Array.isArray(content)) return [];
+    return content.filter(
+      (item): item is ContentMessage =>
+        typeof item === "object" && item !== null,
+    );
+  }, [content]);
 
   const prettyJson = useMemo(
     () => JSON.stringify(content, null, 2),
@@ -48,69 +52,56 @@ export function RawContentSection({ content }: { content: unknown }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Raw Content</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <TabsList className="w-full justify-start sm:w-auto">
-              <TabsTrigger value="json">JSON</TabsTrigger>
-              <TabsTrigger value="raw">Raw</TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="json" className="mt-4 space-y-3">
-            <div className="flex justify-end">
-              <CopyButton
-                value={prettyJson}
-                label="JSON"
-                variant="outline"
-                size="sm"
-              />
-            </div>
-            {activeTab === "json" ? (
-              <div
+        <div className="flex items-center justify-between">
+          <CardTitle>Messages</CardTitle>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => { setShowRaw(!showRaw); }}
+              className="flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <span
                 className={cn(
-                  "max-h-[min(28rem,60vh)] overflow-auto rounded-md border border-border",
-                  "bg-muted/30 p-3",
+                  "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border transition-colors",
+                  showRaw ? "bg-primary border-primary" : "bg-muted border-border",
                 )}
               >
-                <JsonView
-                  value={jsonValue}
-                  style={jsonViewStyle}
-                  shortenTextAfterLength={0}
-                  displayDataTypes={false}
+                <span
+                  className={cn(
+                    "inline-block h-3.5 w-3.5 rounded-full bg-foreground transition-transform",
+                    showRaw ? "translate-x-[18px]" : "translate-x-[3px]",
+                  )}
                 />
-              </div>
-            ) : null}
-          </TabsContent>
-
-          <TabsContent value="raw" className="mt-4 space-y-3">
-            <div className="flex justify-end">
-              <CopyButton
-                value={prettyJson}
-                label="raw content"
-                variant="outline"
-                size="sm"
-              />
-            </div>
-            <textarea
-              readOnly
+              </span>
+              Raw
+            </button>
+            <CopyButton
               value={prettyJson}
-              spellCheck={false}
-              aria-label="Raw proposal content"
-              className={cn(
-                "max-h-[min(28rem,60vh)] min-h-48 w-full resize-y rounded-md border border-border",
-                "bg-muted/30 p-3 font-mono text-xs leading-relaxed text-foreground",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-              )}
+              label="content"
+              variant="outline"
+              size="sm"
             />
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {showRaw ? (
+          <div
+            className={cn(
+              "max-h-[min(28rem,60vh)] overflow-auto rounded-md border border-border",
+              "bg-muted/30 p-3",
+            )}
+          >
+            <JsonView
+              value={jsonValue}
+              style={jsonViewStyle}
+              shortenTextAfterLength={0}
+              displayDataTypes={false}
+            />
+          </div>
+        ) : (
+          <MessagesView messages={messages} />
+        )}
       </CardContent>
     </Card>
   );

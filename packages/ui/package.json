@@ -30,6 +30,10 @@
     "./tabs": "./src/components/ui/tabs.tsx",
     "./timeline": "./src/components/ui/timeline.tsx",
     "./tooltip": "./src/components/ui/tooltip.tsx",
+    "./progress-bar": "./src/components/ui/progress-bar.tsx",
+    "./proposal-icon": "./src/components/ui/proposal-icon.tsx",
+    "./proposal-icon-constants": "./src/components/ui/proposal-icon.constants.ts",
+    "./voting-count": "./src/components/ui/voting-count.tsx",
     ".": "./src/index.ts"
   },
   "scripts": {
@@ -56,7 +60,6 @@
   },
   "peerDependencies": {
     "@tabler/icons-react": "^3.40.0",
-    "framer-motion": ">=12",
     "react": "^19",
     "react-dom": "^19"
   },
@@ -66,7 +69,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "framer-motion": "^12.38.0",
     "next": "16",
     "tailwindcss": "^4",
     "typescript": "^5"

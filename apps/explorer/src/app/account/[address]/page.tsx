@@ -27,16 +27,35 @@ import {
 import { Timestamp } from "@/components/timestamp";
 import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
+import { bech32 } from "bech32";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
+function toAccountAddress(address: string, prefix: string): string {
+  try {
+    const decoded = bech32.decode(address);
+    if (decoded.prefix !== prefix) {
+      return bech32.encode(prefix, decoded.words);
+    }
+  } catch {
+    // not a valid bech32 address, return as-is
+  }
+  return address;
+}
 
 export default async function AccountDetailPage({
   params,
 }: {
   params: Promise<{ address: string }>;
 }) {
-  const { address } = await params;
   const config = getChainConfig();
+  const { address: rawAddress } = await params;
+  const address = toAccountAddress(rawAddress, config.network.bech32Prefix);
+
+  if (address !== rawAddress) {
+    redirect(`/account/${encodeURIComponent(address)}`);
+  }
+
   const primaryToken = config.network.primaryToken;
   const { accountService } = getServices();
   const account = await accountService.getAccountByAddress(address);

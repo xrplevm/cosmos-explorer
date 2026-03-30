@@ -7,6 +7,10 @@ import {
   TransactionsTable,
   TransactionsTableSkeleton,
 } from "@/components/transactions-table";
+import {
+  ActiveProposalsWidget,
+  ActiveProposalsWidgetSkeleton,
+} from "@/components/active-proposals-widget";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +22,10 @@ export default function OverviewPage() {
 
       <Suspense fallback={<StatsCardsSkeleton />}>
         <StatsCards />
+      </Suspense>
+
+      <Suspense fallback={<ActiveProposalsWidgetSkeleton />}>
+        <ActiveProposalsWidget />
       </Suspense>
 
       <div className="grid gap-6 xl:grid-cols-2">

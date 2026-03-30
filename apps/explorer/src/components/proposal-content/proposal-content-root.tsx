@@ -8,42 +8,65 @@ import { RemoveValidatorContent } from "./variants/remove-validator";
 import { CancelUpgradeContent } from "./variants/cancel-upgrade";
 import { UpdateParamsContent } from "./variants/update-params";
 import { DefaultContent } from "./variants/default";
+import { RawContentSection } from "./shared/raw-content-section";
 
-export function ProposalContentRoot({ proposal }: ProposalContentViewProps) {
+interface ProposalContentRootProps extends ProposalContentViewProps {
+  showRaw?: boolean;
+}
+
+export function ProposalContentRoot({ proposal, showRaw = true }: ProposalContentRootProps) {
+  let content: React.ReactNode;
   switch (proposal.type) {
     // Upgrade
     case "SoftwareUpgrade":
     case "SoftwareUpgradeProposal":
-      return <SoftwareUpgradeContent proposal={proposal} />;
+      content = <SoftwareUpgradeContent proposal={proposal} />;
+      break;
     case "CancelUpgrade":
     case "CancelSoftwareUpgrade":
     case "CancelSoftwareUpgradeProposal":
-      return <CancelUpgradeContent proposal={proposal} />;
+      content = <CancelUpgradeContent proposal={proposal} />;
+      break;
 
     // Distribution
     case "CommunityPoolSpend":
     case "CommunityPoolSpendProposal":
-      return <CommunityPoolSpendContent proposal={proposal} />;
+      content = <CommunityPoolSpendContent proposal={proposal} />;
+      break;
 
     // Params
     case "ParameterChange":
     case "ParameterChangeProposal":
-      return <ParameterChangeContent proposal={proposal} />;
+      content = <ParameterChangeContent proposal={proposal} />;
+      break;
     case "UpdateParams":
-      return <UpdateParamsContent proposal={proposal} />;
+      content = <UpdateParamsContent proposal={proposal} />;
+      break;
 
     // Text
     case "Text":
     case "TextProposal":
-      return <TextContent proposal={proposal} />;
+      content = <TextContent proposal={proposal} />;
+      break;
 
     // Custom / chain-specific
     case "AddValidator":
-      return <AddValidatorContent proposal={proposal} />;
+      content = <AddValidatorContent proposal={proposal} />;
+      break;
     case "RemoveValidator":
-      return <RemoveValidatorContent proposal={proposal} />;
+      content = <RemoveValidatorContent proposal={proposal} />;
+      break;
 
     default:
-      return <DefaultContent proposal={proposal} />;
+      content = <DefaultContent proposal={proposal} />;
   }
+
+  if (!showRaw) return <div className="h-full [&>*]:h-full">{content}</div>;
+
+  return (
+    <div className="space-y-6">
+      {content}
+      <RawContentSection content={proposal.content} />
+    </div>
+  );
 }

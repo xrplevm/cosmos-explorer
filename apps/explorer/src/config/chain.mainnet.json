@@ -12,7 +12,8 @@
     },
     "endpoints": {
       "graphqlHttp": "https://governance.xrplevm.org/v1/graphql",
-      "evmExplorer": "https://explorer.xrplevm.org"
+      "evmExplorer": "https://explorer.xrplevm.org",
+      "cosmosRpc": "https://cosmos-rpc.xrplevm.org"
     }
   },
   "price": {

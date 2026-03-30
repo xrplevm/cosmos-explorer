@@ -10,7 +10,11 @@ import {
 } from "@cosmos-explorer/ui/card";
 import { Separator } from "@cosmos-explorer/ui/separator";
 import { Input } from "@cosmos-explorer/ui/input";
-import { IconSearch as Search, IconX as X } from "@tabler/icons-react";
+import {
+  IconSearch as Search,
+  IconX as X,
+} from "@tabler/icons-react";
+import { ProposalIcon } from "@cosmos-explorer/ui/proposal-icon";
 import { StatusBadge } from "@/components/status-badge";
 import { Timestamp } from "@/components/timestamp";
 import Link from "next/link";
@@ -86,26 +90,31 @@ export function ProposalList({ proposals }: { proposals: ProposalSummary[] }) {
             <Link key={proposal.id} href={`/proposals/${String(proposal.id)}`} className="block">
               <Card className="transition-colors hover:bg-accent/30">
                 <CardHeader>
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="shrink-0 text-sm font-mono text-muted-foreground">
-                        #{proposal.id}
-                      </span>
-                      <CardTitle className="text-base truncate">{proposal.title}</CardTitle>
-                    </div>
-                    <StatusBadge status={toStatusLabel(proposal.status)} />
-                  </div>
-                  <CardDescription className="flex flex-wrap items-center gap-2 sm:gap-4">
-                    <span>{proposal.type}</span>
-                    <Separator orientation="vertical" className="h-3" />
-                    <span>Submitted <Timestamp value={proposal.submitTime} /></span>
-                    {proposal.votingEndTime && (
-                      <>
+                  <div className="flex items-center gap-3">
+                    <ProposalIcon type={proposal.type} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="shrink-0 text-xs font-mono text-muted-foreground">
+                            #{proposal.id}
+                          </span>
+                          <CardTitle className="text-base truncate">{proposal.title}</CardTitle>
+                        </div>
+                        <StatusBadge status={toStatusLabel(proposal.status)} />
+                      </div>
+                      <CardDescription className="flex flex-wrap items-center gap-2 sm:gap-4 mt-1">
+                        <span>{proposal.type}</span>
                         <Separator orientation="vertical" className="h-3" />
-                        <span>Voting ends <Timestamp value={proposal.votingEndTime} /></span>
-                      </>
-                    )}
-                  </CardDescription>
+                        <span>Submitted <Timestamp value={proposal.submitTime} /></span>
+                        {proposal.votingEndTime && (
+                          <>
+                            <Separator orientation="vertical" className="h-3" />
+                            <span>Voting ends <Timestamp value={proposal.votingEndTime} /></span>
+                          </>
+                        )}
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
               </Card>
             </Link>

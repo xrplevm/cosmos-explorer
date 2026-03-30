@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import {
   CallistoAccountService,
@@ -12,11 +13,12 @@ import type {
   IAccountService,
   IBlockService,
   IChainStatsService,
+  GovParams,
   IProposalService,
   ITransactionService,
   IValidatorService,
 } from "@cosmos-explorer/core";
-import { createFetcher } from "@cosmos-explorer/utils";
+import { createFetcher, createCosmosRpcClient } from "@cosmos-explorer/utils";
 
 export interface Services {
   blockService: IBlockService;
@@ -39,6 +41,10 @@ export const getServices = cache((): Services => {
     baseUrl: config.network.endpoints.graphqlHttp,
   });
 
+  const cosmosRpc = config.network.endpoints.cosmosRpc
+    ? createCosmosRpcClient({ baseUrl: config.network.endpoints.cosmosRpc })
+    : undefined;
+
   const blockService = new CallistoBlockService(fetcher);
   const transactionService = new CallistoTransactionService(fetcher);
   const validatorService = new CallistoValidatorService(
@@ -47,7 +53,8 @@ export const getServices = cache((): Services => {
   );
   const proposalService = new CallistoProposalService(
     fetcher,
-    config.network.primaryToken.denom
+    config.network.primaryToken.denom,
+    cosmosRpc,
   );
   const accountService = new CallistoAccountService(
     fetcher,
@@ -69,3 +76,17 @@ export const getServices = cache((): Services => {
     accountService,
   };
 });
+
+/**
+ * Governance params cached across requests (revalidates every 60s).
+ * Use this instead of `proposalService.getGovParams()` directly to avoid
+ * blocking page renders with an RPC call on every request.
+ */
+export const getCachedGovParams = unstable_cache(
+  async (): Promise<GovParams | null> => {
+    const { proposalService } = getServices();
+    return proposalService.getGovParams();
+  },
+  ["gov-params"],
+  { revalidate: 60 },
+);
