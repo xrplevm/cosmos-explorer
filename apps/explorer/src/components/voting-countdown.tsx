@@ -111,9 +111,9 @@ export function VotingCountdown({
       </p>
 
       {/* Digit blocks */}
-      <div className="flex items-end gap-0.5">
+      <div className="flex items-start gap-0.5">
         {units.map((u, i) => (
-          <div key={u.label} className="flex items-end gap-0.5">
+          <div key={u.label} className="flex items-start gap-0.5">
             <div className="flex flex-col items-center">
               <span
                 className={`font-mono text-sm font-bold tabular-nums leading-none ${c.digit}`}
@@ -125,7 +125,7 @@ export function VotingCountdown({
               </span>
             </div>
             {i < units.length - 1 && (
-              <span className={`mb-3 text-xs font-bold ${c.separator}`}>:</span>
+              <span className={`text-xs font-bold leading-none ${c.separator}`}>:</span>
             )}
           </div>
         ))}
