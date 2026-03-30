@@ -8,8 +8,3 @@
 @theme {
   --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
 }
-
-@keyframes page-enter {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}

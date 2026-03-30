@@ -67,7 +67,7 @@ export default function RootLayout({
                 aria-hidden
                 className="pointer-events-none absolute bottom-0 -right-40 h-[800px] w-[500px] bg-[url('/bg-lines-right.png')] bg-contain bg-right-bottom bg-no-repeat"
               />
-              <div className="relative animate-[page-enter_0.4s_cubic-bezier(0.22,1,0.36,1)_both]">{children}</div>
+              <div className="relative">{children}</div>
             </main>
             <Footer />
           </div>

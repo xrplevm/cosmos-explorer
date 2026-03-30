@@ -47,7 +47,7 @@ export async function StatsCards() {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-xs text-muted-foreground">
-          Rolling average from recent indexed blocks
+          Based on recent blocks
         </CardContent>
       </Card>
 

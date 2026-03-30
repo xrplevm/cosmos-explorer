@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import {
   Card,
   CardDescription,
@@ -87,15 +86,9 @@ export function ProposalList({ proposals }: { proposals: ProposalSummary[] }) {
             </CardContent>
           </Card>
         ) : (
-          filtered.map((proposal, i) => (
-            <motion.div
-              key={proposal.id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-            >
-            <Link href={`/proposals/${String(proposal.id)}`} className="block">
-              <Card className="transition-[transform,colors] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px hover:shadow-[0_4px_24px_oklch(0_0_0/0.3)] hover:bg-accent/30">
+          filtered.map((proposal) => (
+            <Link key={proposal.id} href={`/proposals/${String(proposal.id)}`} className="block">
+              <Card className="transition-colors hover:bg-accent/30">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <ProposalIcon type={proposal.type} />
@@ -125,7 +118,6 @@ export function ProposalList({ proposals }: { proposals: ProposalSummary[] }) {
                 </CardHeader>
               </Card>
             </Link>
-            </motion.div>
           ))
         )}
       </div>
