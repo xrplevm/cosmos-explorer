@@ -5,14 +5,12 @@ import {
   buildAccountOverview,
   mapAccountDelegations,
   mapAccountRewards,
-  mapAccountTransactions,
   mapWithdrawalAddress,
 } from '../mappers';
 import {
   ACCOUNT_BALANCES_QUERY,
   ACCOUNT_DELEGATION_BALANCE_QUERY,
   ACCOUNT_DELEGATIONS_QUERY,
-  ACCOUNT_MESSAGES_QUERY,
   ACCOUNT_REWARDS_QUERY,
   ACCOUNT_UNBONDING_BALANCE_QUERY,
   ACCOUNT_WITHDRAWAL_ADDRESS_QUERY,
@@ -20,7 +18,6 @@ import {
 import type {
   AccountCoinsResponse,
   AccountDelegationsResponse,
-  AccountMessagesResponse,
   AccountRewardsResponse,
   AccountWithdrawalAddressResponse,
 } from '../types';
@@ -34,7 +31,6 @@ export class CallistoAccountService implements IAccountService {
 
   async getAccountByAddress(address: string): Promise<AccountOverview> {
     const cosmosAddress = evmToCosmosAddress(address, this.bech32Prefix);
-    const wrappedAddress = `{${cosmosAddress}}`;
 
     const [
       balancesResponse,
@@ -43,7 +39,6 @@ export class CallistoAccountService implements IAccountService {
       rewardsResponse,
       delegationsResponse,
       withdrawalAddressResponse,
-      transactionsResponse,
     ] = await Promise.all([
       this.fetcher.graphql<AccountCoinsResponse, { address: string }>({
         query: ACCOUNT_BALANCES_QUERY,
@@ -83,19 +78,6 @@ export class CallistoAccountService implements IAccountService {
         variables: { address: cosmosAddress },
         operationName: 'AccountWithdrawalAddress',
       }),
-      this.fetcher.graphql<
-        AccountMessagesResponse,
-        { address: string; limit: number; offset: number; types: string }
-      >({
-        query: ACCOUNT_MESSAGES_QUERY,
-        variables: {
-          address: wrappedAddress,
-          limit: 10,
-          offset: 0,
-          types: '{}',
-        },
-        operationName: 'AccountMessages',
-      }),
     ]);
 
     return buildAccountOverview({
@@ -106,7 +88,6 @@ export class CallistoAccountService implements IAccountService {
       rewards: mapAccountRewards(rewardsResponse, this.primaryDenom),
       delegations: mapAccountDelegations(delegationsResponse, this.primaryDenom),
       withdrawalAddress: mapWithdrawalAddress(withdrawalAddressResponse),
-      transactions: mapAccountTransactions(transactionsResponse),
       primaryDenom: this.primaryDenom,
     });
   }

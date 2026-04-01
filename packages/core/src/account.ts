@@ -1,5 +1,4 @@
 import type { TokenAmount } from './price';
-import type { TransactionSummary } from './transaction';
 
 export type AccountBalance = TokenAmount;
 
@@ -21,7 +20,6 @@ export interface AccountOverview {
   rewards: AccountReward[];
   delegations: AccountDelegation[];
   withdrawalAddress: string | null;
-  transactions: TransactionSummary[];
 }
 
 export interface IAccountService {

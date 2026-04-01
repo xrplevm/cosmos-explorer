@@ -16,16 +16,11 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
-import { Badge } from "@cosmos-explorer/ui/badge";
-import { IconCurrencyEthereum } from "@tabler/icons-react";
 import { DetailBackButton } from "@/components/detail-back-button";
-import { StatusBadge } from "@/components/status-badge";
 import {
   formatCoinTotal,
-  formatHash,
   formatTokenAmount,
 } from "@/lib/formatters";
-import { Timestamp } from "@/components/timestamp";
 import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
 import { bech32 } from "bech32";
@@ -259,65 +254,6 @@ export default async function AccountDetailPage({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {account.transactions.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              No transactions found.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Tx Hash</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Height</TableHead>
-                    <TableHead className="text-right">Time</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {account.transactions.map((transaction) => (
-                    <TableRow key={transaction.hash}>
-                      <TableCell className="font-mono text-xs">
-                        <Link
-                          href={`/transactions/${transaction.hash}`}
-                          className="text-primary-soft hover:text-primary transition-colors"
-                        >
-                          {formatHash(transaction.hash)}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {transaction.type === "EthereumTx" && (
-                            <IconCurrencyEthereum className="h-3.5 w-3.5" />
-                          )}
-                          {transaction.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          status={transaction.success ? "Success" : "Failed"}
-                        />
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-sm">
-                        {transaction.height.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        <Timestamp value={transaction.timestamp} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

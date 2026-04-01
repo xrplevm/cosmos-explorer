@@ -287,16 +287,3 @@ export type DailyStatsResponse = Record<
   }
 >;
 
-export interface AccountMessagesResponse {
-  messagesByAddress: {
-    transaction?: {
-      height: Scalar;
-      hash: string;
-      success: boolean;
-      messages: unknown;
-      block: {
-        timestamp: Scalar;
-      };
-    } | null;
-  }[];
-}

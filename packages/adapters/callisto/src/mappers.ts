@@ -20,7 +20,6 @@ import type {
 
 import type {
   AccountDelegationsResponse,
-  AccountMessagesResponse,
   AccountRewardsResponse,
   AccountWithdrawalAddressResponse,
   AverageBlockTimeResponse,
@@ -585,27 +584,6 @@ export function mapAccountDelegations(
   }));
 }
 
-export function mapAccountTransactions(
-  response: AccountMessagesResponse,
-): TransactionSummary[] {
-  return response.messagesByAddress.flatMap((message) => {
-    const transaction = message.transaction;
-    if (!transaction) {
-      return [];
-    }
-
-    return [
-      {
-        hash: transaction.hash,
-        height: toNumber(transaction.height),
-        type: getPrimaryMessageType(transaction.messages),
-        success: transaction.success,
-        timestamp: toStringValue(transaction.block.timestamp),
-        messageCount: getMessageTypes(transaction.messages).length,
-      },
-    ];
-  });
-}
 
 export function mapWithdrawalAddress(
   response: AccountWithdrawalAddressResponse,
@@ -652,7 +630,6 @@ export function buildAccountOverview(params: {
   rewards: AccountReward[];
   delegations: AccountDelegation[];
   withdrawalAddress: string | null;
-  transactions: TransactionSummary[];
   primaryDenom: string;
 }): AccountOverview {
   return {
@@ -669,6 +646,5 @@ export function buildAccountOverview(params: {
     rewards: params.rewards,
     delegations: params.delegations,
     withdrawalAddress: params.withdrawalAddress,
-    transactions: params.transactions,
   };
 }

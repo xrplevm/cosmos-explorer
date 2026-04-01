@@ -449,29 +449,6 @@ export const ACCOUNT_WITHDRAWAL_ADDRESS_QUERY = `
   }
 `;
 
-export const ACCOUNT_MESSAGES_QUERY = `
-  query AccountMessages(
-    $address: _text
-    $limit: bigint = 20
-    $offset: bigint = 0
-    $types: _text = "{}"
-  ) {
-    messagesByAddress: messages_by_address(
-      args: { addresses: $address, limit: $limit, offset: $offset, types: $types }
-    ) {
-      transaction {
-        height
-        hash
-        success
-        messages
-        block {
-          timestamp
-        }
-      }
-    }
-  }
-`;
-
 export const AVERAGE_BLOCK_TIME_QUERY = `
   query AverageBlockTime {
     averageBlockTime: average_block_time_per_hour(limit: 1, order_by: { height: desc }) {
