@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@cosmos-explorer/ui/card";
 import { ValidatorTable } from "@/components/validator-table";
 import {
@@ -6,6 +7,13 @@ import {
 } from "@/lib/formatters";
 import { getServices } from "@/lib/services";
 import { getChainConfig } from "@/lib/config";
+import { buildPageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Validators",
+  description: "View all active validators on the XRPL EVM Sidechain.",
+  path: "/validators",
+});
 
 export default async function ValidatorsPage() {
   const { validatorService } = getServices();

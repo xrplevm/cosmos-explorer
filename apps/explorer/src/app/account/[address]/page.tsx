@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Card,
   CardContent,
@@ -28,8 +29,25 @@ import { Timestamp } from "@/components/timestamp";
 import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
 import { bech32 } from "bech32";
+import { buildPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ address: string }>;
+}): Promise<Metadata> {
+  const { address } = await params;
+  const shortAddress = address.length > 20
+    ? `${address.slice(0, 10)}...${address.slice(-8)}`
+    : address;
+  return buildPageMetadata({
+    title: `Account ${shortAddress}`,
+    description: `Account details and transaction history for ${address} on the XRPL EVM Sidechain.`,
+    path: `/account/${address}`,
+  });
+}
 
 function toAccountAddress(address: string, prefix: string): string {
   try {

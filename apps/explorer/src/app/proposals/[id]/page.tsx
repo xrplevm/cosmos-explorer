@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@cosmos-explorer/ui/card";
 import { StatusBadge } from "@/components/status-badge";
 import { DetailBackButton } from "@/components/detail-back-button";
 import { getServices, getCachedGovParams } from "@/lib/services";
+import { buildPageMetadata, getBaseUrl } from "@/lib/metadata";
+import { JsonLd } from "@/components/json-ld";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { RawContentSection } from "@/components/proposal-content/shared/raw-content-section";
@@ -27,6 +30,24 @@ function toStatusLabel(status: ProposalStatus): string {
     default:
       return "Unknown";
   }
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const { proposalService } = getServices();
+  const proposal = await proposalService.getProposalById(Number(id));
+  const title = proposal
+    ? `Proposal #${id}: ${proposal.title}`
+    : `Proposal #${id}`;
+  return buildPageMetadata({
+    title,
+    description: proposal?.description.slice(0, 160) ?? `Governance proposal #${id} on the XRPL EVM Sidechain.`,
+    path: `/proposals/${id}`,
+  });
 }
 
 export default async function ProposalDetailPage({
@@ -55,6 +76,20 @@ export default async function ProposalDetailPage({
 
   return (
     <div className="space-y-6">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "GovernmentService",
+          name: `Proposal #${id}: ${proposal.title}`,
+          description: proposal.description.slice(0, 300),
+          url: `${getBaseUrl()}/proposals/${id}`,
+          serviceType: "Governance Proposal",
+          provider: {
+            "@type": "Organization",
+            name: "XRPL EVM Sidechain",
+          },
+        }}
+      />
       {/* Header */}
       <div className="flex items-center gap-2">
         <DetailBackButton href="/proposals" />

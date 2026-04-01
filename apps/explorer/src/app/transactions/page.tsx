@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/metadata";
 import { Badge } from "@cosmos-explorer/ui/badge";
 import { IconCurrencyEthereum } from "@tabler/icons-react";
 import {
@@ -24,6 +26,12 @@ import { formatHash } from "@/lib/formatters";
 import { Timestamp } from "@/components/timestamp";
 import { getServices } from "@/lib/services";
 import type { TransactionSummary } from "@cosmos-explorer/core";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Transactions",
+  description: "Browse the latest transactions on the XRPL EVM Sidechain.",
+  path: "/transactions",
+});
 
 const DEFAULT_PAGE_SIZE = 25;
 

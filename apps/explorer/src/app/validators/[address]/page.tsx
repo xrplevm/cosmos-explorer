@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Card,
   CardContent,
@@ -28,9 +29,27 @@ import {
   formatPercent,
 } from "@/lib/formatters";
 import { Timestamp } from "@/components/timestamp";
+import { buildPageMetadata, getBaseUrl } from "@/lib/metadata";
+import { JsonLd } from "@/components/json-ld";
 import { getServices } from "@/lib/services";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ address: string }>;
+}): Promise<Metadata> {
+  const { address } = await params;
+  const { validatorService } = getServices();
+  const validator = await validatorService.getValidatorByAddress(address);
+  const name = validator?.moniker ?? `Validator ${address.slice(0, 12)}...`;
+  return buildPageMetadata({
+    title: name,
+    description: `Validator details for ${name} on the XRPL EVM Sidechain.`,
+    path: `/validators/${address}`,
+  });
+}
 
 function Row({
   label,
@@ -77,6 +96,16 @@ export default async function ValidatorDetailPage({
 
   return (
     <div className="space-y-6">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: validator.moniker,
+          description: `Validator ${validator.moniker} on the XRPL EVM Sidechain.`,
+          url: `${getBaseUrl()}/validators/${address}`,
+          ...(validator.avatarUrl ? { image: validator.avatarUrl } : {}),
+        }}
+      />
       <div className="flex items-center gap-3">
         <DetailBackButton href="/validators" />
         <Avatar className="h-9 w-9 shrink-0 sm:h-12 sm:w-12">

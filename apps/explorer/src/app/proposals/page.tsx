@@ -1,7 +1,15 @@
+import type { Metadata } from "next";
 import { Pagination } from "@cosmos-explorer/ui/pagination";
 import { PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination-constants";
 import { ProposalList } from "@/components/proposal-list";
 import { getServices } from "@/lib/services";
+import { buildPageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Proposals",
+  description: "Browse governance proposals on the XRPL EVM Sidechain.",
+  path: "/proposals",
+});
 
 const DEFAULT_PAGE_SIZE = 25;
 

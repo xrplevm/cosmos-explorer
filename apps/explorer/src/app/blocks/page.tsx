@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@cosmos-explorer/ui/card";
 import {
   Table,
@@ -16,7 +17,14 @@ import { formatHash } from "@/lib/formatters";
 import { RelativeTime } from "@/components/relative-time";
 import { BlockSearch } from "@/components/block-search";
 import { getServices } from "@/lib/services";
+import { buildPageMetadata } from "@/lib/metadata";
 import type { Block } from "@cosmos-explorer/core";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Blocks",
+  description: "Browse the latest blocks on the XRPL EVM Sidechain.",
+  path: "/blocks",
+});
 
 const DEFAULT_PAGE_SIZE = 25;
 

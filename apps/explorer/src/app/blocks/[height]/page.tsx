@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Card,
   CardContent,
@@ -21,8 +22,23 @@ import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { formatHash, formatHashMiddle } from "@/lib/formatters";
 import { Timestamp } from "@/components/timestamp";
 import { getServices } from "@/lib/services";
+import { buildPageMetadata, getBaseUrl } from "@/lib/metadata";
+import { JsonLd } from "@/components/json-ld";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ height: string }>;
+}): Promise<Metadata> {
+  const { height } = await params;
+  return buildPageMetadata({
+    title: `Block #${height}`,
+    description: `Details for block #${height} on the XRPL EVM Sidechain.`,
+    path: `/blocks/${height}`,
+  });
+}
 
 function Row({
   label,
@@ -56,6 +72,16 @@ export default async function BlockDetailPage({
 
   return (
     <div className="space-y-6">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Dataset",
+          name: `Block #${height}`,
+          description: `Block #${height} on the XRPL EVM Sidechain containing ${detail.transactions.length} transaction(s).`,
+          url: `${getBaseUrl()}/blocks/${height}`,
+          dateCreated: detail.overview.timestamp,
+        }}
+      />
       <div className="flex items-center gap-2">
         <DetailBackButton href="/blocks" />
         <div className="min-w-0 flex-1">
