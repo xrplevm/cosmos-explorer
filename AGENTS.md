@@ -29,6 +29,12 @@ High-level structure:
 
 ## Commands
 
+Before running the explorer, create the required environment file:
+
+```bash
+cp apps/explorer/.env.example apps/explorer/.env
+```
+
 Root commands:
 
 ```bash
