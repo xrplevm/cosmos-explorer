@@ -41,6 +41,11 @@ export const registry: RegistryCategory[] = [
         description: "Beautiful charts built with Recharts.",
       },
       {
+        name: "Donut Chart",
+        slug: "donut-chart",
+        description: "Pie chart with percentage labels on each slice.",
+      },
+      {
         name: "Copy Button",
         slug: "copy-button",
         description: "Copies text to the clipboard with tooltip feedback.",
@@ -71,6 +76,11 @@ export const registry: RegistryCategory[] = [
         slug: "popover",
         description:
           "Displays rich content in a portal, triggered by a button.",
+      },
+      {
+        name: "Progress Bar",
+        slug: "progress-bar",
+        description: "Progress bar with threshold marker line.",
       },
       {
         name: "Scroll Area",

@@ -30,7 +30,7 @@ export function ProgressBar({
   const barHeight = isSm ? "h-1.5" : "h-3";
   const labelSize = isSm ? "text-[10px]" : "text-xs";
   const valueDecimals = isSm ? 1 : 2;
-  const thresholdLine = isSm ? "bg-white/40" : "bg-white/60";
+  const thresholdLine = isSm ? "bg-white/60" : "bg-white";
 
   return (
     <div className={cn("space-y-1", !isSm && "space-y-1.5")}>
@@ -68,7 +68,7 @@ export function ProgressBar({
           style={{ width: `${filled}%` }}
         />
         <div
-          className={cn("absolute top-0 h-full w-px z-10", thresholdLine)}
+          className={cn("absolute top-0 h-full w-0.5 z-10", thresholdLine)}
           style={{ left: `${threshold}%` }}
         />
       </div>

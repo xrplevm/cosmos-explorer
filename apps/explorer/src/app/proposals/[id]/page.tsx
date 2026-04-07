@@ -13,7 +13,7 @@ import { ProposalDepositsCard, ProposalDepositsCardSkeleton } from "@/components
 import { ProposalTimeline } from "@/components/proposal-timeline";
 import { ProposalVotingCard } from "@/components/proposal-voting-card";
 import { ProposalDetailsCard } from "@/components/proposal-details-card";
-import { computeVotingMetrics } from "@/lib/proposal-voting";
+import { computeVotingMetrics, adjustTallyForJailed } from "@/lib/proposal-voting";
 import type { ProposalStatus } from "@cosmos-explorer/core";
 
 function toStatusLabel(status: ProposalStatus): string {
@@ -57,18 +57,20 @@ export default async function ProposalDetailPage({
 }) {
   const { id } = await params;
 
-  const { proposalService } = getServices();
-  const [proposal, govParams] = await Promise.all([
+  const { proposalService, validatorService } = getServices();
+  const [proposal, govParams, validatorSet] = await Promise.all([
     proposalService.getProposalById(Number(id)),
     getCachedGovParams(),
+    validatorService.getValidatorSet(),
   ]);
 
   if (proposal == null) {
     notFound();
   }
 
+  const adjustedTally = adjustTallyForJailed(proposal.tally, validatorSet);
   const metrics = computeVotingMetrics(
-    proposal.tally,
+    adjustedTally,
     govParams,
     proposal.votingStartTime,
     proposal.votingEndTime,

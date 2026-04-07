@@ -34,6 +34,7 @@
     "./proposal-icon": "./src/components/ui/proposal-icon.tsx",
     "./proposal-icon-constants": "./src/components/ui/proposal-icon.constants.ts",
     "./voting-count": "./src/components/ui/voting-count.tsx",
+    "./donut-chart": "./src/components/ui/donut-chart.tsx",
     ".": "./src/index.ts"
   },
   "scripts": {
