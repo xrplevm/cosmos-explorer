@@ -124,9 +124,11 @@ export default async function BlocksPage({
                           #{block.height.toLocaleString()}
                         </Link>
                       </TableCell>
-                      <TableCell className="font-mono text-xs text-primary-soft">
+                      <TableCell className="font-mono text-xs">
                         <div className="flex items-center gap-1">
-                          {formatHash(block.hash)}
+                          <Link href={`/blocks/${String(block.height)}`} className="text-primary-soft hover:text-primary transition-colors">
+                            {formatHash(block.hash)}
+                          </Link>
                           <CopyButton value={block.hash} label="block hash" size="xs" />
                         </div>
                       </TableCell>

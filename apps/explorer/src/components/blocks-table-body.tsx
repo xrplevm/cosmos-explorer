@@ -59,9 +59,12 @@ const columns: Column<Block>[] = [
     header: "Hash",
     className: "hidden sm:table-cell",
     render: (block) => (
-      <span className="font-mono text-sm text-primary-soft">
+      <Link
+        href={`/blocks/${String(block.height)}`}
+        className="font-mono text-sm text-primary-soft hover:text-primary transition-colors"
+      >
         {formatHash(block.hash)}
-      </span>
+      </Link>
     ),
   },
   {

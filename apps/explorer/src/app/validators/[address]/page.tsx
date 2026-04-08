@@ -275,7 +275,9 @@ export default async function ValidatorDetailPage({
                       </TableCell>
                       <TableCell className="font-mono text-xs">
                         <div className="flex items-center gap-1">
-                          {formatHash(block.hash)}
+                          <Link href={`/blocks/${block.height}`} className="text-primary-soft hover:text-primary transition-colors">
+                            {formatHash(block.hash)}
+                          </Link>
                           <CopyButton value={block.hash} label="block hash" size="xs" />
                         </div>
                       </TableCell>
