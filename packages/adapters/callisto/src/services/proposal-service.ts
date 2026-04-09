@@ -8,7 +8,7 @@ import {
 } from '@cosmos-explorer/core';
 import { type Fetcher, type CosmosRpcClient } from '@cosmos-explorer/utils';
 
-import { mapProposalDetail, mapActiveProposals, mapProposals, mapProposalVotes } from '../mappers';
+import { mapProposalDetail, mapActiveProposals, mapProposals, mapProposalVotes, toUtcTimestamp } from '../mappers';
 import { ACTIVE_PROPOSALS_QUERY, ACTIVE_PROPOSALS_DATA_QUERY, PROPOSAL_DETAILS_QUERY, PROPOSAL_DEPOSITS_QUERY, PROPOSALS_QUERY, PROPOSAL_VOTES_QUERY, PROPOSAL_VOTES_FILTERED_QUERY } from '../queries';
 import type { ActiveProposalsResponse, ActiveProposalsDataResponse, ProposalDetailsResponse, ProposalDepositsResponse, ProposalVotesResponse, ProposalsResponse } from '../types';
 
@@ -116,7 +116,7 @@ export class CallistoProposalService implements IProposalService {
     return response.proposal_deposit.map((d) => ({
       depositorAddress: d.depositor_address,
       amount: d.amount ?? [],
-      timestamp: d.timestamp ?? null,
+      timestamp: d.timestamp != null ? toUtcTimestamp(d.timestamp) : null,
     }));
   }
 
