@@ -1,0 +1,46 @@
+{
+  "adapterType": "callisto",
+  "network": {
+    "chainId": "xrplevm_1449000-1",
+    "chainName": "XRPL EVM Sidechain",
+    "chainEnv": "testnet",
+    "bech32Prefix": "ethm",
+    "primaryToken": {
+      "denom": "axrp",
+      "displayDenom": "XRP",
+      "exponent": 18
+    },
+    "endpoints": {
+      "graphqlHttp": "http://localhost:8080/v1/graphql",
+      "evmExplorer": "https://explorer.testnet.xrplevm.org",
+      "cosmosRpc": "https://cosmos-rpc.testnet.xrplevm.org"
+    }
+  },
+  "price": {
+    "baseUrl": "https://api.coingecko.com/api/v3/",
+    "assetsByDenom": {
+      "axrp": "ripple",
+      "xrp": "ripple"
+    }
+  },
+  "branding": {
+    "title": "XRPL EVM Explorer (Local)",
+    "description": "The XRPL EVM Sidechain is a fast and secure blockchain that brings web3 applications to the XRP Ledger community."
+  },
+  "links": {
+    "github": "https://github.com/xrplevm/cosmos-explorer",
+    "discord": "https://discord.gg/xrplevm",
+    "website": "https://www.xrplevm.org",
+    "issues": "https://github.com/xrplevm/cosmos-explorer/issues"
+  },
+  "features": {
+    "proposals": true,
+    "accounts": true,
+    "evmSearch": false
+  },
+  "explorerUrls": {
+    "mainnet": "https://governance.xrplevm.org",
+    "testnet": "https://governance.testnet.xrplevm.org",
+    "devnet": "https://governance.devnet.xrplevm.org"
+  }
+}

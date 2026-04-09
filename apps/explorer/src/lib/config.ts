@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { loadChainConfig } from "@cosmos-explorer/config";
-import { devnetConfig, mainnetConfig, testnetConfig } from "@/config";
+import { devnetConfig, localConfig, mainnetConfig, testnetConfig } from "@/config";
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -22,6 +22,8 @@ function buildConfigFromEnv() {
       return testnetConfig;
     case "devnet":
       return devnetConfig;
+    case "local":
+      return localConfig;
     default:
       throw new Error(`Invalid network environment: ${chainEnv}`);
   }

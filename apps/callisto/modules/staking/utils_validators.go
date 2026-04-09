@@ -225,6 +225,14 @@ func (m *Module) UpdateValidatorStatuses() error {
 		return fmt.Errorf("error while updating validators status and voting power: %s", err)
 	}
 
+	// reconcile: mark validators that exist in the DB but are no longer
+	// in the chain's validator set as removed
+	err = m.reconcileRemovedValidators(block.Height, validators)
+	if err != nil {
+		log.Error().Str("module", "staking").Err(err).
+			Msg("error while reconciling removed validators")
+	}
+
 	// get all active proposals IDs from db
 	ids, err := m.db.GetOpenProposalsIds(block.BlockTimestamp)
 	if err != nil {
@@ -318,6 +326,49 @@ func (m *Module) updateValidatorStatusAndVP(height int64, validators []stakingty
 		log.Error().Str("module", "staking").Err(err).
 			Int64("height", height).
 			Msg("error while saving validators statuses")
+	}
+
+	return nil
+}
+
+// reconcileRemovedValidators compares the DB validator set against the chain
+// validator set and marks any validators present in the DB but absent from the
+// chain as removed.
+func (m *Module) reconcileRemovedValidators(height int64, chainValidators []stakingtypes.Validator) error {
+	// build a set of consensus addresses currently on chain
+	chainConsAddrs := make(map[string]struct{}, len(chainValidators))
+	for _, v := range chainValidators {
+		consAddr, err := m.getValidatorConsAddr(v)
+		if err != nil {
+			continue
+		}
+		chainConsAddrs[consAddr.String()] = struct{}{}
+	}
+
+	// get all validators stored in the DB
+	dbValidators, err := m.db.GetValidators()
+	if err != nil {
+		return fmt.Errorf("error while getting DB validators for reconciliation: %s", err)
+	}
+
+	for _, dbVal := range dbValidators {
+		consAddr := dbVal.GetConsAddr()
+		if _, onChain := chainConsAddrs[consAddr]; onChain {
+			continue
+		}
+
+		err = m.db.SetValidatorRemoved(consAddr, height)
+		if err != nil {
+			log.Error().Str("module", "staking").Err(err).
+				Str("validator", consAddr).
+				Msg("error while marking validator as removed during reconciliation")
+			continue
+		}
+
+		log.Info().Str("module", "staking").
+			Str("validator", consAddr).
+			Int64("height", height).
+			Msg("validator marked as removed during reconciliation")
 	}
 
 	return nil

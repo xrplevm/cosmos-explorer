@@ -163,7 +163,7 @@ export const VALIDATOR_COUNT_QUERY = `
         count
       }
     }
-    total: validator_status_aggregate {
+    total: validator_status_aggregate(where: { status: { _neq: 4 } }) {
       aggregate {
         count
       }

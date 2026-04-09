@@ -271,6 +271,10 @@ function mapValidatorStatus(
   status: number,
   jailed: boolean,
 ): Validator["status"] {
+  if (status === 4) {
+    return "removed";
+  }
+
   if (jailed) {
     return "jailed";
   }
@@ -294,6 +298,7 @@ export function mapValidatorSet(
 ): RawValidatorSet {
   const items = response.validator
     .filter((row) => row.validatorInfo?.operatorAddress)
+    .filter((row) => (row.validatorStatuses[0]?.status ?? 0) !== 4)
     .map((row) => {
       const votingPower =
         toOptionalNumber(row.validatorVotingPowers[0]?.votingPower) ?? 0;

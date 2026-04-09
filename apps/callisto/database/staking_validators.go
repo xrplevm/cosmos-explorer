@@ -442,6 +442,43 @@ WHERE validator_status.height <= excluded.height`
 	return nil
 }
 
+// SetValidatorRemoved marks a validator as removed by setting its status to
+// BondStatusRemoved, clearing jailed, zeroing voting power and commission.
+func (db *Db) SetValidatorRemoved(consensusAddress string, height int64) error {
+	statusStmt := `
+INSERT INTO validator_status (validator_address, status, jailed, height)
+VALUES ($1, $2, false, $3)
+ON CONFLICT (validator_address) DO UPDATE
+    SET status = excluded.status,
+        jailed = excluded.jailed,
+        height = excluded.height
+WHERE validator_status.height <= excluded.height`
+	if _, err := db.SQL.Exec(statusStmt, consensusAddress, types.BondStatusRemoved, height); err != nil {
+		return fmt.Errorf("error while setting validator %s status to removed: %s", consensusAddress, err)
+	}
+
+	vpStmt := `
+INSERT INTO validator_voting_power (validator_address, voting_power, height)
+VALUES ($1, 0, $2)
+ON CONFLICT (validator_address) DO UPDATE
+    SET voting_power = 0,
+        height = excluded.height
+WHERE validator_voting_power.height <= excluded.height`
+	if _, err := db.SQL.Exec(vpStmt, consensusAddress, height); err != nil {
+		return fmt.Errorf("error while zeroing voting power for removed validator %s: %s", consensusAddress, err)
+	}
+
+	commissionStmt := `
+UPDATE validator_commission
+SET commission = 0, height = $2
+WHERE validator_address = $1 AND height <= $2`
+	if _, err := db.SQL.Exec(commissionStmt, consensusAddress, height); err != nil {
+		return fmt.Errorf("error while zeroing commission for removed validator %s: %s", consensusAddress, err)
+	}
+
+	return nil
+}
+
 // saveDoubleSignVote saves the given vote inside the database, returning the row id
 func (db *Db) saveDoubleSignVote(vote types.DoubleSignVote) (int64, error) {
 	stmt := `

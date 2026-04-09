@@ -5,6 +5,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
+// BondStatusRemoved is a custom status used to mark validators that have been
+// removed from the chain (e.g. via a governance MsgRemoveValidator).  It sits
+// outside the Cosmos SDK BondStatus enum (0-3) so it never collides.
+const BondStatusRemoved = 4
+
 // Validator represents a single validator.
 // This is defined as an interface so that we can use the SDK types
 // as well as database types properly.

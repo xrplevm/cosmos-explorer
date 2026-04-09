@@ -5,6 +5,7 @@ import (
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/rs/zerolog/log"
+	poatypes "github.com/xrplevm/node/v9/x/poa/types"
 
 	juno "github.com/forbole/juno/v6/types"
 
@@ -17,6 +18,7 @@ var msgFilter = map[string]bool{
 	"/cosmos.staking.v1beta1.MsgDelegate":        true,
 	"/cosmos.staking.v1beta1.MsgUndelegate":      true,
 	"/cosmos.staking.v1beta1.MsgBeginRedelegate": true,
+	"/poa.MsgRemoveValidator":                    true,
 }
 
 // HandleMsgExec implements modules.AuthzMessageModule
@@ -53,6 +55,9 @@ func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error 
 	case "/cosmos.staking.v1beta1.MsgUndelegate":
 		return m.UpdateValidatorStatuses()
 
+	case "/poa.MsgRemoveValidator":
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &poatypes.MsgRemoveValidator{})
+		return m.handleMsgRemoveValidator(tx.Height, cosmosMsg)
 	}
 
 	return nil
@@ -76,6 +81,26 @@ func (m *Module) handleEditValidator(height int64, msg *stakingtypes.MsgEditVali
 	if err != nil {
 		return fmt.Errorf("error while refreshing validator from MsgEditValidator: %s", err)
 	}
+
+	return nil
+}
+
+// handleMsgRemoveValidator marks a validator as removed
+func (m *Module) handleMsgRemoveValidator(height int64, msg *poatypes.MsgRemoveValidator) error {
+	consAddr, err := m.db.GetValidatorConsensusAddress(msg.ValidatorAddress)
+	if err != nil {
+		return fmt.Errorf("error while getting consensus address for removed validator %s: %s", msg.ValidatorAddress, err)
+	}
+
+	err = m.db.SetValidatorRemoved(consAddr.String(), height)
+	if err != nil {
+		return fmt.Errorf("error while marking validator %s as removed: %s", msg.ValidatorAddress, err)
+	}
+
+	log.Info().Str("module", "staking").
+		Str("operator", msg.ValidatorAddress).
+		Int64("height", height).
+		Msg("validator marked as removed")
 
 	return nil
 }
