@@ -55,7 +55,8 @@ function toStringValue(value: unknown, fallback = ""): string {
  *  downstream code always receives an unambiguous UTC ISO string. */
 export function toUtcTimestamp(value: unknown, fallback = ""): string {
   const s = toStringValue(value, fallback);
-  if (s.length === 0 || s.endsWith("Z") || s.includes("+")) return s;
+  const hasTimezoneSuffix = /(?:[Zz]|[+-]\d{2}:\d{2})$/.test(s);
+  if (s.length === 0 || hasTimezoneSuffix) return s;
   return `${s}Z`;
 }
 
