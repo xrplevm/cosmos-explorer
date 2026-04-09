@@ -9,7 +9,7 @@ function formatLocal(value: string): string {
 }
 
 export function Timestamp({ value }: { value: string | null | undefined }) {
-  const [text, setText] = useState("");
+  const [text, setText] = useState<string | null>(null);
 
   useEffect(() => {
     if (value != null && value.length > 0) {
@@ -18,5 +18,6 @@ export function Timestamp({ value }: { value: string | null | undefined }) {
   }, [value]);
 
   if (value == null || value.length === 0) return <>N/A</>;
+  if (text == null) return <span className="invisible">{value}</span>;
   return <>{text}</>;
 }

@@ -7,7 +7,12 @@ import {
   CardTitle,
 } from "@cosmos-explorer/ui/card";
 import { ProgressBar } from "@cosmos-explorer/ui/progress-bar";
-import { DonutChart } from "@cosmos-explorer/ui/donut-chart";
+import dynamic from "next/dynamic";
+
+const DonutChart = dynamic(
+  () => import("@cosmos-explorer/ui/donut-chart").then((m) => m.DonutChart),
+  { ssr: false },
+);
 import {
   Tooltip,
   TooltipTrigger,

@@ -116,7 +116,7 @@ export class CallistoProposalService implements IProposalService {
     return response.proposal_deposit.map((d) => ({
       depositorAddress: d.depositor_address,
       amount: d.amount ?? [],
-      timestamp: d.timestamp != null ? toUtcTimestamp(d.timestamp) : null,
+      timestamp: toUtcTimestamp(d.timestamp),
     }));
   }
 
