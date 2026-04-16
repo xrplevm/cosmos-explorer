@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 
 function computeRelativeTime(timestamp: string): string {
-  // Hasura returns timestamps without timezone — treat as UTC
-  const normalized = timestamp.endsWith("Z") || timestamp.includes("+") ? timestamp : `${timestamp}Z`;
-  const date = new Date(normalized);
+  const date = new Date(timestamp);
   if (Number.isNaN(date.getTime())) return timestamp;
 
   const diff = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));

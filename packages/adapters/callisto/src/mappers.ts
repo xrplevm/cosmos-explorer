@@ -51,6 +51,15 @@ function toStringValue(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value : fallback;
 }
 
+/** Hasura returns timestamps without a timezone suffix — append Z so
+ *  downstream code always receives an unambiguous UTC ISO string. */
+export function toUtcTimestamp(value: unknown): string | null {
+  const s = typeof value === "string" ? value : null;
+  if (s == null || s.length === 0) return null;
+  if (/(?:[Zz]|[+-]\d{2}:\d{2})$/.test(s)) return s;
+  return `${s}Z`;
+}
+
 function toBoolean(value: unknown, fallback = false): boolean {
   return typeof value === "boolean" ? value : fallback;
 }
@@ -104,7 +113,7 @@ function mapBlockRow(block: LatestBlocksResponse["blocks"][number]): RawBlock {
     height: toNumber(block.height),
     txs: block.txs ?? 0,
     hash: block.hash,
-    timestamp: toStringValue(block.timestamp),
+    timestamp: toUtcTimestamp(block.timestamp) ?? "",
     proposer: block.validator?.validatorInfo?.operatorAddress ?? "",
     proposerMoniker: desc?.moniker ?? null,
     proposerAvatarUrl: null,
@@ -126,7 +135,7 @@ function mapTransactionRow(
     height: toNumber(transaction.height),
     type: summarizeMessageTypes(types),
     success: transaction.success,
-    timestamp: toStringValue(transaction.block.timestamp),
+    timestamp: toUtcTimestamp(transaction.block.timestamp) ?? "",
     messageCount: types.length,
   };
 }
@@ -170,7 +179,7 @@ export function mapTransactionDetail(
   return {
     hash: transaction.hash,
     height: toNumber(transaction.height),
-    timestamp: toStringValue(transaction.block.timestamp),
+    timestamp: toUtcTimestamp(transaction.block.timestamp) ?? "",
     fee: transaction.fee,
     gasUsed: toNumber(transaction.gasUsed),
     gasWanted: toNumber(transaction.gasWanted),
@@ -410,7 +419,7 @@ export function mapValidatorDetail(
       height: toNumber(block.height),
       txs: block.txs ?? 0,
       hash: block.hash,
-      timestamp: toStringValue(block.timestamp),
+      timestamp: toUtcTimestamp(block.timestamp) ?? "",
     })),
   };
 }
@@ -475,8 +484,8 @@ function mapProposalSummaryRow(
     proposer: proposal.proposer ?? "",
     status: mapProposalStatus(proposal.status),
     type: mapProposalType(proposal.content),
-    submitTime: proposal.submitTime ?? null,
-    votingEndTime: proposal.votingEndTime ?? null,
+    submitTime: toUtcTimestamp(proposal.submitTime),
+    votingEndTime: toUtcTimestamp(proposal.votingEndTime),
   };
 }
 
@@ -500,12 +509,12 @@ export function mapActiveProposals(
       proposer: proposal.proposer ?? "",
       status: mapProposalStatus(proposal.status),
       type: mapProposalType(proposal.content),
-      submitTime: proposal.submitTime ?? null,
-      votingEndTime: proposal.votingEndTime ?? null,
+      submitTime: proposal.submitTime != null ? toUtcTimestamp(proposal.submitTime) : null,
+      votingEndTime: proposal.votingEndTime != null ? toUtcTimestamp(proposal.votingEndTime) : null,
       metadata: proposal.metadata ?? null,
       content: proposal.content ?? null,
-      depositEndTime: proposal.depositEndTime ?? null,
-      votingStartTime: proposal.votingStartTime ?? null,
+      depositEndTime: toUtcTimestamp(proposal.depositEndTime),
+      votingStartTime: toUtcTimestamp(proposal.votingStartTime),
       tally: tallyRow
         ? {
             yes: tallyRow.yes,
@@ -541,12 +550,12 @@ export function mapProposalDetail(
     proposer: proposal.proposer ?? "",
     status: mapProposalStatus(proposal.status),
     type: mapProposalType(proposal.content),
-    submitTime: proposal.submitTime ?? null,
-    votingEndTime: proposal.votingEndTime ?? null,
+    submitTime: toUtcTimestamp(proposal.submitTime),
+    votingEndTime: toUtcTimestamp(proposal.votingEndTime),
     metadata: proposal.metadata ?? null,
     content: proposal.content ?? null,
-    depositEndTime: proposal.depositEndTime ?? null,
-    votingStartTime: proposal.votingStartTime ?? null,
+    depositEndTime: proposal.depositEndTime != null ? toUtcTimestamp(proposal.depositEndTime) : null,
+    votingStartTime: proposal.votingStartTime != null ? toUtcTimestamp(proposal.votingStartTime) : null,
     tally: tallyRow
       ? {
           yes: String(tallyRow.yes ?? "0"),
@@ -614,7 +623,7 @@ export function mapProposalVotes(
     option: mapVoteOption(row.option),
     weight: row.weight,
     height: toNumber(row.height),
-    timestamp: row.timestamp ?? null,
+    timestamp: toUtcTimestamp(row.timestamp),
   }));
 
   const total = response.proposal_vote_aggregate.aggregate?.count ?? 0;
