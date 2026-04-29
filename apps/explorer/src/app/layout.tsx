@@ -85,7 +85,14 @@ export const metadata: Metadata = {
       template: `%s | ${siteTitle}`,
     },
     description: siteDescription,
-    images: ["/og-image.png"],
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: siteTitle,
+      },
+    ],
   },
   robots: {
     index: true,

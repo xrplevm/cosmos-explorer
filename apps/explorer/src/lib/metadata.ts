@@ -59,7 +59,14 @@ export function buildPageMetadata({
       card: "summary_large_image",
       title: ogTitle,
       description: pageDescription,
-      images: ["/og-image.png"],
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: ogTitle,
+        },
+      ],
     },
   };
 }
