@@ -37,7 +37,6 @@ export const ChainConfigSchema = z.object({
       discord: z.string().url().optional(),
       website: z.string().url().optional(),
       issues: z.string().url().optional(),
-      twitter: z.string().optional(),
     })
     .optional(),
   features: z.object({
