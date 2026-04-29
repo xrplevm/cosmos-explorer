@@ -9,6 +9,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/rs/zerolog/log"
 )
 
 // SaveValidatorData saves properly the information about the given validator.
@@ -439,6 +440,81 @@ WHERE validator_status.height <= excluded.height`
 		return fmt.Errorf("error while storing validators statuses: %s", err)
 	}
 
+	return nil
+}
+
+// SetValidatorRemoved flips the `removed` flag on validator_status for the
+// validator identified by the given operator (valoper) address. It resolves
+// the operator address to a consensus_address via validator_info, then issues
+// a single UPDATE.
+//
+// If the validator is not present in validator_info (e.g. an event fires for
+// an address Callisto has never seen), the UPDATE affects 0 rows; this is
+// logged but does not return an error.
+func (db *Db) SetValidatorRemoved(operatorAddress string, removed bool) error {
+	consAddr, err := db.GetValidatorConsensusAddress(operatorAddress)
+	if err != nil {
+		log.Warn().Str("module", "database").Err(err).
+			Str("operator", operatorAddress).
+			Bool("removed", removed).
+			Msg("cannot resolve consensus address for validator; skipping removed flag update")
+		return nil
+	}
+
+	stmt := `UPDATE validator_status SET removed = $2 WHERE validator_address = $1`
+	res, err := db.SQL.Exec(stmt, consAddr.String(), removed)
+	if err != nil {
+		return fmt.Errorf("error while setting removed=%t on validator %s: %s", removed, operatorAddress, err)
+	}
+
+	rows, err := res.RowsAffected()
+	if err == nil && rows == 0 {
+		log.Warn().Str("module", "database").
+			Str("operator", operatorAddress).
+			Str("consensus", consAddr.String()).
+			Bool("removed", removed).
+			Msg("SetValidatorRemoved affected 0 rows (validator_status row missing)")
+	}
+
+	return nil
+}
+
+// SetValidatorRemovedByConsensusAddr flips the `removed` flag on validator_status
+// directly by consensus_address. Used by the reconciliation loop, which already
+// has the consensus_address in hand and skips the operator → consensus lookup.
+func (db *Db) SetValidatorRemovedByConsensusAddr(consensusAddress string, removed bool) error {
+	stmt := `UPDATE validator_status SET removed = $2 WHERE validator_address = $1`
+	res, err := db.SQL.Exec(stmt, consensusAddress, removed)
+	if err != nil {
+		return fmt.Errorf("error while setting removed=%t on validator %s: %s", removed, consensusAddress, err)
+	}
+
+	rows, err := res.RowsAffected()
+	if err == nil && rows == 0 {
+		log.Warn().Str("module", "database").
+			Str("consensus", consensusAddress).
+			Bool("removed", removed).
+			Msg("SetValidatorRemovedByConsensusAddr affected 0 rows")
+	}
+
+	return nil
+}
+
+// SetValidatorVotingPowerByConsensusAddr upserts the voting power of a validator
+// at the given height. Used by the reconciliation loop to zero out the voting
+// power of a PoA-removed validator so the explorer no longer reports a stale
+// pre-removal value.
+func (db *Db) SetValidatorVotingPowerByConsensusAddr(consensusAddress string, votingPower int64, height int64) error {
+	stmt := `
+INSERT INTO validator_voting_power (validator_address, voting_power, height)
+VALUES ($1, $2, $3)
+ON CONFLICT (validator_address) DO UPDATE
+	SET voting_power = excluded.voting_power,
+		height = excluded.height
+WHERE validator_voting_power.height <= excluded.height`
+	if _, err := db.SQL.Exec(stmt, consensusAddress, votingPower, height); err != nil {
+		return fmt.Errorf("error while setting voting power=%d on validator %s: %s", votingPower, consensusAddress, err)
+	}
 	return nil
 }
 

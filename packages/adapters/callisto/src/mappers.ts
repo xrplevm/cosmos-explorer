@@ -279,7 +279,12 @@ function getPrimaryCoinAmount(
 function mapValidatorStatus(
   status: number,
   jailed: boolean,
+  removed: boolean = false,
 ): Validator["status"] {
+  if (removed) {
+    return "removed";
+  }
+
   if (jailed) {
     return "jailed";
   }
@@ -324,6 +329,7 @@ export function mapValidatorSet(
         status: mapValidatorStatus(
           statusRow?.status ?? 0,
           toBoolean(statusRow?.jailed),
+          toBoolean(statusRow?.removed),
         ),
         jailed: toBoolean(statusRow?.jailed),
         tombstoned: toBoolean(signingInfo?.tombstoned),
@@ -394,6 +400,7 @@ export function mapValidatorDetail(
     status: mapValidatorStatus(
       detailRow.validatorStatuses[0]?.status ?? 0,
       toBoolean(detailRow.validatorStatuses[0]?.jailed),
+      toBoolean(detailRow.validatorStatuses[0]?.removed),
     ),
     jailed: toBoolean(detailRow.validatorStatuses[0]?.jailed),
     tombstoned: toBoolean(detailRow.validatorSigningInfos[0]?.tombstoned),

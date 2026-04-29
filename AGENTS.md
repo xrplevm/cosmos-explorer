@@ -72,24 +72,33 @@ cd packages/juno && go test ./...
 
 ## Running Callisto Locally
 
-First-time PostgreSQL setup:
+PostgreSQL and Hasura are managed by `apps/callisto/docker-compose.yml`. Postgres runs on `:5432` (user `user` / password `password` / db `database`); Hasura runs on `:8080` with the `cli-migrations-v3` image, which auto-applies the metadata in `apps/callisto/hasura/metadata/` on first start.
 
 ```bash
-docker run --name callisto-db \
-  -e POSTGRES_USER=callisto -e POSTGRES_PASSWORD=password -e POSTGRES_DB=callisto \
-  -p 5432:5432 -v ./apps/callisto/database/schema:/docker-entrypoint-initdb.d \
-  -d postgres
+# 1. Start the stack
+cd apps/callisto && docker compose up -d
+
+# 2. Provision the indexer config (overwrites ~/.callisto/config.yaml)
+make update-config CONFIG=configs/mainnet-config.yaml
+
+# 3. Build and run
+cd ../.. && pnpm build:callisto && pnpm start:callisto
 ```
 
-Then:
+The `make start-mainnet` / `make start-testnet` targets fold steps 2 and 3 into one command and also start the docker stack.
+
+If you restored a backup or are upgrading from an older Callisto image, run any pending schema migrations **before** `pnpm start:callisto`:
 
 ```bash
-pnpm start:callisto-db
-pnpm build:callisto
-pnpm start:callisto
+pnpm migrate:callisto            # list available versions
+pnpm migrate:callisto v6         # apply a specific version
 ```
 
-Callisto configuration lives at `~/.callisto/config.yaml`. A local `go.work` file at the repo root can be used to resolve `packages/juno` from `apps/callisto` during development.
+See `apps/callisto/guide.md` for the production rollout sequence and the migration log.
+
+To stop the stack: `cd apps/callisto && docker compose down`. Postgres data lives in an anonymous volume — `docker compose down -v` wipes it. The Postgres image must be PG14+ to read backups produced by newer `pg_dump` (the current `callisto.backup` is format v1.16 and requires PG17).
+
+Callisto configuration lives at `~/.callisto/config.yaml`. The DB URL there must match the compose credentials (`postgresql://user:password@localhost:5432/database`); always re-run `make update-config CONFIG=...` after the compose creds change. A local `go.work` file at the repo root can be used to resolve `packages/juno` from `apps/callisto` during development.
 
 ## Topology And Boundaries
 

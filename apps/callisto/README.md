@@ -5,9 +5,9 @@ Callisto is a blockchain indexer (formerly BDJuno) built on the Juno framework d
 ## Requirements
 
 - Go 1.23.8
-- PostgreSQL 13+
+- PostgreSQL 17 (provided by docker-compose)
 - Docker & Docker Compose
-- Hasura 2.6.1+ (included in docker-compose)
+- Hasura 2.6.1 (provided by docker-compose, auto-applies metadata via `cli-migrations-v3`)
 
 ## Quick Start
 
@@ -127,6 +127,26 @@ Default database credentials (from docker-compose.yml):
 - Password: `password`
 - Database: `database`
 
+These must match `database.url` in `~/.callisto/config.yaml`. The repo configs (`configs/mainnet-config.yaml`, `configs/testnet-config.yaml`) are pre-aligned — install one with `make update-config CONFIG=configs/mainnet-config.yaml`.
+
+Postgres uses an anonymous Docker volume; `docker compose down -v` wipes it. The image is `postgres:17` (required to restore the project's `callisto.backup`, which is format v1.16).
+
+## Migrations
+
+Schema deltas are implemented as Go packages in `cmd/migrate/v<N>/` and applied through the binary. Run them after restoring a backup or upgrading the indexer image to a version that introduces new columns/tables — the indexer will fail with `column ... does not exist` otherwise.
+
+```bash
+# from repo root
+pnpm migrate:callisto            # list available versions
+pnpm migrate:callisto v6         # apply migration v6
+
+# or from this directory
+make migrate VERSION=v6
+./build/callisto migrate v6
+```
+
+Each migration's DDL is idempotent (`IF NOT EXISTS` / `IF EXISTS`), so re-running is safe. See `guide.md` for the production rollout sequence and migration log.
+
 ## CLI Commands
 
 | Command | Description |
@@ -134,7 +154,7 @@ Default database credentials (from docker-compose.yml):
 | `callisto init` | Generate default config at `~/.callisto/config.yaml` |
 | `callisto start` | Start continuous block indexing |
 | `callisto version` | Display version information |
-| `callisto migrate` | Migrate database between versions |
+| `callisto migrate <version>` | Apply a schema migration (e.g. `v6`) |
 
 ## Database Schema
 

@@ -160,6 +160,22 @@ db-size:
 .PHONY: db-size
 
 ###############################################################################
+###                              Migrations                                 ###
+###############################################################################
+
+# Run with: make migrate VERSION=v6
+migrate:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Error: VERSION variable is not set."; \
+		echo "Usage: make migrate VERSION=v6"; \
+		./build/callisto migrate; \
+		exit 1; \
+	fi
+	@echo "Running migration $(VERSION)..."
+	@./build/callisto migrate $(VERSION)
+.PHONY: migrate
+
+###############################################################################
 ###                              Local development                          ###
 ###############################################################################
 

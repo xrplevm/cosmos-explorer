@@ -193,7 +193,7 @@ export default async function ValidatorDetailPage({
         <CardContent className="space-y-0">
           <Row label="Operator Address">
             <div className="flex items-center gap-1">
-              <span className="font-mono text-xs break-all">
+              <span className="font-mono text-xs break-all text-primary-soft">
                 {validator.address}
               </span>
               <CopyButton value={validator.address} label="operator address" size="xs" />
