@@ -391,6 +391,25 @@ export const PROPOSAL_VOTES_FILTERED_QUERY = `
   }
 `;
 
+export const PROPOSAL_ELIGIBLE_VOTERS_QUERY = `
+  query ProposalEligibleVoters($proposalId: Int!) {
+    proposal_validator_status_snapshot(
+      where: { proposal_id: { _eq: $proposalId }, status: { _eq: 3 } }
+    ) {
+      validator {
+        validatorInfo: validator_info {
+          operatorAddress: operator_address
+          selfDelegateAddress: self_delegate_address
+        }
+        validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
+          moniker
+          identity
+        }
+      }
+    }
+  }
+`;
+
 export const ACCOUNT_BALANCES_QUERY = `
   query AccountBalances($address: String!) {
     accountBalances: action_account_balance(address: $address) {

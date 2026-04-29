@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getServices, getCachedGovParams } from "@/lib/services";
 import { VotingCountdown } from "@/components/voting-countdown";
 import { ProgressBar } from "@cosmos-explorer/ui/progress-bar";
-import { computeVotingMetrics, adjustTallyForJailed } from "@/lib/proposal-voting";
+import { computeVotingMetrics } from "@/lib/proposal-voting";
 import type { VotingMetrics } from "@/lib/proposal-voting";
 import type { ProposalDetail } from "@cosmos-explorer/core";
 
@@ -135,12 +135,11 @@ export function ActiveProposalsWidgetSkeleton() {
 // ── Main widget ───────────────────────────────────────────────────────────────
 
 export async function ActiveProposalsWidget() {
-  const { proposalService, validatorService } = getServices();
+  const { proposalService } = getServices();
 
-  const [allProposals, govParams, validatorSet] = await Promise.all([
+  const [allProposals, govParams] = await Promise.all([
     proposalService.getActiveProposals(5),
     getCachedGovParams(),
-    validatorService.getValidatorSet(),
   ]);
 
   // Filter out proposals whose voting period has already ended (stale DB status)
@@ -152,9 +151,8 @@ export async function ActiveProposalsWidget() {
 
   // Show only the most recent proposal
   const featured = proposals[0];
-  const adjustedTally = adjustTallyForJailed(featured.tally, validatorSet);
   const metrics = computeVotingMetrics(
-    adjustedTally,
+    featured.tally,
     govParams,
     featured.votingStartTime,
     featured.votingEndTime,

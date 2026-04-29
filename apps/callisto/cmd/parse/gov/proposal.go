@@ -9,8 +9,6 @@ import (
 
 	modulestypes "github.com/forbole/callisto/v4/modules/types"
 
-	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	govtypesv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	parsecmdtypes "github.com/forbole/juno/v6/cmd/parse/types"
 	"github.com/forbole/juno/v6/parser"
 	"github.com/forbole/juno/v6/types/config"
@@ -179,41 +177,10 @@ func refreshProposalVotes(parseCtx *parser.Context, proposalID uint64, govModule
 			return err
 		}
 
-		// Handle the MsgVote messages
-		for index, msg := range junoTx.GetMsgs() {
-			var msgProposalID uint64
-
-			switch cosmosMsg := msg.(type) {
-			case *govtypesv1.MsgVote:
-				msgProposalID = cosmosMsg.ProposalId
-
-			case *govtypesv1beta1.MsgVote:
-				msgProposalID = cosmosMsg.ProposalId
-
-			case *govtypesv1.MsgVoteWeighted:
-				msgProposalID = cosmosMsg.ProposalId
-
-			case *govtypesv1beta1.MsgVoteWeighted:
-				msgProposalID = cosmosMsg.ProposalId
-
-			// Skip if the message is not a vote message
-			default:
-				continue
-			}
-
-			// check if requested proposal ID is the same as proposal ID returned
-			// from the msg as some txs may contain multiple MsgVote msgs
-			// for different proposals which can cause error if one of the proposals
-			// info is not stored in database
-			if proposalID == msgProposalID {
-				err = govModule.HandleMsg(index, junoTx.Body.Messages[index], junoTx)
-				if err != nil {
-					return fmt.Errorf("error while handling MsgVote: %s", err)
-				}
-			} else {
-				// skip votes for proposals with IDs
-				// different than requested in the query
-				continue
+		for index, msg := range junoTx.Body.Messages {
+			err = govModule.HandleMsg(index, msg, junoTx)
+			if err != nil {
+				return fmt.Errorf("error while handling MsgVote: %s", err)
 			}
 		}
 	}

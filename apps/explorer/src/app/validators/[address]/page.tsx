@@ -76,6 +76,8 @@ function toStatusLabel(status: string): string {
       return "Inactive";
     case "jailed":
       return "Jailed";
+    case "removed":
+      return "Removed";
     default:
       return "Unknown";
   }

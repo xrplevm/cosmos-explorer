@@ -51,6 +51,13 @@ export interface ProposalDeposit {
   timestamp: string | null;
 }
 
+export interface ProposalEligibleVoter {
+  selfDelegateAddress: string;
+  moniker: string;
+  operatorAddress: string;
+  avatarUrl: string | null;
+}
+
 export interface GovParams {
   quorum: number;
   threshold: number;
@@ -68,5 +75,6 @@ export interface IProposalService {
     params?: { limit?: number; offset?: number; option?: VoteOption | null }
   ): Promise<{ votes: ProposalVote[]; total: number }>;
   getProposalDeposits(proposalId: number): Promise<ProposalDeposit[]>;
+  getProposalEligibleVoters(proposalId: number): Promise<ProposalEligibleVoter[]>;
   getGovParams(): Promise<GovParams | null>;
 }

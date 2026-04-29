@@ -1,4 +1,4 @@
-import type { ProposalTally, GovParams, ValidatorSet } from "@cosmos-explorer/core";
+import type { ProposalTally, GovParams } from "@cosmos-explorer/core";
 
 export function getTallyTotal(tally: ProposalTally | null): number {
   if (!tally) return 0;
@@ -31,37 +31,6 @@ export interface VotingMetrics {
   yesPasses: boolean;
   isVetoed: boolean;
   approved: boolean;
-}
-
-/**
- * Returns a copy of the tally with bondedTokens reduced by the sum of
- * jailed validators' voting power, so quorum is calculated against only
- * the validators that participate in consensus.
- */
-export function adjustTallyForJailed(
-  tally: ProposalTally | null,
-  validatorSet: ValidatorSet | null,
-): ProposalTally | null {
-  if (!tally || !validatorSet) return tally;
-
-  const jailedPower = validatorSet.items
-    .filter((v) => v.jailed)
-    .reduce((sum, v) => sum + v.votingPower, 0);
-
-  if (jailedPower <= 0 || !tally.bondedTokens) return tally;
-
-  const adjustedAmount = Math.max(
-    Number(tally.bondedTokens.amount) - jailedPower,
-    0,
-  );
-
-  return {
-    ...tally,
-    bondedTokens: {
-      ...tally.bondedTokens,
-      amount: String(adjustedAmount),
-    },
-  };
 }
 
 export function computeVotingMetrics(

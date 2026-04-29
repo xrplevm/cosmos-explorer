@@ -18,36 +18,28 @@ export interface SerializableValidator {
 }
 
 export async function ProposalVotesCard({ proposalId }: ProposalVotesCardProps) {
-  const { proposalService, validatorService } = getServices();
+  const { proposalService } = getServices();
 
-  const [{ votes, total }, validatorSet] = await Promise.all([
+  const [{ votes, total }, eligibleVoters] = await Promise.all([
     proposalService.getProposalVotes(proposalId, { limit: 1000, offset: 0 }),
-    validatorService.getValidatorSet(),
+    proposalService.getProposalEligibleVoters(proposalId),
   ]);
 
   const validatorMap: Record<string, SerializableValidator> = {};
-  for (const v of validatorSet.items) {
-    if (v.selfDelegateAddress) {
-      validatorMap[v.selfDelegateAddress] = {
-        moniker: v.moniker,
-        address: v.address,
-        avatarUrl: v.avatarUrl,
-      };
-    }
+  for (const v of eligibleVoters) {
+    validatorMap[v.selfDelegateAddress] = {
+      moniker: v.moniker,
+      address: v.operatorAddress,
+      avatarUrl: v.avatarUrl,
+    };
   }
 
   const voterAddresses = new Set(votes.map((v) => v.voterAddress));
-  const didNotVote: SerializableValidator[] = validatorSet.items
-    .filter(
-      (v) =>
-        v.selfDelegateAddress &&
-        !v.jailed &&
-        v.status !== "removed" &&
-        !voterAddresses.has(v.selfDelegateAddress),
-    )
+  const didNotVote: SerializableValidator[] = eligibleVoters
+    .filter((v) => !voterAddresses.has(v.selfDelegateAddress))
     .map((v) => ({
       moniker: v.moniker,
-      address: v.address,
+      address: v.operatorAddress,
       avatarUrl: v.avatarUrl,
     }));
 
