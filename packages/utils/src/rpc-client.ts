@@ -76,7 +76,7 @@ export class RpcClient {
     const promise = this.enqueue(fn).then((result) => {
       this.pending.delete(key);
       return result;
-    }).catch((error) => {
+    }).catch((error: unknown) => {
       this.pending.delete(key);
       throw error;
     });
@@ -92,8 +92,8 @@ export class RpcClient {
       const execute = async () => {
         try {
           resolve(await fn());
-        } catch (error) {
-          reject(error);
+        } catch (error: unknown) {
+          reject(error instanceof Error ? error : new Error(String(error)));
         } finally {
           this.inflight--;
           this.drain();
@@ -148,7 +148,7 @@ export class RpcClient {
 
   private async doFetch<T>(url: string, method: 'GET' | 'POST', body?: unknown): Promise<T> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeoutMs);
+    const timeoutId = setTimeout(() => { controller.abort(); }, this.timeoutMs);
 
     try {
       const response = await this.fetchImpl(url, {

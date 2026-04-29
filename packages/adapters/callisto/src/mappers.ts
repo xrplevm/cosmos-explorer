@@ -27,7 +27,6 @@ import type {
   LatestBlocksResponse,
   LatestTransactionsResponse,
   ActiveProposalsResponse,
-  ActiveProposalsDataResponse,
   ProposalDetailsResponse,
   ProposalVotesResponse,
   ProposalsResponse,
@@ -100,9 +99,6 @@ function formatMessageType(type: string): string {
   return shortType.replace(/^Msg/, "") || "Unknown";
 }
 
-function getPrimaryMessageType(messages: unknown): string {
-  return summarizeMessageTypes(getMessageTypes(messages));
-}
 
 export type RawBlock = Block & { _identity: string | null };
 export type RawValidator = Validator & { _identity: string | null };
@@ -279,7 +275,7 @@ function getPrimaryCoinAmount(
 function mapValidatorStatus(
   status: number,
   jailed: boolean,
-  removed: boolean = false,
+  removed = false,
 ): Validator["status"] {
   if (removed) {
     return "removed";
@@ -503,8 +499,8 @@ export function mapProposals(response: ProposalsResponse): ProposalSummary[] {
 export function mapActiveProposals(
   response: ActiveProposalsResponse,
   denom: string,
-  tallyByProposalId: Map<number, { yes: string; no: string; abstain: string; noWithVeto: string }> = new Map(),
-  bondedByProposalId: Map<number, string> = new Map(),
+  tallyByProposalId = new Map<number, { yes: string; no: string; abstain: string; noWithVeto: string }>(),
+  bondedByProposalId = new Map<number, string>(),
 ): ProposalDetail[] {
   return response.proposal.map((proposal) => {
     const tallyRow = tallyByProposalId.get(proposal.proposalId);

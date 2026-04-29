@@ -34,7 +34,7 @@ export function ProgressBar({
 
   return (
     <div className={cn("space-y-1", !isSm && "space-y-1.5")}>
-      {(label || showThresholdLabel) && (
+      {(label ?? showThresholdLabel) && (
         <div className={cn("flex items-center justify-between", labelSize)}>
           {label && <span className="text-muted-foreground">{label}</span>}
           <span
