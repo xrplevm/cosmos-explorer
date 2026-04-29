@@ -80,12 +80,20 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+    site: config.links?.twitter,
     title: {
       default: siteTitle,
       template: `%s | ${siteTitle}`,
     },
     description: siteDescription,
-    images: ["/og-image.png"],
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: siteTitle,
+      },
+    ],
   },
   robots: {
     index: true,
