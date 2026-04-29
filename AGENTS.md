@@ -94,8 +94,6 @@ pnpm migrate:callisto            # list available versions
 pnpm migrate:callisto v6         # apply a specific version
 ```
 
-See `apps/callisto/guide.md` for the production rollout sequence and the migration log.
-
 To stop the stack: `cd apps/callisto && docker compose down`. Postgres data lives in an anonymous volume — `docker compose down -v` wipes it. The Postgres image must be PG14+ to read backups produced by newer `pg_dump` (the current `callisto.backup` is format v1.16 and requires PG17).
 
 Callisto configuration lives at `~/.callisto/config.yaml`. The DB URL there must match the compose credentials (`postgresql://user:password@localhost:5432/database`); always re-run `make update-config CONFIG=...` after the compose creds change. A local `go.work` file at the repo root can be used to resolve `packages/juno` from `apps/callisto` during development.

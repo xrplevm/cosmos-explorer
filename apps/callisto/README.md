@@ -145,7 +145,7 @@ make migrate VERSION=v6
 ./build/callisto migrate v6
 ```
 
-Each migration's DDL is idempotent (`IF NOT EXISTS` / `IF EXISTS`), so re-running is safe. See `guide.md` for the production rollout sequence and migration log.
+Each migration's DDL is idempotent (`IF NOT EXISTS` / `IF EXISTS`), so re-running is safe.
 
 ## CLI Commands
 

@@ -443,45 +443,10 @@ WHERE validator_status.height <= excluded.height`
 	return nil
 }
 
-// SetValidatorRemoved flips the `removed` flag on validator_status for the
-// validator identified by the given operator (valoper) address. It resolves
-// the operator address to a consensus_address via validator_info, then issues
-// a single UPDATE.
-//
-// If the validator is not present in validator_info (e.g. an event fires for
-// an address Callisto has never seen), the UPDATE affects 0 rows; this is
-// logged but does not return an error.
-func (db *Db) SetValidatorRemoved(operatorAddress string, removed bool) error {
-	consAddr, err := db.GetValidatorConsensusAddress(operatorAddress)
-	if err != nil {
-		log.Warn().Str("module", "database").Err(err).
-			Str("operator", operatorAddress).
-			Bool("removed", removed).
-			Msg("cannot resolve consensus address for validator; skipping removed flag update")
-		return nil
-	}
-
-	stmt := `UPDATE validator_status SET removed = $2 WHERE validator_address = $1`
-	res, err := db.SQL.Exec(stmt, consAddr.String(), removed)
-	if err != nil {
-		return fmt.Errorf("error while setting removed=%t on validator %s: %s", removed, operatorAddress, err)
-	}
-
-	rows, err := res.RowsAffected()
-	if err == nil && rows == 0 {
-		log.Warn().Str("module", "database").
-			Str("operator", operatorAddress).
-			Str("consensus", consAddr.String()).
-			Bool("removed", removed).
-			Msg("SetValidatorRemoved affected 0 rows (validator_status row missing)")
-	}
-
-	return nil
-}
-
 // SetValidatorRemovedByConsensusAddr flips the `removed` flag on validator_status
-// directly by consensus_address. Used by the reconciliation loop, which already
-// has the consensus_address in hand and skips the operator → consensus lookup.
+// directly by consensus_address. If no row matches (e.g. an event fires for a
+// validator Callisto has never seen) the UPDATE affects 0 rows; this is logged
+// but does not return an error.
 func (db *Db) SetValidatorRemovedByConsensusAddr(consensusAddress string, removed bool) error {
 	stmt := `UPDATE validator_status SET removed = $2 WHERE validator_address = $1`
 	res, err := db.SQL.Exec(stmt, consensusAddress, removed)
@@ -498,6 +463,21 @@ func (db *Db) SetValidatorRemovedByConsensusAddr(consensusAddress string, remove
 	}
 
 	return nil
+}
+
+// SetValidatorRemoved flips the `removed` flag for the validator identified by
+// its operator (valoper) address. Resolves operator → consensus_address via
+// validator_info and delegates to SetValidatorRemovedByConsensusAddr.
+func (db *Db) SetValidatorRemoved(operatorAddress string, removed bool) error {
+	consAddr, err := db.GetValidatorConsensusAddress(operatorAddress)
+	if err != nil {
+		log.Warn().Str("module", "database").Err(err).
+			Str("operator", operatorAddress).
+			Bool("removed", removed).
+			Msg("cannot resolve consensus address for validator; skipping removed flag update")
+		return nil
+	}
+	return db.SetValidatorRemovedByConsensusAddr(consAddr.String(), removed)
 }
 
 // SetValidatorVotingPowerByConsensusAddr upserts the voting power of a validator
