@@ -11,7 +11,7 @@
       "exponent": 18
     },
     "endpoints": {
-      "graphqlHttp": "http://localhost:8080/v1/graphql",
+      "graphqlHttp": "https://governance.xrplevm.org/v1/graphql",
       "evmExplorer": "https://explorer.xrplevm.org",
       "cosmosRpc": "https://cosmos-rpc.xrplevm.org"
     }

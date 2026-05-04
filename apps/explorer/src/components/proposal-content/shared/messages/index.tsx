@@ -10,6 +10,11 @@ import { UpdateParamsMessage } from "./update-params";
 import { TextMessage } from "./text";
 import { TransferOwnershipMessage } from "./transfer-ownership";
 import { SendMessage } from "./send";
+import { RecoverClientMessage } from "./recover-client";
+import { UpgradeClientMessage } from "./upgrade-client";
+import { CreateIbcClientMessage } from "./create-ibc-client";
+import { UpdateIbcClientMessage } from "./update-ibc-client";
+import { IbcSoftwareUpgradeMessage } from "./ibc-software-upgrade";
 import { DefaultMessage } from "./default";
 
 type MessageRenderer = React.FC<{ msg: ContentMessage }>;
@@ -24,6 +29,11 @@ const MESSAGE_REGISTRY: [test: (name: string) => boolean, component: MessageRend
   [(n) => n.includes("Text"), TextMessage],
   [(n) => n.includes("TransferOwnership"), TransferOwnershipMessage],
   [(n) => n.includes("Send") && !n.includes("Multi"), SendMessage],
+  [(n) => n.includes("RecoverClient"), RecoverClientMessage],
+  [(n) => n.includes("IBCSoftwareUpgrade"), IbcSoftwareUpgradeMessage],
+  [(n) => n.includes("UpgradeClient"), UpgradeClientMessage],
+  [(n) => n.includes("CreateClient"), CreateIbcClientMessage],
+  [(n) => n.includes("UpdateClient"), UpdateIbcClientMessage],
 ];
 
 function getMessageRenderer(typeName: string): MessageRenderer {
