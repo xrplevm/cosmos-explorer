@@ -1,6 +1,7 @@
 import {
   type IProposalService,
   type ProposalDetail,
+  type ProposalEligibleVoter,
   type ProposalSummary,
   type ProposalVote,
   type ProposalDeposit,
@@ -8,9 +9,9 @@ import {
 } from '@cosmos-explorer/core';
 import { type Fetcher, type CosmosRpcClient } from '@cosmos-explorer/utils';
 
-import { mapProposalDetail, mapActiveProposals, mapProposals, mapProposalVotes, toUtcTimestamp } from '../mappers';
-import { ACTIVE_PROPOSALS_QUERY, ACTIVE_PROPOSALS_DATA_QUERY, PROPOSAL_DETAILS_QUERY, PROPOSAL_DEPOSITS_QUERY, PROPOSALS_QUERY, PROPOSAL_VOTES_QUERY, PROPOSAL_VOTES_FILTERED_QUERY } from '../queries';
-import type { ActiveProposalsResponse, ActiveProposalsDataResponse, ProposalDetailsResponse, ProposalDepositsResponse, ProposalVotesResponse, ProposalsResponse } from '../types';
+import { mapProposalDetail, mapActiveProposals, mapProposals, mapProposalVotes, mapProposalEligibleVoters, toUtcTimestamp } from '../mappers';
+import { ACTIVE_PROPOSALS_QUERY, ACTIVE_PROPOSALS_DATA_QUERY, PROPOSAL_DETAILS_QUERY, PROPOSAL_DEPOSITS_QUERY, PROPOSAL_ELIGIBLE_VOTERS_QUERY, PROPOSALS_QUERY, PROPOSAL_VOTES_QUERY, PROPOSAL_VOTES_FILTERED_QUERY } from '../queries';
+import type { ActiveProposalsResponse, ActiveProposalsDataResponse, ProposalDetailsResponse, ProposalDepositsResponse, ProposalEligibleVotersResponse, ProposalVotesResponse, ProposalsResponse } from '../types';
 
 const FALLBACK_GOV_PARAMS: GovParams = {
   quorum: 66.7,
@@ -164,6 +165,19 @@ export class CallistoProposalService implements IProposalService {
     });
 
     return mapProposalVotes(response);
+  }
+
+  async getProposalEligibleVoters(proposalId: number): Promise<ProposalEligibleVoter[]> {
+    const response = await this.fetcher.graphql<
+      ProposalEligibleVotersResponse,
+      { proposalId: number }
+    >({
+      query: PROPOSAL_ELIGIBLE_VOTERS_QUERY,
+      variables: { proposalId },
+      operationName: 'ProposalEligibleVoters',
+    });
+
+    return mapProposalEligibleVoters(response);
   }
 
   async getGovParams(): Promise<GovParams | null> {

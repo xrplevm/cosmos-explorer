@@ -35,6 +35,16 @@ export const TYPE_COLORS: Record<string, string> = {
   ParameterChangeProposal: "bg-violet-500/20 text-violet-400 border-violet-500/30",
   TextProposal: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
   Text: "bg-zinc-500/20 text-zinc-400 border-zinc-500/30",
+  MsgRecoverClient: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+  RecoverClient: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+  MsgUpgradeClient: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+  UpgradeClient: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
+  MsgCreateClient: "bg-teal-500/20 text-teal-400 border-teal-500/30",
+  CreateClient: "bg-teal-500/20 text-teal-400 border-teal-500/30",
+  MsgUpdateClient: "bg-sky-500/20 text-sky-400 border-sky-500/30",
+  UpdateClient: "bg-sky-500/20 text-sky-400 border-sky-500/30",
+  MsgIBCSoftwareUpgrade: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
+  IBCSoftwareUpgrade: "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
 };
 
 export function getTypeColor(typeName: string): string {

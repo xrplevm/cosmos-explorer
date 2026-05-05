@@ -239,6 +239,21 @@ export interface ProposalVotesResponse {
   };
 }
 
+export interface ProposalEligibleVotersResponse {
+  proposal_validator_status_snapshot: {
+    validator?: {
+      validatorInfo?: {
+        operatorAddress: string;
+        selfDelegateAddress?: string | null;
+      } | null;
+      validatorDescriptions?: {
+        moniker?: string | null;
+        identity?: string | null;
+      }[] | null;
+    } | null;
+  }[];
+}
+
 export interface AccountCoinsResponse {
   accountBalances?: {
     coins?: unknown;

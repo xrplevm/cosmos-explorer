@@ -5,6 +5,7 @@ import type {
   Block,
   BlockDetail,
   ProposalDetail,
+  ProposalEligibleVoter,
   ProposalStatus,
   ProposalSummary,
   ProposalVote,
@@ -28,6 +29,7 @@ import type {
   LatestTransactionsResponse,
   ActiveProposalsResponse,
   ProposalDetailsResponse,
+  ProposalEligibleVotersResponse,
   ProposalVotesResponse,
   ProposalsResponse,
   TransactionDetailsResponse,
@@ -601,6 +603,22 @@ export function mapWithdrawalAddress(
   response: AccountWithdrawalAddressResponse,
 ): string | null {
   return response.withdrawalAddress?.address ?? null;
+}
+
+export function mapProposalEligibleVoters(
+  response: ProposalEligibleVotersResponse,
+): ProposalEligibleVoter[] {
+  return response.proposal_validator_status_snapshot
+    .filter((row) => row.validator?.validatorInfo?.selfDelegateAddress)
+    .map((row) => ({
+      selfDelegateAddress: row.validator!.validatorInfo!.selfDelegateAddress!,
+      moniker:
+        row.validator?.validatorDescriptions?.[0]?.moniker ??
+        row.validator?.validatorInfo?.operatorAddress ??
+        "",
+      operatorAddress: row.validator?.validatorInfo?.operatorAddress ?? "",
+      avatarUrl: null,
+    }));
 }
 
 function mapVoteOption(value: string): VoteOption {
