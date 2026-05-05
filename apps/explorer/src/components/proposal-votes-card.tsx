@@ -38,7 +38,13 @@ export async function ProposalVotesCard({ proposalId }: ProposalVotesCardProps) 
 
   const voterAddresses = new Set(votes.map((v) => v.voterAddress));
   const didNotVote: SerializableValidator[] = validatorSet.items
-    .filter((v) => v.selfDelegateAddress && !v.jailed && !voterAddresses.has(v.selfDelegateAddress))
+    .filter(
+      (v) =>
+        v.selfDelegateAddress &&
+        !v.jailed &&
+        v.status !== "removed" &&
+        !voterAddresses.has(v.selfDelegateAddress),
+    )
     .map((v) => ({
       moniker: v.moniker,
       address: v.address,

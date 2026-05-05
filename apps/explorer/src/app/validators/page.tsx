@@ -9,6 +9,8 @@ import { getServices } from "@/lib/services";
 import { getChainConfig } from "@/lib/config";
 import { buildPageMetadata } from "@/lib/metadata";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = buildPageMetadata({
   title: "Validators",
   description: "View all active validators on the XRPL EVM Sidechain.",

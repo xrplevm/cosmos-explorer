@@ -81,6 +81,7 @@ export interface ValidatorsResponse {
     validatorStatuses: {
       status: number;
       jailed: boolean;
+      removed: boolean;
     }[];
     validatorDescriptions: {
       moniker?: string | null;
@@ -114,6 +115,7 @@ export interface ValidatorDetailsResponse {
     validatorStatuses: {
       status: number;
       jailed: boolean;
+      removed: boolean;
       height: Scalar;
     }[];
     validatorDescriptions: {

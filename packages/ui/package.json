@@ -8,6 +8,7 @@
     "./lib/utils": "./src/lib/utils.ts",
     "./avatar": "./src/components/ui/avatar.tsx",
     "./badge": "./src/components/ui/badge.tsx",
+    "./filter-chip": "./src/components/ui/filter-chip.tsx",
     "./button": "./src/components/ui/button.tsx",
     "./card": "./src/components/ui/card.tsx",
     "./copy-button": "./src/components/ui/copy-button.tsx",

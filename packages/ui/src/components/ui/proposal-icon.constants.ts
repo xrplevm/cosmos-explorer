@@ -8,6 +8,7 @@ import {
   IconUserPlus,
   IconUserMinus,
   IconFile,
+  IconLink,
 } from "@tabler/icons-react";
 
 export interface ProposalIconConfig {
@@ -31,6 +32,12 @@ export const PROPOSAL_ICON_CONFIGS: Record<string, ProposalIconConfig> = {
   TextProposal:                 { icon: IconFileText,    bg: "bg-zinc-500/15",   color: "text-zinc-400" },
   AddValidator:                 { icon: IconUserPlus,    bg: "bg-green-500/15",  color: "text-green-400" },
   RemoveValidator:              { icon: IconUserMinus,   bg: "bg-orange-500/15", color: "text-orange-400" },
+  RecoverClient:                { icon: IconLink,        bg: "bg-sky-500/15",    color: "text-sky-400" },
+  CreateClient:                 { icon: IconLink,        bg: "bg-sky-500/15",    color: "text-sky-400" },
+  UpdateClient:                 { icon: IconLink,        bg: "bg-sky-500/15",    color: "text-sky-400" },
+  UpgradeClient:                { icon: IconLink,        bg: "bg-sky-500/15",    color: "text-sky-400" },
+  ClientUpdateProposal:         { icon: IconLink,        bg: "bg-sky-500/15",    color: "text-sky-400" },
+  IBCSoftwareUpgrade:           { icon: IconLink,        bg: "bg-sky-500/15",    color: "text-sky-400" },
 };
 
 export const DEFAULT_PROPOSAL_ICON_CONFIG: ProposalIconConfig = {

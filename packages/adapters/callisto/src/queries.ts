@@ -180,6 +180,7 @@ export const VALIDATORS_QUERY = `
       validatorStatuses: validator_statuses(order_by: { height: desc }, limit: 1) {
         status
         jailed
+        removed
       }
       validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
         moniker
@@ -209,6 +210,7 @@ export const VALIDATOR_DETAILS_QUERY = `
       validatorStatuses: validator_statuses(order_by: { height: desc }, limit: 1) {
         status
         jailed
+        removed
         height
       }
       validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {

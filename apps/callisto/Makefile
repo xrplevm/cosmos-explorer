@@ -72,15 +72,13 @@ test-unit: start-docker-test
 ###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
-golangci_lint_cmd=github.com/golangci/golangci-lint/cmd/golangci-lint
-
 lint:
 	@echo "--> Running linter"
-	@go run $(golangci_lint_cmd) run --timeout=10m
+	@golangci-lint run --timeout=10m
 
 lint-fix:
 	@echo "--> Running linter"
-	@go run $(golangci_lint_cmd) run --fix --out-format=tab --issues-exit-code=0
+	@golangci-lint run --fix --out-format=tab --issues-exit-code=0
 
 .PHONY: lint lint-fix
 
@@ -158,6 +156,22 @@ db-tables:
 db-size:
 	@$(DB_EXEC) -c "SELECT schemaname, tablename, pg_size_pretty(pg_total_relation_size(schemaname || '.' || tablename)) AS size FROM pg_tables WHERE schemaname = 'public' ORDER BY pg_total_relation_size(schemaname || '.' || tablename) DESC;"
 .PHONY: db-size
+
+###############################################################################
+###                              Migrations                                 ###
+###############################################################################
+
+# Run with: make migrate VERSION=v6
+migrate:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Error: VERSION variable is not set."; \
+		echo "Usage: make migrate VERSION=v6"; \
+		./build/callisto migrate; \
+		exit 1; \
+	fi
+	@echo "Running migration $(VERSION)..."
+	@./build/callisto migrate $(VERSION)
+.PHONY: migrate
 
 ###############################################################################
 ###                              Local development                          ###

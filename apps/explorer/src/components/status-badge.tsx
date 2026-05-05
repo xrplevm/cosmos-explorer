@@ -52,6 +52,13 @@ export function StatusBadge({ status }: { status: string }) {
           {status}
         </Badge>
       );
+    case "Removed":
+      return (
+        <Badge variant="outline" className="text-muted-foreground">
+          <IconCircleXFilled className="h-3.5 w-3.5 text-destructive" />
+          {status}
+        </Badge>
+      );
     case "Passed":
       return (
         <Badge variant="outline" className="text-muted-foreground">

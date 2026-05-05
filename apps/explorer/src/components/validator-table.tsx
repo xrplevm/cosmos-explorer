@@ -11,18 +11,16 @@ import {
 } from "@cosmos-explorer/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@cosmos-explorer/ui/avatar";
 import { Input } from "@cosmos-explorer/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@cosmos-explorer/ui/select";
-import { IconSearch as Search, IconX as X, IconCircleCheckFilled, IconCircleFilled, IconGavel } from "@tabler/icons-react";
+import { FilterChip } from "@cosmos-explorer/ui/filter-chip";
+import { IconSearch as Search, IconX as X } from "@tabler/icons-react";
 import { StatusBadge } from "@/components/status-badge";
 import { formatPercent } from "@/lib/formatters";
 import Link from "next/link";
-import type { Validator, ValidatorStatus } from "@cosmos-explorer/core";
+import type { Validator } from "@cosmos-explorer/core";
+import {
+  VALIDATOR_STATUS_FILTERS,
+  type ValidatorStatusFilter,
+} from "@/components/validator-table.constants";
 
 function toStatusLabel(status: string): string {
   switch (status) {
@@ -39,7 +37,7 @@ function toStatusLabel(status: string): string {
 
 export function ValidatorTable({ validators }: { validators: Validator[] }) {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ValidatorStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<ValidatorStatusFilter>("all");
 
   const filtered = useMemo(() => {
     let result = validators;
@@ -78,32 +76,17 @@ export function ValidatorTable({ validators }: { validators: Validator[] }) {
             </button>
           )}
         </div>
-        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v as ValidatorStatus | "all"); }}>
-          <SelectTrigger className="w-full sm:w-44">
-            <SelectValue placeholder="All statuses" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="active">
-              <span className="flex items-center gap-2">
-                <IconCircleCheckFilled className="h-3.5 w-3.5 text-success" />
-                Active
-              </span>
-            </SelectItem>
-            <SelectItem value="inactive">
-              <span className="flex items-center gap-2">
-                <IconCircleFilled className="h-3.5 w-3.5" />
-                Inactive
-              </span>
-            </SelectItem>
-            <SelectItem value="jailed">
-              <span className="flex items-center gap-2">
-                <IconGavel className="h-3.5 w-3.5 text-destructive" />
-                Jailed
-              </span>
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap items-center gap-2">
+          {VALIDATOR_STATUS_FILTERS.map(({ value, label, icon }) => (
+            <FilterChip
+              key={value}
+              label={label}
+              icon={icon}
+              selected={statusFilter === value}
+              onClick={() => { setStatusFilter(value); }}
+            />
+          ))}
+        </div>
       </div>
 
       {filtered.length === 0 ? (
