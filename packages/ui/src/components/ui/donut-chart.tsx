@@ -60,6 +60,11 @@ export function DonutChart({
   className,
   children,
 }: DonutChartProps) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const total = segments.reduce((sum, s) => sum + s.value, 0);
   const hasData = total > 0;
 
@@ -70,26 +75,34 @@ export function DonutChart({
   const outerRadius = size / 2;
 
   return (
-    <div className={cn("relative inline-flex items-center justify-center", className)}>
-      <PieChart width={size} height={size}>
-        <Pie
-          data={data}
-          dataKey="value"
-          cx="50%"
-          cy="50%"
-          innerRadius={0}
-          outerRadius={outerRadius}
-          startAngle={90}
-          endAngle={-270}
-          strokeWidth={0}
-          label={hasData ? renderLabel : undefined}
-          labelLine={false}
-        >
-          {data.map((segment) => (
-            <Cell key={segment.label} fill={segment.color} />
-          ))}
-        </Pie>
-      </PieChart>
+    <div
+      className={cn(
+        "relative inline-flex items-center justify-center",
+        className,
+      )}
+      style={{ width: size, height: size }}
+    >
+      {mounted && (
+        <PieChart width={size} height={size}>
+          <Pie
+            data={data}
+            dataKey="value"
+            cx="50%"
+            cy="50%"
+            innerRadius={0}
+            outerRadius={outerRadius}
+            startAngle={90}
+            endAngle={-270}
+            strokeWidth={0}
+            label={hasData ? renderLabel : undefined}
+            labelLine={false}
+          >
+            {data.map((segment) => (
+              <Cell key={segment.label} fill={segment.color} />
+            ))}
+          </Pie>
+        </PieChart>
+      )}
       {children && (
         <div className="absolute inset-0 flex items-center justify-center">
           {children}
