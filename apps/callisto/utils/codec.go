@@ -35,6 +35,8 @@ import (
 	"github.com/cosmos/evm/x/feemarket"
 	"github.com/cosmos/evm/x/vm"
 	"github.com/cosmos/gogoproto/proto"
+	ibc "github.com/cosmos/ibc-go/v10/modules/core"
+	ibctm "github.com/cosmos/ibc-go/v10/modules/light-clients/07-tendermint"
 	"github.com/xrplevm/node/v9/x/poa"
 )
 
@@ -81,6 +83,8 @@ func getBasicManagers() module.BasicManager {
 		vm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
 		erc20.AppModuleBasic{},
+		ibc.AppModuleBasic{},
+		ibctm.AppModuleBasic{},
 	)
 }
 

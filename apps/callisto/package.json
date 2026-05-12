@@ -5,6 +5,8 @@
   "scripts": {
     "build": "make build",
     "dev": "go run ./cmd/callisto",
+    "start": "./build/callisto start",
+    "migrate": "./build/callisto migrate",
     "lint": "make lint",
     "typecheck": "make typecheck",
     "test": "make test-unit stop-docker-test",

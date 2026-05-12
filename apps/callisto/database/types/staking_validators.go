@@ -239,6 +239,7 @@ func (v ValidatorVotingPowerRow) Equal(w ValidatorVotingPowerRow) bool {
 type ValidatorStatusRow struct {
 	Status      int    `db:"status"`
 	Jailed      bool   `db:"jailed"`
+	Removed     bool   `db:"removed"`
 	ConsAddress string `db:"validator_address"`
 	Height      int64  `db:"height"`
 }
@@ -257,6 +258,7 @@ func NewValidatorStatusRow(status int, jailed bool, consAddess string, height in
 func (v ValidatorStatusRow) Equal(w ValidatorStatusRow) bool {
 	return v.Status == w.Status &&
 		v.Jailed == w.Jailed &&
+		v.Removed == w.Removed &&
 		v.ConsAddress == w.ConsAddress &&
 		v.Height == w.Height
 }

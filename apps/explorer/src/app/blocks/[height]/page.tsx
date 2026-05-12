@@ -100,17 +100,17 @@ export default async function BlockDetailPage({
         </CardHeader>
         <CardContent className="space-y-0">
           <Row label="Block Height">
-            <span className="font-mono">
+            <span className="font-mono text-primary-soft">
               #{Number(height).toLocaleString()}
             </span>
           </Row>
           <Separator />
           <Row label="Block Hash">
             <div className="flex min-w-0 flex-nowrap items-center gap-2">
-              <span className="min-w-0 flex-1 font-mono text-xs md:hidden">
+              <span className="min-w-0 flex-1 font-mono text-xs text-primary-soft md:hidden">
                 {formatHashMiddle(detail.overview.hash, 8, 8)}
               </span>
-              <span className="hidden min-w-0 flex-1 break-all font-mono text-xs md:block">
+              <span className="hidden min-w-0 flex-1 break-all font-mono text-xs text-primary-soft md:block">
                 {detail.overview.hash}
               </span>
               <CopyButton

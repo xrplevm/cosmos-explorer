@@ -72,6 +72,7 @@ CREATE TABLE validator_status
     validator_address TEXT    NOT NULL REFERENCES validator (consensus_address) PRIMARY KEY,
     status            INT     NOT NULL,
     jailed            BOOLEAN NOT NULL,
+    removed           BOOLEAN NOT NULL DEFAULT false,
     height            BIGINT  NOT NULL
 );
 CREATE INDEX validator_status_height_index ON validator_status (height);

@@ -715,6 +715,135 @@ func (suite *DbTestSuite) TestSaveValidatorStatus() {
 
 // --------------------------------------------------------------------------------------------------------------------
 
+func (suite *DbTestSuite) TestSetValidatorRemoved() {
+	validator := suite.getValidator(
+		"cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl",
+		"cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl",
+		"cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8",
+	)
+
+	// Seed an initial status row so SetValidatorRemoved has something to update.
+	err := suite.database.SaveValidatorsStatuses([]types.ValidatorStatus{
+		types.NewValidatorStatus(
+			validator.GetConsAddr(),
+			validator.GetConsPubKey(),
+			3,
+			false,
+			10,
+		),
+	})
+	suite.Require().NoError(err)
+
+	// Happy path: mark removed by operator address.
+	err = suite.database.SetValidatorRemoved(validator.GetOperator(), true)
+	suite.Require().NoError(err)
+
+	var stored []dbtypes.ValidatorStatusRow
+	err = suite.database.Sqlx.Select(&stored, "SELECT * FROM validator_status")
+	suite.Require().NoError(err)
+	suite.Require().Len(stored, 1)
+	suite.Require().True(stored[0].Removed)
+
+	// Idempotent: setting removed=true twice keeps the value true and does not error.
+	err = suite.database.SetValidatorRemoved(validator.GetOperator(), true)
+	suite.Require().NoError(err)
+	stored = nil
+	err = suite.database.Sqlx.Select(&stored, "SELECT * FROM validator_status")
+	suite.Require().NoError(err)
+	suite.Require().True(stored[0].Removed)
+
+	// Re-activation path: setting removed=false flips the flag back.
+	err = suite.database.SetValidatorRemoved(validator.GetOperator(), false)
+	suite.Require().NoError(err)
+	stored = nil
+	err = suite.database.Sqlx.Select(&stored, "SELECT * FROM validator_status")
+	suite.Require().NoError(err)
+	suite.Require().False(stored[0].Removed)
+
+	// Unknown operator: helper logs a warning and returns nil. The DB is untouched.
+	err = suite.database.SetValidatorRemoved("cosmosvaloper1unknownunknownunknownunknownunknownuv6mhjs", true)
+	suite.Require().NoError(err)
+	stored = nil
+	err = suite.database.Sqlx.Select(&stored, "SELECT * FROM validator_status")
+	suite.Require().NoError(err)
+	suite.Require().Len(stored, 1)
+	suite.Require().False(stored[0].Removed)
+}
+
+func (suite *DbTestSuite) TestSetValidatorRemovedByConsensusAddr() {
+	validator := suite.getValidator(
+		"cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl",
+		"cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl",
+		"cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8",
+	)
+
+	err := suite.database.SaveValidatorsStatuses([]types.ValidatorStatus{
+		types.NewValidatorStatus(
+			validator.GetConsAddr(),
+			validator.GetConsPubKey(),
+			3,
+			false,
+			10,
+		),
+	})
+	suite.Require().NoError(err)
+
+	err = suite.database.SetValidatorRemovedByConsensusAddr(validator.GetConsAddr(), true)
+	suite.Require().NoError(err)
+
+	var stored []dbtypes.ValidatorStatusRow
+	err = suite.database.Sqlx.Select(&stored, "SELECT * FROM validator_status")
+	suite.Require().NoError(err)
+	suite.Require().Len(stored, 1)
+	suite.Require().True(stored[0].Removed)
+
+	// Unknown consensus address: 0 rows affected, no error.
+	err = suite.database.SetValidatorRemovedByConsensusAddr(
+		"cosmosvalcons1unknownunknownunknownunknownunknown0xj3pv",
+		true,
+	)
+	suite.Require().NoError(err)
+}
+
+func (suite *DbTestSuite) TestSetValidatorVotingPowerByConsensusAddr() {
+	_ = suite.getBlock(5)
+	_ = suite.getBlock(10)
+	_ = suite.getBlock(11)
+
+	validator := suite.getValidator(
+		"cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl",
+		"cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl",
+		"cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8",
+	)
+
+	// Seed a non-zero voting power at height 10 to mimic a pre-removal state.
+	err := suite.database.SaveValidatorsVotingPowers([]types.ValidatorVotingPower{
+		types.NewValidatorVotingPower(validator.GetConsAddr(), 1_000_000, 10),
+	})
+	suite.Require().NoError(err)
+
+	// Reconciliation runs at a later height and zeros the row.
+	err = suite.database.SetValidatorVotingPowerByConsensusAddr(validator.GetConsAddr(), 0, 11)
+	suite.Require().NoError(err)
+
+	var rows []dbtypes.ValidatorVotingPowerRow
+	err = suite.database.Sqlx.Select(&rows, "SELECT * FROM validator_voting_power")
+	suite.Require().NoError(err)
+	suite.Require().Len(rows, 1)
+	suite.Require().Equal(int64(0), rows[0].VotingPower)
+	suite.Require().Equal(int64(11), rows[0].Height)
+
+	// Older height must NOT overwrite the newer zero (height guard).
+	err = suite.database.SetValidatorVotingPowerByConsensusAddr(validator.GetConsAddr(), 999, 5)
+	suite.Require().NoError(err)
+	err = suite.database.Sqlx.Select(&rows, "SELECT * FROM validator_voting_power")
+	suite.Require().NoError(err)
+	suite.Require().Equal(int64(0), rows[0].VotingPower)
+	suite.Require().Equal(int64(11), rows[0].Height)
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+
 func (suite *DbTestSuite) TestSaveDoubleVoteEvidence() {
 	// Insert the validator
 	validator := suite.getValidator(

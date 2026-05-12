@@ -5,7 +5,7 @@ export interface ValidatorCount {
   total: number;
 }
 
-export type ValidatorStatus = 'active' | 'inactive' | 'jailed' | 'unknown';
+export type ValidatorStatus = 'active' | 'inactive' | 'jailed' | 'removed' | 'unknown';
 
 export interface Validator {
   address: string;

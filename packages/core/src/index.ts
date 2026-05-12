@@ -33,6 +33,7 @@ export {
   type ProposalTally,
   type ProposalDetail,
   type ProposalDeposit,
+  type ProposalEligibleVoter,
   type GovParams,
   type IProposalService,
 } from './proposal';

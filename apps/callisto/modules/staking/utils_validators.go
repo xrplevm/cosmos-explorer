@@ -225,6 +225,16 @@ func (m *Module) UpdateValidatorStatuses() error {
 		return fmt.Errorf("error while updating validators status and voting power: %s", err)
 	}
 
+	// reconcile the `removed` flag against the chain validator set: any DB
+	// validator with removed=false that is missing from the chain set is
+	// marked removed. This serves as both the historical backfill (first
+	// run) and a drift-recovery safety net (subsequent runs).
+	if err = m.reconcileRemovedValidators(block.Height, validators); err != nil {
+		// non-fatal — log and continue so the rest of the periodic op runs
+		log.Error().Str("module", "staking").Err(err).
+			Msg("error while reconciling removed validators")
+	}
+
 	// get all active proposals IDs from db
 	ids, err := m.db.GetOpenProposalsIds(block.BlockTimestamp)
 	if err != nil {
@@ -321,4 +331,87 @@ func (m *Module) updateValidatorStatusAndVP(height int64, validators []stakingty
 	}
 
 	return nil
+}
+
+// reconcileRemovedValidators marks any DB validator that is missing from the
+// supplied chain validator set as `removed = true` in validator_status. It is
+// a one-way diff — it never clears the flag (re-activation is handled by the
+// `add_validator` event in handle_remove_validator.go).
+//
+// Safety rules:
+//   - If chainValidators is empty, the function logs and returns without
+//     mutating anything. An empty validator set on a running chain is
+//     impossible; treating it as malformed prevents accidentally marking the
+//     entire validator set as removed if a chain query returns garbage.
+//     (The R1 case — RPC error — is handled by the caller, which returns
+//     early before invoking this function.)
+func (m *Module) reconcileRemovedValidators(height int64, chainValidators []stakingtypes.Validator) error {
+	chainConsensusAddrs := m.buildChainConsensusAddrSet(chainValidators)
+
+	// If the chain set is empty (or we couldn't derive any consensus addresses
+	// from it), treat as malformed per R2 and skip reconciliation entirely.
+	if len(chainConsensusAddrs) == 0 {
+		log.Warn().Str("module", "staking").
+			Msg("skipping removed-validator reconciliation: chain consensus address set is empty")
+		return nil
+	}
+
+	dbValidators, err := m.db.GetValidators()
+	if err != nil {
+		return fmt.Errorf("error while getting DB validators for reconciliation: %s", err)
+	}
+
+	for _, consAddr := range diffMissingFromChain(dbValidators, chainConsensusAddrs) {
+		if err := m.db.SetValidatorRemovedByConsensusAddr(consAddr, true); err != nil {
+			log.Error().Str("module", "staking").Err(err).
+				Str("consensus", consAddr).
+				Msg("error while marking validator as removed during reconciliation")
+			continue
+		}
+		// Match on-chain state: PoA's RemoveValidator burns the validator's
+		// tokens, so consensus voting power is 0. Update the DB so the
+		// explorer no longer shows the stale pre-removal value.
+		if err := m.db.SetValidatorVotingPowerByConsensusAddr(consAddr, 0, height); err != nil {
+			log.Error().Str("module", "staking").Err(err).
+				Str("consensus", consAddr).
+				Msg("error while zeroing voting power for removed validator")
+		}
+	}
+
+	return nil
+}
+
+// buildChainConsensusAddrSet derives a set of consensus addresses (as strings)
+// from a slice of staking validators. Validators whose consensus address
+// cannot be derived are skipped with a warning rather than aborting the
+// whole diff.
+func (m *Module) buildChainConsensusAddrSet(chainValidators []stakingtypes.Validator) map[string]struct{} {
+	out := make(map[string]struct{}, len(chainValidators))
+	for _, v := range chainValidators {
+		consAddr, err := m.getValidatorConsAddr(v)
+		if err != nil {
+			log.Warn().Str("module", "staking").Err(err).
+				Str("operator", v.OperatorAddress).
+				Msg("could not derive consensus address for chain validator; skipping in reconciliation")
+			continue
+		}
+		out[consAddr.String()] = struct{}{}
+	}
+	return out
+}
+
+// diffMissingFromChain returns the consensus addresses of DB validators that
+// are not present in the chain consensus-address set. This is the pure-data
+// portion of reconcileRemovedValidators and has no side effects, so it can
+// be unit-tested directly.
+func diffMissingFromChain(dbValidators []types.Validator, chainConsensusAddrs map[string]struct{}) []string {
+	var missing []string
+	for _, dbVal := range dbValidators {
+		consAddr := dbVal.GetConsAddr()
+		if _, onChain := chainConsensusAddrs[consAddr]; onChain {
+			continue
+		}
+		missing = append(missing, consAddr)
+	}
+	return missing
 }
