@@ -29,8 +29,9 @@ function toStatusLabel(status: ProposalStatus): string {
     case "passed":
       return "Passed";
     case "rejected":
-    case "failed":
       return "Rejected";
+    case "failed":
+      return "Failed";
     default:
       return "Unknown";
   }
