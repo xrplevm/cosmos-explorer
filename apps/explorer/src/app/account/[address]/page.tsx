@@ -27,6 +27,12 @@ import { bech32 } from "bech32";
 import { buildPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
+import {
+  ACCOUNT_TX_WINDOW,
+  AccountTransactionsCard,
+  AccountTransactionsCardSkeleton,
+} from "@/components/account-transactions-card";
 
 export async function generateMetadata({
   params,
@@ -72,6 +78,12 @@ export default async function AccountDetailPage({
   const primaryToken = config.network.primaryToken;
   const stakingToken = config.network.stakingToken;
   const { accountService } = getServices();
+  // Kicked off before the account await to run concurrently.
+  const transactionsPromise = accountService.getAccountTransactions(address, {
+    limit: ACCOUNT_TX_WINDOW,
+  });
+  // Prevents an unhandled-rejection warning if the account fetch below fails first.
+  transactionsPromise.catch(() => undefined);
   const account = await accountService.getAccountByAddress(address);
   const rewardTotal = formatCoinTotal(
     account.rewards.map((reward) => reward.amount),
@@ -162,6 +174,10 @@ export default async function AccountDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      <Suspense fallback={<AccountTransactionsCardSkeleton />}>
+        <AccountTransactionsCard transactionsPromise={transactionsPromise} />
+      </Suspense>
 
       <Card>
         <CardHeader>

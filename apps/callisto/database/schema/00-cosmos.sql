@@ -105,10 +105,14 @@ CREATE FUNCTION messages_by_address(
     "offset" BIGINT = 0)
     RETURNS SETOF message AS
 $$
-SELECT * FROM message
-WHERE (cardinality(types) = 0 OR type = ANY (types))
-  AND addresses && involved_accounts_addresses
-ORDER BY height DESC LIMIT "limit" OFFSET "offset"
+-- Materialized so the GIN index is used instead of a full scan (see migrate/v7).
+WITH matched AS MATERIALIZED (
+    SELECT * FROM message
+    WHERE (cardinality(types) = 0 OR type = ANY (types))
+      AND addresses && involved_accounts_addresses
+)
+SELECT * FROM matched
+ORDER BY height DESC, transaction_hash, index LIMIT "limit" OFFSET "offset"
 $$ LANGUAGE sql STABLE;
 
 CREATE FUNCTION messages_by_type(

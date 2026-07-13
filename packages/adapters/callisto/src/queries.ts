@@ -410,6 +410,24 @@ export const PROPOSAL_ELIGIBLE_VOTERS_QUERY = `
   }
 `;
 
+export const ACCOUNT_TRANSACTIONS_QUERY = `
+  query AccountTransactions($address: _text!, $types: _text!, $limit: bigint!, $offset: bigint!) {
+    messages_by_address(
+      args: { addresses: $address, types: $types, limit: $limit, offset: $offset }
+    ) {
+      type
+      transaction {
+        hash
+        height
+        success
+        block {
+          timestamp
+        }
+      }
+    }
+  }
+`;
+
 export const ACCOUNT_BALANCES_QUERY = `
   query AccountBalances($address: String!) {
     accountBalances: action_account_balance(address: $address) {

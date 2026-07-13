@@ -22,6 +22,7 @@ import type {
 import type {
   AccountDelegationsResponse,
   AccountRewardsResponse,
+  AccountTransactionsResponse,
   AccountWithdrawalAddressResponse,
   AverageBlockTimeResponse,
   BlockDetailsResponse,
@@ -570,6 +571,41 @@ export function mapProposalDetail(
         }
       : null,
   };
+}
+
+export function mapAccountTransactions(
+  response: AccountTransactionsResponse,
+): TransactionSummary[] {
+  // A tx straddling the fetch window's LIMIT boundary may undercount its types.
+  const typesByHash = new Map<string, string[]>();
+  for (const message of response.messages_by_address) {
+    const hash = message.transaction?.hash;
+    if (hash) {
+      const types = typesByHash.get(hash) ?? [];
+      types.push(message.type);
+      typesByHash.set(hash, types);
+    }
+  }
+
+  const seen = new Set<string>();
+  const transactions: TransactionSummary[] = [];
+  for (const message of response.messages_by_address) {
+    const transaction = message.transaction;
+    if (!transaction || seen.has(transaction.hash)) {
+      continue;
+    }
+    seen.add(transaction.hash);
+    const types = typesByHash.get(transaction.hash) ?? [];
+    transactions.push({
+      hash: transaction.hash,
+      height: toNumber(transaction.height),
+      type: summarizeMessageTypes(types),
+      success: transaction.success,
+      timestamp: toUtcTimestamp(transaction.block.timestamp) ?? "",
+      messageCount: types.length,
+    });
+  }
+  return transactions;
 }
 
 export function mapAccountRewards(

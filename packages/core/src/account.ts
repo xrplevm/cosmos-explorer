@@ -1,4 +1,5 @@
 import type { TokenAmount } from './price';
+import type { TransactionSummary } from './transaction';
 
 export type AccountBalance = TokenAmount;
 
@@ -24,4 +25,8 @@ export interface AccountOverview {
 
 export interface IAccountService {
   getAccountByAddress(address: string): Promise<AccountOverview>;
+  getAccountTransactions(
+    address: string,
+    params?: { limit?: number; offset?: number },
+  ): Promise<TransactionSummary[]>;
 }

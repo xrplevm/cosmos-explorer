@@ -1,10 +1,11 @@
-import { type AccountOverview, type IAccountService } from '@cosmos-explorer/core';
+import { type AccountOverview, type IAccountService, type TransactionSummary } from '@cosmos-explorer/core';
 import { type Fetcher, evmToCosmosAddress } from '@cosmos-explorer/utils';
 
 import {
   buildAccountOverview,
   mapAccountDelegations,
   mapAccountRewards,
+  mapAccountTransactions,
   mapWithdrawalAddress,
 } from '../mappers';
 import {
@@ -12,6 +13,7 @@ import {
   ACCOUNT_DELEGATION_BALANCE_QUERY,
   ACCOUNT_DELEGATIONS_QUERY,
   ACCOUNT_REWARDS_QUERY,
+  ACCOUNT_TRANSACTIONS_QUERY,
   ACCOUNT_UNBONDING_BALANCE_QUERY,
   ACCOUNT_WITHDRAWAL_ADDRESS_QUERY,
 } from '../queries';
@@ -19,6 +21,7 @@ import type {
   AccountCoinsResponse,
   AccountDelegationsResponse,
   AccountRewardsResponse,
+  AccountTransactionsResponse,
   AccountWithdrawalAddressResponse,
 } from '../types';
 
@@ -91,5 +94,28 @@ export class CallistoAccountService implements IAccountService {
       withdrawalAddress: mapWithdrawalAddress(withdrawalAddressResponse),
       stakingDenom: this.stakingDenom,
     });
+  }
+
+  async getAccountTransactions(
+    address: string,
+    params?: { limit?: number; offset?: number },
+  ): Promise<TransactionSummary[]> {
+    const cosmosAddress = evmToCosmosAddress(address, this.bech32Prefix);
+
+    const response = await this.fetcher.graphql<
+      AccountTransactionsResponse,
+      { address: string; types: string; limit: number; offset: number }
+    >({
+      query: ACCOUNT_TRANSACTIONS_QUERY,
+      variables: {
+        address: `{${cosmosAddress}}`,
+        types: '{}',
+        limit: params?.limit ?? 10,
+        offset: params?.offset ?? 0,
+      },
+      operationName: 'AccountTransactions',
+    });
+
+    return mapAccountTransactions(response);
   }
 }

@@ -292,6 +292,20 @@ export interface AccountWithdrawalAddressResponse {
   } | null;
 }
 
+export interface AccountTransactionsResponse {
+  messages_by_address: {
+    type: string;
+    transaction: {
+      hash: string;
+      height: number;
+      success: boolean;
+      block: {
+        timestamp: string;
+      };
+    } | null;
+  }[];
+}
+
 export type DailyStatsResponse = Record<
   string,
   {
