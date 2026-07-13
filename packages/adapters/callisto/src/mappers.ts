@@ -278,8 +278,9 @@ function mapValidatorStatus(
   status: number,
   jailed: boolean,
   removed = false,
+  tombstoned = false,
 ): Validator["status"] {
-  if (removed) {
+  if (tombstoned || removed) {
     return "removed";
   }
 
@@ -328,6 +329,7 @@ export function mapValidatorSet(
           statusRow?.status ?? 0,
           toBoolean(statusRow?.jailed),
           toBoolean(statusRow?.removed),
+          toBoolean(signingInfo?.tombstoned),
         ),
         jailed: toBoolean(statusRow?.jailed),
         tombstoned: toBoolean(signingInfo?.tombstoned),
@@ -399,6 +401,7 @@ export function mapValidatorDetail(
       detailRow.validatorStatuses[0]?.status ?? 0,
       toBoolean(detailRow.validatorStatuses[0]?.jailed),
       toBoolean(detailRow.validatorStatuses[0]?.removed),
+      toBoolean(detailRow.validatorSigningInfos[0]?.tombstoned),
     ),
     jailed: toBoolean(detailRow.validatorStatuses[0]?.jailed),
     tombstoned: toBoolean(detailRow.validatorSigningInfos[0]?.tombstoned),
