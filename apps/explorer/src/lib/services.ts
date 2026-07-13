@@ -5,6 +5,7 @@ import {
   CallistoAccountService,
   CallistoBlockService,
   CallistoChainStatsService,
+  CallistoConsensusService,
   CallistoProposalService,
   CallistoTransactionService,
   CallistoValidatorService,
@@ -13,6 +14,7 @@ import type {
   IAccountService,
   IBlockService,
   IChainStatsService,
+  IConsensusService,
   GovParams,
   IProposalService,
   ITransactionService,
@@ -22,6 +24,7 @@ import { createFetcher, createCosmosRpcClient } from "@cosmos-explorer/utils";
 
 export interface Services {
   blockService: IBlockService;
+  consensusService: IConsensusService;
   transactionService: ITransactionService;
   validatorService: IValidatorService;
   chainStatsService: IChainStatsService;
@@ -46,6 +49,7 @@ export const getServices = cache((): Services => {
     : undefined;
 
   const blockService = new CallistoBlockService(fetcher);
+  const consensusService = new CallistoConsensusService(fetcher);
   const transactionService = new CallistoTransactionService(fetcher);
   const validatorService = new CallistoValidatorService(
     fetcher,
@@ -70,6 +74,7 @@ export const getServices = cache((): Services => {
 
   return {
     blockService,
+    consensusService,
     transactionService,
     validatorService,
     chainStatsService,

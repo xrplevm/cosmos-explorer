@@ -17,6 +17,7 @@
     },
     "endpoints": {
       "graphqlHttp": "https://governance.testnet.xrplevm.org/v1/graphql",
+      "graphqlWs": "wss://governance.testnet.xrplevm.org/v1/graphql",
       "evmExplorer": "https://explorer.testnet.xrplevm.org",
       "cosmosRpc": "https://cosmos-rpc.testnet.xrplevm.org"
     }

@@ -1,6 +1,7 @@
 export {
   CallistoAccountService,
   CallistoBlockService,
+  CallistoConsensusService,
   CallistoTransactionService,
   CallistoValidatorService,
   CallistoChainStatsService,
