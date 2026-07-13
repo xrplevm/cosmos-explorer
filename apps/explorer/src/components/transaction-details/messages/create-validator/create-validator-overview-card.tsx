@@ -65,6 +65,7 @@ export function CreateValidatorOverviewCard({
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
+  const stakingToken = chainConfig.network.stakingToken;
   const firstMessage = transaction.messages.at(0);
   const parsed = parseJsonIfString(firstMessage?.value) as
     | CreateValidatorValue
@@ -178,7 +179,7 @@ export function CreateValidatorOverviewCard({
             <Separator />
             <DetailRow label="Self Delegation">
               <span className="font-mono text-xs">
-                {formatTokenAmount(selfDelegation, token)}
+                {formatTokenAmount(selfDelegation, stakingToken)}
               </span>
             </DetailRow>
           </>

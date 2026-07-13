@@ -39,6 +39,7 @@ export function UndelegateOverviewCard({
   chainConfig,
 }: TransactionDetailViewProps) {
   const token = chainConfig.network.primaryToken;
+  const stakingToken = chainConfig.network.stakingToken;
   const firstMessage = transaction.messages.at(0);
   const parsed = parseJsonIfString(firstMessage?.value) as
     | UndelegateValue
@@ -130,7 +131,7 @@ export function UndelegateOverviewCard({
             <Separator />
             <DetailRow label="Amount">
               <span className="font-mono text-xs">
-                {formatTokenAmount(amount, token)}
+                {formatTokenAmount(amount, stakingToken)}
               </span>
             </DetailRow>
           </>

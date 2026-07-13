@@ -20,7 +20,7 @@ export const metadata: Metadata = buildPageMetadata({
 export default async function ValidatorsPage() {
   const { validatorService } = getServices();
   const validatorSet = await validatorService.getValidatorSet();
-  const { network: { primaryToken } } = getChainConfig();
+  const { network: { stakingToken } } = getChainConfig();
 
   return (
     <div className="space-y-6">
@@ -40,7 +40,7 @@ export default async function ValidatorsPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Bonded</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{formatTokenAmount(validatorSet.bonded, primaryToken)}</p>
+            <p className="text-2xl font-bold">{formatTokenAmount(validatorSet.bonded, stakingToken)}</p>
           </CardContent>
         </Card>
         <Card>

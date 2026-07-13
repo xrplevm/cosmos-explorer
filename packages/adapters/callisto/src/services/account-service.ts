@@ -27,6 +27,7 @@ export class CallistoAccountService implements IAccountService {
     private readonly fetcher: Fetcher,
     private readonly primaryDenom = 'axrp',
     private readonly bech32Prefix = 'ethm',
+    private readonly stakingDenom = 'poa',
   ) {}
 
   async getAccountByAddress(address: string): Promise<AccountOverview> {
@@ -86,9 +87,9 @@ export class CallistoAccountService implements IAccountService {
       delegationBalance: delegationBalanceResponse.delegationBalance?.coins,
       unbondingBalance: unbondingBalanceResponse.unbondingBalance?.coins,
       rewards: mapAccountRewards(rewardsResponse, this.primaryDenom),
-      delegations: mapAccountDelegations(delegationsResponse, this.primaryDenom),
+      delegations: mapAccountDelegations(delegationsResponse, this.stakingDenom),
       withdrawalAddress: mapWithdrawalAddress(withdrawalAddressResponse),
-      primaryDenom: this.primaryDenom,
+      stakingDenom: this.stakingDenom,
     });
   }
 }

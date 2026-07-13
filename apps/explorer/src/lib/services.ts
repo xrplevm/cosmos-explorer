@@ -49,17 +49,18 @@ export const getServices = cache((): Services => {
   const transactionService = new CallistoTransactionService(fetcher);
   const validatorService = new CallistoValidatorService(
     fetcher,
-    config.network.primaryToken.denom
+    config.network.stakingToken.denom
   );
   const proposalService = new CallistoProposalService(
     fetcher,
-    config.network.primaryToken.denom,
+    config.network.stakingToken.denom,
     cosmosRpc,
   );
   const accountService = new CallistoAccountService(
     fetcher,
     config.network.primaryToken.denom,
     config.network.bech32Prefix,
+    config.network.stakingToken.denom,
   );
   const chainStatsService = new CallistoChainStatsService(
     fetcher,

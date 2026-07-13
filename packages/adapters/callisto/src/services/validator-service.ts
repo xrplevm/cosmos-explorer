@@ -39,7 +39,7 @@ async function resolveSetAvatars(raw: RawValidatorSet): Promise<ValidatorSet> {
 export class CallistoValidatorService implements IValidatorService {
   constructor(
     private readonly fetcher: Fetcher,
-    private readonly primaryDenom = 'axrp'
+    private readonly stakingDenom = 'poa'
   ) {}
 
   async getValidatorCount(): Promise<ValidatorCount> {
@@ -57,7 +57,7 @@ export class CallistoValidatorService implements IValidatorService {
       operationName: 'Validators',
     });
 
-    const rawSet = mapValidatorSet(response, this.primaryDenom);
+    const rawSet = mapValidatorSet(response, this.stakingDenom);
     return resolveSetAvatars(rawSet);
   }
 
@@ -67,7 +67,7 @@ export class CallistoValidatorService implements IValidatorService {
       operationName: 'Validators',
     });
 
-    const rawSet = mapValidatorSet(response, this.primaryDenom);
+    const rawSet = mapValidatorSet(response, this.stakingDenom);
 
     const detailResponse = await this.fetcher.graphql<
       ValidatorDetailsResponse,

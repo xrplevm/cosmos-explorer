@@ -10,6 +10,11 @@
       "displayDenom": "XRP",
       "exponent": 18
     },
+    "stakingToken": {
+      "denom": "poa",
+      "displayDenom": "POA",
+      "exponent": 0
+    },
     "endpoints": {
       "graphqlHttp": "https://governance.devnet.xrplevm.org/v1/graphql",
       "evmExplorer": "https://explorer.devnet.xrplevm.org",
