@@ -12,6 +12,7 @@ import { type Fetcher, type CosmosRpcClient } from '@cosmos-explorer/utils';
 import { mapProposalDetail, mapActiveProposals, mapProposals, mapProposalVotes, mapProposalEligibleVoters, toUtcTimestamp } from '../mappers';
 import { ACTIVE_PROPOSALS_QUERY, ACTIVE_PROPOSALS_DATA_QUERY, PROPOSAL_DETAILS_QUERY, PROPOSAL_DEPOSITS_QUERY, PROPOSAL_ELIGIBLE_VOTERS_QUERY, PROPOSALS_QUERY, PROPOSAL_VOTES_QUERY, PROPOSAL_VOTES_FILTERED_QUERY } from '../queries';
 import type { ActiveProposalsResponse, ActiveProposalsDataResponse, ProposalDetailsResponse, ProposalDepositsResponse, ProposalEligibleVotersResponse, ProposalVotesResponse, ProposalsResponse } from '../types';
+import { withResolvedAvatars } from './avatars';
 
 const FALLBACK_GOV_PARAMS: GovParams = {
   quorum: 66.7,
@@ -177,7 +178,7 @@ export class CallistoProposalService implements IProposalService {
       operationName: 'ProposalEligibleVoters',
     });
 
-    return mapProposalEligibleVoters(response);
+    return withResolvedAvatars(mapProposalEligibleVoters(response));
   }
 
   async getGovParams(): Promise<GovParams | null> {

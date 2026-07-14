@@ -746,9 +746,13 @@ export function mapWithdrawalAddress(
   return response.withdrawalAddress?.address ?? null;
 }
 
+export type RawProposalEligibleVoter = ProposalEligibleVoter & {
+  _identity: string | null;
+};
+
 export function mapProposalEligibleVoters(
   response: ProposalEligibleVotersResponse,
-): ProposalEligibleVoter[] {
+): RawProposalEligibleVoter[] {
   return response.proposal_validator_status_snapshot
     .filter((row) => row.validator?.validatorInfo?.selfDelegateAddress)
     .map((row) => ({
@@ -759,6 +763,7 @@ export function mapProposalEligibleVoters(
         "",
       operatorAddress: row.validator?.validatorInfo?.operatorAddress ?? "",
       avatarUrl: null,
+      _identity: row.validator?.validatorDescriptions?.[0]?.identity ?? null,
     }));
 }
 
