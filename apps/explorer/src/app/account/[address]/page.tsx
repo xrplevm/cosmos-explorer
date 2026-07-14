@@ -70,6 +70,7 @@ export default async function AccountDetailPage({
   }
 
   const primaryToken = config.network.primaryToken;
+  const stakingToken = config.network.stakingToken;
   const { accountService } = getServices();
   const account = await accountService.getAccountByAddress(address);
   const rewardTotal = formatCoinTotal(
@@ -110,7 +111,7 @@ export default async function AccountDetailPage({
           <CardHeader className="pb-2">
             <CardDescription>Delegated</CardDescription>
             <CardTitle className="text-2xl">
-              {formatTokenAmount(account.delegationBalance, primaryToken)}
+              {formatTokenAmount(account.delegationBalance, stakingToken)}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -156,7 +157,7 @@ export default async function AccountDetailPage({
               Unbonding
             </span>
             <div className="text-sm">
-              {formatTokenAmount(account.unbondingBalance, primaryToken)}
+              {formatTokenAmount(account.unbondingBalance, stakingToken)}
             </div>
           </div>
         </CardContent>
@@ -239,7 +240,7 @@ export default async function AccountDetailPage({
                           </Link>
                         </TableCell>
                         <TableCell className="text-right font-mono">
-                          {formatTokenAmount(delegation.amount, primaryToken)}
+                          {formatTokenAmount(delegation.amount, stakingToken)}
                         </TableCell>
                         <TableCell className="text-right font-mono text-green-400">
                           {formatTokenAmount(reward?.amount, primaryToken)}

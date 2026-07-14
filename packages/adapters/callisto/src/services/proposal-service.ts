@@ -24,7 +24,7 @@ const FALLBACK_GOV_PARAMS: GovParams = {
 export class CallistoProposalService implements IProposalService {
   constructor(
     private readonly fetcher: Fetcher,
-    private readonly primaryDenom = 'axrp',
+    private readonly stakingDenom = 'poa',
     private readonly cosmosRpc?: CosmosRpcClient,
   ) {}
 
@@ -88,7 +88,7 @@ export class CallistoProposalService implements IProposalService {
       ])
     );
 
-    return mapActiveProposals(response, this.primaryDenom, tallyByProposalId, bondedByProposalId);
+    return mapActiveProposals(response, this.stakingDenom, tallyByProposalId, bondedByProposalId);
   }
 
   async getProposalById(id: number): Promise<ProposalDetail | null> {
@@ -101,7 +101,7 @@ export class CallistoProposalService implements IProposalService {
       operationName: 'ProposalDetails',
     });
 
-    return mapProposalDetail(response, this.primaryDenom);
+    return mapProposalDetail(response, this.stakingDenom);
   }
 
   async getProposalDeposits(proposalId: number): Promise<ProposalDeposit[]> {

@@ -258,7 +258,7 @@ export function mapCoinList(coins: unknown): TokenAmount[] {
   return normalizeCoins(coins);
 }
 
-function getPrimaryCoinAmount(
+function getCoinAmountByDenom(
   coins: unknown,
   denom: string,
 ): TokenAmount | null {
@@ -440,13 +440,6 @@ export function mapAverageBlockTime(
   return toOptionalNumber(row.averageTime);
 }
 
-export function mapPrimaryCoin(
-  coins: unknown,
-  denom: string,
-): TokenAmount | null {
-  return getPrimaryCoinAmount(coins, denom);
-}
-
 function mapProposalStatus(value: string | null | undefined): ProposalStatus {
   switch (value) {
     case "PROPOSAL_STATUS_DEPOSIT_PERIOD":
@@ -582,19 +575,19 @@ export function mapAccountRewards(
 ): AccountReward[] {
   return response.delegationRewards.map((reward) => ({
     validatorAddress: reward.validatorAddress ?? "",
-    amount: getPrimaryCoinAmount(reward.coins, primaryDenom),
+    amount: getCoinAmountByDenom(reward.coins, primaryDenom),
   }));
 }
 
 export function mapAccountDelegations(
   response: AccountDelegationsResponse,
-  primaryDenom: string,
+  stakingDenom: string,
 ): AccountDelegation[] {
   const items = response.delegations?.delegations ?? [];
 
   return items.map((delegation) => ({
     validatorAddress: delegation.validator_address ?? "",
-    amount: getPrimaryCoinAmount(delegation.coins, primaryDenom),
+    amount: getCoinAmountByDenom(delegation.coins, stakingDenom),
   }));
 }
 
@@ -660,18 +653,18 @@ export function buildAccountOverview(params: {
   rewards: AccountReward[];
   delegations: AccountDelegation[];
   withdrawalAddress: string | null;
-  primaryDenom: string;
+  stakingDenom: string;
 }): AccountOverview {
   return {
     address: params.address,
     balances: mapCoinList(params.balances),
-    delegationBalance: getPrimaryCoinAmount(
+    delegationBalance: getCoinAmountByDenom(
       params.delegationBalance,
-      params.primaryDenom,
+      params.stakingDenom,
     ),
-    unbondingBalance: getPrimaryCoinAmount(
+    unbondingBalance: getCoinAmountByDenom(
       params.unbondingBalance,
-      params.primaryDenom,
+      params.stakingDenom,
     ),
     rewards: params.rewards,
     delegations: params.delegations,

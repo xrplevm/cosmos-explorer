@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+const TokenSchema = z.object({
+  denom: z.string(),
+  displayDenom: z.string(),
+  exponent: z.number().int(),
+});
+
 export const ChainConfigSchema = z.object({
   adapterType: z.enum(["callisto", "xrplevm"]),
   network: z.object({
@@ -7,11 +13,8 @@ export const ChainConfigSchema = z.object({
     chainName: z.string(),
     chainEnv: z.enum(["mainnet", "testnet", "devnet"]),
     bech32Prefix: z.string(),
-    primaryToken: z.object({
-      denom: z.string(),
-      displayDenom: z.string(),
-      exponent: z.number().int(),
-    }),
+    primaryToken: TokenSchema,
+    stakingToken: TokenSchema,
     endpoints: z.object({
       graphqlHttp: z.string().url(),
       graphqlWs: z.string().url().optional(),
