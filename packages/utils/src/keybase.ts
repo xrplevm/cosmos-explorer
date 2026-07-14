@@ -1,33 +1,44 @@
-const cache = new Map<string, string | null>();
+// Caches the in-flight promise rather than the resolved value, so concurrent callers for
+// one identity share a single request. Failures expire and are retried; successes do not.
+interface CacheEntry {
+  value: Promise<string | null>;
+  expiresAt: number;
+}
 
-export async function resolveKeybaseAvatar(
+const cache = new Map<string, CacheEntry>();
+const FAILURE_TTL_MS = 60_000;
+
+async function lookup(identity: string): Promise<string | null> {
+  const res = await fetch(
+    `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${identity}&fields=pictures`,
+    { signal: AbortSignal.timeout(5000) }
+  );
+
+  if (!res.ok) throw new Error(`keybase lookup failed: ${res.status}`);
+
+  const data: unknown = await res.json();
+  const them = (data as { them?: { pictures?: { primary?: { url?: string } } }[] } | undefined)?.them;
+
+  return them?.[0]?.pictures?.primary?.url ?? null;
+}
+
+export function resolveKeybaseAvatar(
   identity: string | null | undefined
 ): Promise<string | null> {
-  if (!identity || identity.length === 0) return null;
+  if (!identity || identity.length === 0) return Promise.resolve(null);
 
   const cached = cache.get(identity);
-  if (cached !== undefined) return cached;
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
 
-  try {
-    const res = await fetch(
-      `https://keybase.io/_/api/1.0/user/lookup.json?key_suffix=${identity}&fields=pictures`
-    );
+  const entry: CacheEntry = { value: Promise.resolve(null), expiresAt: Infinity };
 
-    if (!res.ok) {
-      cache.set(identity, null);
-      return null;
-    }
-
-    const data: unknown = await res.json();
-    const them = (data as { them?: { pictures?: { primary?: { url?: string } } }[] } | undefined)?.them;
-    const url: string | null = them?.[0]?.pictures?.primary?.url ?? null;
-
-    cache.set(identity, url);
-    return url;
-  } catch {
-    cache.set(identity, null);
+  entry.value = lookup(identity).catch(() => {
+    entry.expiresAt = Date.now() + FAILURE_TTL_MS;
     return null;
-  }
+  });
+
+  cache.set(identity, entry);
+  return entry.value;
 }
 
 export async function resolveKeybaseAvatars(
