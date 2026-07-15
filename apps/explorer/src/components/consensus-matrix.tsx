@@ -203,13 +203,13 @@ function buildMatrix(blocks: ConsensusBlock[]): MatrixData {
       register(v);
       map.set(v.consensusAddress, "absent");
     }
-    // Proposer precommits its own block; it takes precedence over a plain vote.
-    // Skip registering a missing-proposer placeholder (mapConsensusBlocks'
-    // per-block-unique `unknown-proposer-<height>` key) as its own row.
+    // Proposer takes precedence over a plain vote. Skip the
+    // `unknown-proposer-<height>` placeholder — counting it would inflate
+    // signed/total and skew avgSignedPct by a non-existent signer.
     if (!block.proposer.consensusAddress.startsWith("unknown-proposer-")) {
       register(block.proposer);
+      map.set(block.proposer.consensusAddress, "proposed");
     }
-    map.set(block.proposer.consensusAddress, "proposed");
     stateByBlock.set(block.height, map);
   }
 
@@ -655,13 +655,20 @@ export function ConsensusMatrix({
                 const rate = rateByBlock.get(block.height);
                 const isSelCol = selInWindow?.height === block.height;
                 const isNewest = block.height === latest?.height;
+                // Header opens the block; for an `unknown-proposer-<height>`
+                // gap, fall back to the first signer so the click isn't a no-op.
+                const headerKey = block.proposer.consensusAddress.startsWith(
+                  "unknown-proposer-",
+                )
+                  ? (block.votes[0]?.consensusAddress ?? "")
+                  : block.proposer.consensusAddress;
                 return (
                   <button
                     key={block.height}
                     type="button"
-                    onClick={() =>
-                      { select(block.height, block.proposer.consensusAddress); }
-                    }
+                    onClick={() => {
+                      select(block.height, headerKey);
+                    }}
                     title={`#${block.height.toLocaleString()} · ${rate?.signed ?? 0}/${rate?.total ?? 0} signed`}
                     className={cn(
                       "flex h-[70px] min-w-[24px] flex-1 flex-col items-center justify-end gap-1 rounded-t-[5px] pb-1 transition-colors",
