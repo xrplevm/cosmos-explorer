@@ -1,0 +1,9 @@
+table:
+  name: address_query_count
+  schema: public
+select_permissions:
+- permission:
+    columns:
+    - count
+    filter: {}
+  role: anonymous

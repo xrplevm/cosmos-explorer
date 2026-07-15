@@ -105,7 +105,13 @@ export default function AccountDetailLoading() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
+          {/* Mirrors the tab bar the loaded card renders (Messages active). */}
+          <div className="inline-flex h-9 items-center gap-1 rounded-lg bg-muted p-1 text-muted-foreground">
+            <span className="rounded-md bg-background px-3 py-1 text-sm font-medium text-foreground shadow">
+              Messages
+            </span>
+            <span className="px-3 py-1 text-sm font-medium">Transactions</span>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

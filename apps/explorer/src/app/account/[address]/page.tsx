@@ -22,17 +22,48 @@ import {
   formatTokenAmount,
 } from "@/lib/formatters";
 import { getChainConfig } from "@/lib/config";
-import { getServices } from "@/lib/services";
+import {
+  getCachedAccountOverview,
+  getServices,
+} from "@/lib/services";
 import { bech32 } from "bech32";
 import { buildPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
+import { ACCOUNT_ACTIVITY_PAGE_SIZE } from "@/components/account-activity";
+import { AccountActivitySkeleton } from "@/components/account-activity-list";
+import { AccountMessagesCard } from "@/components/account-messages-card";
+import { AccountTransactionsCard } from "@/components/account-transactions-card";
 import {
-  ACCOUNT_TX_WINDOW,
-  AccountTransactionsCard,
-  AccountTransactionsCardSkeleton,
-} from "@/components/account-transactions-card";
+  AccountActivityTabs,
+  type AccountTab,
+} from "@/components/account-activity-tabs";
+
+// A sane upper bound; the count-based pager caps reachable pages well below it.
+const MAX_PAGE = 100_000_000;
+
+function parsePage(value: string | string[] | undefined): number {
+  const page = Number(Array.isArray(value) ? value[0] : value);
+  if (!Number.isInteger(page) || page < 1) {
+    return 1;
+  }
+  return Math.min(page, MAX_PAGE);
+}
+
+function buildQuery(
+  searchParams: Record<string, string | string[] | undefined>,
+): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(searchParams)) {
+    const first = Array.isArray(value) ? value[0] : value;
+    if (typeof first === "string") {
+      params.set(key, first);
+    }
+  }
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
 
 export async function generateMetadata({
   params,
@@ -52,10 +83,9 @@ export async function generateMetadata({
 
 function toAccountAddress(address: string, prefix: string): string {
   try {
-    const decoded = bech32.decode(address);
-    if (decoded.prefix !== prefix) {
-      return bech32.encode(prefix, decoded.words);
-    }
+    // Re-encoding also lowercases: bech32 accepts an all-uppercase address,
+    // whose prefix decodes as lowercase and so already looks canonical.
+    return bech32.encode(prefix, bech32.decode(address).words);
   } catch {
     // not a valid bech32 address, return as-is
   }
@@ -64,27 +94,57 @@ function toAccountAddress(address: string, prefix: string): string {
 
 export default async function AccountDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ address: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const config = getChainConfig();
   const { address: rawAddress } = await params;
   const address = toAccountAddress(rawAddress, config.network.bech32Prefix);
+  const sp = await searchParams;
 
   if (address !== rawAddress) {
-    redirect(`/account/${encodeURIComponent(address)}`);
+    redirect(`/account/${encodeURIComponent(address)}${buildQuery(sp)}`);
   }
+
+  const activeTab: AccountTab =
+    sp.tab === "transactions" ? "transactions" : "messages";
+  const activePage = parsePage(
+    activeTab === "messages" ? sp.msgPage : sp.txPage,
+  );
+  const offset = (activePage - 1) * ACCOUNT_ACTIVITY_PAGE_SIZE;
 
   const primaryToken = config.network.primaryToken;
   const stakingToken = config.network.stakingToken;
   const { accountService } = getServices();
-  // Kicked off before the account await to run concurrently.
-  const transactionsPromise = accountService.getAccountTransactions(address, {
-    limit: ACCOUNT_TX_WINDOW,
-  });
+
+  // Only the active tab is fetched, before the account await for concurrency;
+  // the bounded count is fetched inline.
+  const messagesPromise =
+    activeTab === "messages"
+      ? accountService.getAccountMessages(address, {
+          limit: ACCOUNT_ACTIVITY_PAGE_SIZE,
+          offset,
+        })
+      : undefined;
+  const transactionsPromise =
+    activeTab === "transactions"
+      ? accountService.getAccountTransactions(address, {
+          limit: ACCOUNT_ACTIVITY_PAGE_SIZE,
+          offset,
+        })
+      : undefined;
+  const countPromise =
+    activeTab === "messages"
+      ? accountService.getAccountMessageCount(address)
+      : accountService.getAccountTransactionCount(address);
   // Prevents an unhandled-rejection warning if the account fetch below fails first.
-  transactionsPromise.catch(() => undefined);
-  const account = await accountService.getAccountByAddress(address);
+  messagesPromise?.catch(() => undefined);
+  transactionsPromise?.catch(() => undefined);
+  countPromise.catch(() => undefined);
+  const account = await getCachedAccountOverview(address);
+
   const rewardTotal = formatCoinTotal(
     account.rewards.map((reward) => reward.amount),
     primaryToken,
@@ -175,9 +235,35 @@ export default async function AccountDetailPage({
         </CardContent>
       </Card>
 
-      <Suspense fallback={<AccountTransactionsCardSkeleton />}>
-        <AccountTransactionsCard transactionsPromise={transactionsPromise} />
-      </Suspense>
+      <Card>
+        <CardHeader>
+          <AccountActivityTabs
+            activeTab={activeTab}
+            basePath={`/account/${encodeURIComponent(address)}`}
+          />
+        </CardHeader>
+        <CardContent>
+          {/* Keyed on tab+page so each navigation re-shows the skeleton. */}
+          <Suspense
+            key={`${activeTab}-${String(activePage)}`}
+            fallback={<AccountActivitySkeleton />}
+          >
+            {messagesPromise ? (
+              <AccountMessagesCard
+                messagesPromise={messagesPromise}
+                countPromise={countPromise}
+                page={activePage}
+              />
+            ) : transactionsPromise ? (
+              <AccountTransactionsCard
+                transactionsPromise={transactionsPromise}
+                countPromise={countPromise}
+                page={activePage}
+              />
+            ) : null}
+          </Suspense>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

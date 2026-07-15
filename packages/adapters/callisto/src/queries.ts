@@ -410,12 +410,13 @@ export const PROPOSAL_ELIGIBLE_VOTERS_QUERY = `
   }
 `;
 
-export const ACCOUNT_TRANSACTIONS_QUERY = `
-  query AccountTransactions($address: _text!, $types: _text!, $limit: bigint!, $offset: bigint!) {
+export const ACCOUNT_MESSAGES_QUERY = `
+  query AccountMessages($address: _text!, $types: _text!, $limit: bigint!, $offset: bigint!) {
     messages_by_address(
       args: { addresses: $address, types: $types, limit: $limit, offset: $offset }
     ) {
       type
+      index
       transaction {
         hash
         height
@@ -424,6 +425,38 @@ export const ACCOUNT_TRANSACTIONS_QUERY = `
           timestamp
         }
       }
+    }
+  }
+`;
+
+export const ACCOUNT_MESSAGES_COUNT_QUERY = `
+  query AccountMessagesCount($address: _text!, $types: _text!) {
+    messages_by_address_count(args: { addresses: $address, types: $types }) {
+      count
+    }
+  }
+`;
+
+export const ACCOUNT_TRANSACTIONS_QUERY = `
+  query AccountTransactions($address: _text!, $limit: bigint!, $offset: bigint!) {
+    transactions: transactions_by_address(
+      args: { addresses: $address, limit: $limit, offset: $offset }
+    ) {
+      height
+      hash
+      success
+      block {
+        timestamp
+      }
+      messages
+    }
+  }
+`;
+
+export const ACCOUNT_TRANSACTIONS_COUNT_QUERY = `
+  query AccountTransactionsCount($address: _text!) {
+    transactions_by_address_count(args: { addresses: $address }) {
+      count
     }
   }
 `;

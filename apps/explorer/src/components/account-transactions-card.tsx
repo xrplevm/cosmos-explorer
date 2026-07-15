@@ -1,67 +1,57 @@
 import type { TransactionSummary } from "@cosmos-explorer/core";
+import { AccountActivityList } from "@/components/account-activity-list";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@cosmos-explorer/ui/card";
-import { AccountTransactionsList } from "@/components/account-transactions-list";
-
-export const ACCOUNT_TX_WINDOW = 100;
-const ACCOUNT_TX_PAGE_SIZE = 10;
+  activityPageCount,
+  formatActivityCount,
+} from "@/components/account-activity";
 
 export async function AccountTransactionsCard({
   transactionsPromise,
+  countPromise,
+  page,
 }: {
   transactionsPromise: Promise<TransactionSummary[]>;
+  countPromise: Promise<number>;
+  page: number;
 }) {
-  let transactions;
-  try {
-    transactions = await transactionsPromise;
-  } catch {
+  const [transactions, count] = await Promise.all([
+    transactionsPromise.catch(() => null),
+    countPromise.catch(() => null),
+  ]);
+
+  if (!transactions) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="py-8 text-center text-sm text-destructive">
-            Couldn&apos;t load transactions for this account. Please try again
-            later.
-          </p>
-        </CardContent>
-      </Card>
+      <p className="py-8 text-center text-sm text-destructive">
+        Couldn&apos;t load transactions for this account. Please try again later.
+      </p>
     );
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Transactions</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <AccountTransactionsList
-          transactions={transactions}
-          pageSize={ACCOUNT_TX_PAGE_SIZE}
-        />
-      </CardContent>
-    </Card>
-  );
-}
+  const rows = transactions.map((tx) => ({
+    key: tx.hash,
+    hash: tx.hash,
+    type: tx.type,
+    isEthereum: tx.type === "EthereumTx",
+    success: tx.success,
+    height: tx.height,
+    timestamp: tx.timestamp,
+  }));
 
-export function AccountTransactionsCardSkeleton() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Transactions</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-8 animate-pulse rounded bg-muted" />
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      {count !== null && (
+        <p className="mb-3 text-sm text-muted-foreground">
+          {formatActivityCount(count, "transaction")}
+        </p>
+      )}
+      <AccountActivityList
+        rows={rows}
+        page={page}
+        pageCount={count === null ? null : activityPageCount(count)}
+        pageParam="txPage"
+        emptyLabel="No transactions found."
+        paginationLabel="Transactions pagination"
+      />
+    </>
   );
 }

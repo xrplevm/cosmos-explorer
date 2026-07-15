@@ -1,18 +1,22 @@
-import { type AccountOverview, type IAccountService, type TransactionSummary } from '@cosmos-explorer/core';
+import { type AccountMessageSummary, type AccountOverview, type IAccountService, type TransactionSummary } from '@cosmos-explorer/core';
 import { type Fetcher, evmToCosmosAddress } from '@cosmos-explorer/utils';
 
 import {
   buildAccountOverview,
   mapAccountDelegations,
+  mapAccountMessages,
   mapAccountRewards,
-  mapAccountTransactions,
+  mapTransactions,
   mapWithdrawalAddress,
 } from '../mappers';
 import {
   ACCOUNT_BALANCES_QUERY,
   ACCOUNT_DELEGATION_BALANCE_QUERY,
   ACCOUNT_DELEGATIONS_QUERY,
+  ACCOUNT_MESSAGES_COUNT_QUERY,
+  ACCOUNT_MESSAGES_QUERY,
   ACCOUNT_REWARDS_QUERY,
+  ACCOUNT_TRANSACTIONS_COUNT_QUERY,
   ACCOUNT_TRANSACTIONS_QUERY,
   ACCOUNT_UNBONDING_BALANCE_QUERY,
   ACCOUNT_WITHDRAWAL_ADDRESS_QUERY,
@@ -20,9 +24,12 @@ import {
 import type {
   AccountCoinsResponse,
   AccountDelegationsResponse,
+  AccountMessagesCountResponse,
+  AccountMessagesResponse,
   AccountRewardsResponse,
-  AccountTransactionsResponse,
+  AccountTransactionsCountResponse,
   AccountWithdrawalAddressResponse,
+  LatestTransactionsResponse,
 } from '../types';
 
 export class CallistoAccountService implements IAccountService {
@@ -96,6 +103,45 @@ export class CallistoAccountService implements IAccountService {
     });
   }
 
+  async getAccountMessages(
+    address: string,
+    params?: { limit?: number; offset?: number },
+  ): Promise<AccountMessageSummary[]> {
+    const cosmosAddress = evmToCosmosAddress(address, this.bech32Prefix);
+
+    const response = await this.fetcher.graphql<
+      AccountMessagesResponse,
+      { address: string; types: string; limit: number; offset: number }
+    >({
+      query: ACCOUNT_MESSAGES_QUERY,
+      variables: {
+        address: `{${cosmosAddress}}`,
+        types: '{}',
+        limit: params?.limit ?? 10,
+        offset: params?.offset ?? 0,
+      },
+      operationName: 'AccountMessages',
+    });
+
+    return mapAccountMessages(response);
+  }
+
+  async getAccountMessageCount(address: string): Promise<number> {
+    const cosmosAddress = evmToCosmosAddress(address, this.bech32Prefix);
+
+    const response = await this.fetcher.graphql<
+      AccountMessagesCountResponse,
+      { address: string; types: string }
+    >({
+      query: ACCOUNT_MESSAGES_COUNT_QUERY,
+      variables: { address: `{${cosmosAddress}}`, types: '{}' },
+      operationName: 'AccountMessagesCount',
+    });
+
+    // Coerce: Hasura may serialize the bigint count as a string (as with height).
+    return Number(response.messages_by_address_count[0]?.count ?? 0);
+  }
+
   async getAccountTransactions(
     address: string,
     params?: { limit?: number; offset?: number },
@@ -103,19 +149,33 @@ export class CallistoAccountService implements IAccountService {
     const cosmosAddress = evmToCosmosAddress(address, this.bech32Prefix);
 
     const response = await this.fetcher.graphql<
-      AccountTransactionsResponse,
-      { address: string; types: string; limit: number; offset: number }
+      LatestTransactionsResponse,
+      { address: string; limit: number; offset: number }
     >({
       query: ACCOUNT_TRANSACTIONS_QUERY,
       variables: {
         address: `{${cosmosAddress}}`,
-        types: '{}',
         limit: params?.limit ?? 10,
         offset: params?.offset ?? 0,
       },
       operationName: 'AccountTransactions',
     });
 
-    return mapAccountTransactions(response);
+    return mapTransactions(response);
+  }
+
+  async getAccountTransactionCount(address: string): Promise<number> {
+    const cosmosAddress = evmToCosmosAddress(address, this.bech32Prefix);
+
+    const response = await this.fetcher.graphql<
+      AccountTransactionsCountResponse,
+      { address: string }
+    >({
+      query: ACCOUNT_TRANSACTIONS_COUNT_QUERY,
+      variables: { address: `{${cosmosAddress}}` },
+      operationName: 'AccountTransactionsCount',
+    });
+
+    return Number(response.transactions_by_address_count[0]?.count ?? 0);
   }
 }

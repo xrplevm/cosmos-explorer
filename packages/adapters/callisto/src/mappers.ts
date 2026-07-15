@@ -1,5 +1,6 @@
 import type {
   AccountDelegation,
+  AccountMessageSummary,
   AccountOverview,
   AccountReward,
   Block,
@@ -21,8 +22,8 @@ import type {
 
 import type {
   AccountDelegationsResponse,
+  AccountMessagesResponse,
   AccountRewardsResponse,
-  AccountTransactionsResponse,
   AccountWithdrawalAddressResponse,
   AverageBlockTimeResponse,
   BlockDetailsResponse,
@@ -573,39 +574,25 @@ export function mapProposalDetail(
   };
 }
 
-export function mapAccountTransactions(
-  response: AccountTransactionsResponse,
-): TransactionSummary[] {
-  // A tx straddling the fetch window's LIMIT boundary may undercount its types.
-  const typesByHash = new Map<string, string[]>();
-  for (const message of response.messages_by_address) {
-    const hash = message.transaction?.hash;
-    if (hash) {
-      const types = typesByHash.get(hash) ?? [];
-      types.push(message.type);
-      typesByHash.set(hash, types);
-    }
-  }
-
-  const seen = new Set<string>();
-  const transactions: TransactionSummary[] = [];
+export function mapAccountMessages(
+  response: AccountMessagesResponse,
+): AccountMessageSummary[] {
+  const messages: AccountMessageSummary[] = [];
   for (const message of response.messages_by_address) {
     const transaction = message.transaction;
-    if (!transaction || seen.has(transaction.hash)) {
+    if (!transaction) {
       continue;
     }
-    seen.add(transaction.hash);
-    const types = typesByHash.get(transaction.hash) ?? [];
-    transactions.push({
+    messages.push({
       hash: transaction.hash,
+      index: message.index,
       height: toNumber(transaction.height),
-      type: summarizeMessageTypes(types),
+      type: formatMessageType(message.type),
       success: transaction.success,
       timestamp: toUtcTimestamp(transaction.block.timestamp) ?? "",
-      messageCount: types.length,
     });
   }
-  return transactions;
+  return messages;
 }
 
 export function mapAccountRewards(
