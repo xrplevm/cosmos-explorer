@@ -1,10 +1,11 @@
 import { type ReactNode } from "react";
 
 // Encodes consensus semantics (proposer/precommit/miss), so fixed across light/dark.
+// Tones follow the app palette (Tailwind v4): green-700 / green-400 / red-400 (--color-destructive dark).
 export const CELL_COLOR = {
-  proposed: "#0b6e52",
-  voted: "#3ecf9c",
-  absent: "#eb6b73",
+  proposed: "#008236",
+  voted: "#05df72",
+  absent: "#ff6467",
 } as const;
 
 function LegendSwatch({ color, label }: { color: string; label: string }) {

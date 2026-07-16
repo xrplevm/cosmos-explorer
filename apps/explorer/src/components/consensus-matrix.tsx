@@ -26,8 +26,9 @@ const STATE_LABEL: Record<CellState, string> = {
 };
 
 // Signed-rate → status color (design's sc()): healthy / warning / poor.
+// App-palette tones (Tailwind v4): green-500 / amber-500 / red-500.
 function rateColor(pct: number): string {
-  return pct >= 95 ? "#12a37a" : pct >= 85 ? "#e0982a" : "#e0555f";
+  return pct >= 95 ? "#00c950" : pct >= 85 ? "#fe9a00" : "#fb2c36";
 }
 
 interface ValidatorLike {
@@ -273,15 +274,15 @@ function LiveBadge({ paused }: { paused: boolean }) {
   return (
     <span
       className="inline-flex items-center gap-1.5 text-xs font-semibold"
-      style={{ color: paused ? "#e0982a" : "#12a37a" }}
+      style={{ color: paused ? "#fe9a00" : "#00c950" }}
     >
       <span className="relative flex h-2 w-2">
         {!paused && (
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2fd39a]/70" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400/70" />
         )}
         <span
           className="relative inline-flex h-2 w-2 rounded-full"
-          style={{ backgroundColor: paused ? "#e0982a" : "#2fd39a" }}
+          style={{ backgroundColor: paused ? "#fe9a00" : "#05df72" }}
         />
       </span>
       {paused ? "paused" : "live"}
@@ -303,7 +304,7 @@ function StateBadge({ state }: { state: CellState }) {
       className="rounded-md px-2 py-0.5 font-mono text-[11px] font-semibold"
       style={{
         backgroundColor: `${color}26`,
-        color: state === "voted" ? "#0e8464" : color,
+        color: state === "voted" ? "#008236" : color,
         border: `1px solid ${color}59`,
       }}
     >
@@ -490,7 +491,7 @@ export function ConsensusMatrix({
               {detail.isLatest ? (
                 <span
                   className="rounded-md px-2 py-0.5 font-mono text-[10.5px] font-semibold"
-                  style={{ backgroundColor: "#12a37a26", color: "#0e8464" }}
+                  style={{ backgroundColor: "#00c95026", color: "#008236" }}
                 >
                   Latest
                 </span>
@@ -540,7 +541,7 @@ export function ConsensusMatrix({
                 className="font-mono font-semibold"
                 style={
                   detail.rate.total - detail.rate.signed > 0
-                    ? { color: "#eb6b73" }
+                    ? { color: "#ff6467" }
                     : undefined
                 }
               >
@@ -675,9 +676,9 @@ export function ConsensusMatrix({
                       isSelCol
                         ? "bg-blue-500/15 shadow-[inset_0_-3px_0] shadow-blue-600 dark:bg-blue-400/20 dark:shadow-blue-400"
                         : flash.has(block.height)
-                          ? "bg-[#2fd39a]/25"
+                          ? "bg-green-400/25"
                           : isNewest
-                            ? "bg-[#2fd39a]/10"
+                            ? "bg-green-400/10"
                             : "bg-transparent",
                     )}
                   >
