@@ -1,4 +1,5 @@
 import { Skeleton } from "@cosmos-explorer/ui/skeleton";
+import { getChainConfig } from "@/lib/config";
 import { ConsensusHeaderBar } from "@/components/consensus-header";
 import { RECENT_BLOCK_COUNT } from "./constants";
 
@@ -12,6 +13,7 @@ export default function ConsensusLoading() {
       {/* Real static header (title + legend) rendered immediately; only the
           data-dependent stats on the right are skeletons. */}
       <ConsensusHeaderBar
+        chainName={getChainConfig().network.chainName}
         trailing={
           <>
             <Skeleton className="h-4 w-12" />

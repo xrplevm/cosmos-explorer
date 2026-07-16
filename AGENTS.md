@@ -122,6 +122,7 @@ Routes currently implemented by the explorer:
 | `/transactions/[hash]` | Transaction detail with variant dispatch |
 | `/validators` | Validator list |
 | `/validators/[address]` | Validator detail |
+| `/consensus` | Live validator signing matrix over recent blocks |
 | `/account/[address]` | Account detail |
 | `/proposals` | Governance proposal list |
 | `/proposals/[id]` | Proposal detail |
@@ -130,7 +131,7 @@ Transaction details use explicit per-message variants under `apps/explorer/src/c
 
 ## Chain Configuration
 
-The current deployment is configured through `apps/explorer/chain.json`.
+The deployment is configured through the per-environment files `apps/explorer/src/config/chain.{devnet,testnet,mainnet}.json`; the `NETWORK` env var selects which one is loaded.
 
 - Chain: XRPL EVM Sidechain
 - Environment: testnet
@@ -150,7 +151,7 @@ The current deployment is configured through `apps/explorer/chain.json`.
 
 Key files:
 
-- `apps/explorer/chain.json`
+- `apps/explorer/src/config/chain.testnet.json`
 - `apps/explorer/src/lib/services.ts`
 - `apps/explorer/src/lib/formatters.ts`
 - `apps/explorer/src/lib/cosmos-message-address.ts`
@@ -244,7 +245,7 @@ When changing Go indexer code:
 ## Current Notes
 
 - Next.js apps use webpack bundler in this repo.
-- The explorer is configured by `apps/explorer/chain.json`.
+- The explorer is configured by `apps/explorer/src/config/chain.<env>.json` (selected via `NETWORK`).
 - The current chain is XRPL EVM Sidechain testnet.
 - The GraphQL endpoint is Callisto-backed Hasura.
 - Older references to `packages/hooks`, `packages/adapters/xrplevm`, `apps/storybook`, or `IChainDataSource` are outdated.

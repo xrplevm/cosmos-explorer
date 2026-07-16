@@ -10,8 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildPageMetadata({
   title: "Consensus",
-  description:
-    "Recent blocks with their proposer and each validator's precommit time on the XRPL EVM Sidechain.",
+  description: `Recent blocks with their proposer and each validator's precommit time on the ${getChainConfig().network.chainName}.`,
   path: "/consensus",
 });
 
@@ -41,13 +40,14 @@ export default async function ConsensusPage() {
     );
   }
 
-  const graphqlWs = getChainConfig().network.endpoints.graphqlWs;
+  const { network } = getChainConfig();
 
   return (
     <ConsensusMatrix
+      chainName={network.chainName}
       initialBlocks={blocks}
       pollCount={RECENT_BLOCK_COUNT}
-      graphqlWs={graphqlWs}
+      graphqlWs={network.endpoints.graphqlWs}
     />
   );
 }
