@@ -54,13 +54,13 @@ export function ProposalVotesContent({
   const [showAllVotes, setShowAllVotes] = useState(false);
   const [page, setPage] = useState(1);
 
-  // All raw votes sorted oldest to newest.
+  // All raw votes sorted newest to oldest.
   const allVotes = useMemo(
-    () => [...votes].sort((a, b) => a.height - b.height),
+    () => [...votes].sort((a, b) => b.height - a.height),
     [votes],
   );
 
-  // Only the last vote per validator (highest block), oldest to newest.
+  // Only the last vote per validator (highest block), newest to oldest.
   const latestVotes = useMemo(() => {
     const latestByVoter = new Map<string, ProposalVote>();
     for (const v of votes) {
@@ -69,14 +69,14 @@ export function ProposalVotesContent({
         latestByVoter.set(v.voterAddress, v);
       }
     }
-    return [...latestByVoter.values()].sort((a, b) => a.height - b.height);
+    return [...latestByVoter.values()].sort((a, b) => b.height - a.height);
   }, [votes]);
 
   const displayVotes = showAllVotes ? allVotes : latestVotes;
 
   const voteCounts = useMemo(() => {
     const counts: Record<string, number> = {
-      all: displayVotes.length + didNotVote.length,
+      all: displayVotes.length,
       didNotVote: didNotVote.length,
     };
     for (const v of displayVotes) {
@@ -91,7 +91,7 @@ export function ProposalVotesContent({
     return displayVotes.filter((v) => v.option === filter);
   }, [displayVotes, filter]);
 
-  const showDidNotVote = filter === "all" || filter === "didNotVote";
+  const showDidNotVote = filter === "didNotVote";
   const allItems = [...filtered, ...(showDidNotVote ? didNotVote : [])];
   const totalPages = Math.ceil(allItems.length / PAGE_SIZE);
   const startIdx = (page - 1) * PAGE_SIZE;
@@ -143,7 +143,7 @@ export function ProposalVotesContent({
                 )}
               />
             </span>
-            Show all votes
+            Include revotes
           </button>
         </div>
         <VotingCount
