@@ -111,7 +111,13 @@ export default async function ProposalDetailPage({
       {/* 1. Voting + Timeline */}
       <div className="grid gap-6 lg:grid-cols-10">
         <div className="lg:col-span-7">
-          <ProposalVotingCard tally={proposal.tally} metrics={metrics} />
+          <ProposalVotingCard
+            tally={proposal.tally}
+            metrics={metrics}
+            status={proposal.status}
+            votingStartTime={proposal.votingStartTime}
+            votingEndTime={proposal.votingEndTime}
+          />
         </div>
         <div className="lg:col-span-3">
           <Card className="h-full">

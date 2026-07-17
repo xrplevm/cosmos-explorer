@@ -16,7 +16,8 @@ import {
 } from "@cosmos-explorer/ui/tooltip";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { formatNumber, formatPercent } from "@/lib/formatters";
-import type { ProposalTally } from "@cosmos-explorer/core";
+import { VotingCountdown } from "@/components/voting-countdown";
+import type { ProposalTally, ProposalStatus } from "@cosmos-explorer/core";
 import type { VotingMetrics } from "@/lib/proposal-voting";
 
 const VOTE_COLORS = {
@@ -44,9 +45,18 @@ function InfoTip({ text }: { text: string }) {
 interface ProposalVotingCardProps {
   tally: ProposalTally | null;
   metrics: VotingMetrics;
+  status: ProposalStatus;
+  votingStartTime: string | null;
+  votingEndTime: string | null;
 }
 
-export function ProposalVotingCard({ tally, metrics }: ProposalVotingCardProps) {
+export function ProposalVotingCard({
+  tally,
+  metrics,
+  status,
+  votingStartTime,
+  votingEndTime,
+}: ProposalVotingCardProps) {
   const {
     yes,
     no,
@@ -75,6 +85,11 @@ export function ProposalVotingCard({ tally, metrics }: ProposalVotingCardProps) 
             <span className="rounded-full bg-purple-500/15 px-2 py-0.5 text-xs font-semibold text-purple-400 border border-purple-500/30">
               Expedited
             </span>
+          )}
+          {status === "voting" && votingEndTime && (
+            <div className="ml-auto">
+              <VotingCountdown endTime={votingEndTime} startTime={votingStartTime} />
+            </div>
           )}
         </CardHeader>
         <CardContent className="space-y-5">
