@@ -105,7 +105,7 @@ export default function AccountDetailLoading() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
+          <CardTitle>Transactions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -115,7 +115,8 @@ export default function AccountDetailLoading() {
                   <TableHead>Tx Hash</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Height</TableHead>
+                  <TableHead className="text-right">Messages</TableHead>
+                  <TableHead className="text-right">Block</TableHead>
                   <TableHead className="text-right">Time</TableHead>
                 </TableRow>
               </TableHeader>
@@ -125,6 +126,7 @@ export default function AccountDetailLoading() {
                     <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-4 w-8 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
                   </TableRow>

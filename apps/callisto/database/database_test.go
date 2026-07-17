@@ -78,7 +78,7 @@ func (suite *DbTestSuite) SetupTest() {
 		suite.Require().NoError(err)
 
 		commentsRegExp := regexp.MustCompile(`/\*.*\*/`)
-		requests := strings.Split(string(file), ";")
+		requests := splitSQLStatements(string(file))
 		for _, request := range requests {
 			_, err := bigDipperDb.SQL.Exec(commentsRegExp.ReplaceAllString(request, ""))
 			suite.Require().NoError(err)
@@ -86,6 +86,49 @@ func (suite *DbTestSuite) SetupTest() {
 	}
 
 	suite.database = bigDipperDb
+}
+
+// splitSQLStatements splits on ';', ignoring semicolons inside $$ bodies and
+// -- / /* */ comments, mirroring how psql parses the file.
+func splitSQLStatements(sql string) []string {
+	var statements []string
+	var current strings.Builder
+	inDollar, inLine, inBlock := false, false, false
+	for i := 0; i < len(sql); i++ {
+		switch {
+		case inLine:
+			current.WriteByte(sql[i])
+			if sql[i] == '\n' {
+				inLine = false
+			}
+		case inBlock:
+			current.WriteByte(sql[i])
+			if sql[i] == '/' && sql[i-1] == '*' {
+				inBlock = false
+			}
+		case !inDollar && strings.HasPrefix(sql[i:], "--"):
+			inLine = true
+			current.WriteString("--")
+			i++
+		case !inDollar && strings.HasPrefix(sql[i:], "/*"):
+			inBlock = true
+			current.WriteString("/*")
+			i++
+		case strings.HasPrefix(sql[i:], "$$"):
+			inDollar = !inDollar
+			current.WriteString("$$")
+			i++
+		case sql[i] == ';' && !inDollar:
+			statements = append(statements, current.String())
+			current.Reset()
+		default:
+			current.WriteByte(sql[i])
+		}
+	}
+	if strings.TrimSpace(current.String()) != "" {
+		statements = append(statements, current.String())
+	}
+	return statements
 }
 
 // getBlock builds, stores and returns a block for the provided height

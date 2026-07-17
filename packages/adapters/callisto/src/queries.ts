@@ -470,6 +470,51 @@ export const ACCOUNT_WITHDRAWAL_ADDRESS_QUERY = `
   }
 `;
 
+export const ACCOUNT_TRANSACTIONS_QUERY = `
+  query AccountTransactions($address: String!, $limit: Int!, $offset: Int!) {
+    rows: message_by_involved_address(
+      where: { address: { _eq: $address } }
+      distinct_on: [height, transaction_hash]
+      order_by: [{ height: desc }, { transaction_hash: desc }]
+      limit: $limit
+      offset: $offset
+    ) {
+      transaction {
+        height
+        hash
+        success
+        block {
+          timestamp
+        }
+        messages
+      }
+    }
+  }
+`;
+
+export const ACCOUNT_MESSAGES_QUERY = `
+  query AccountMessages($address: String!, $limit: Int!, $offset: Int!) {
+    rows: message_by_involved_address(
+      where: { address: { _eq: $address } }
+      order_by: [{ height: desc }, { transaction_hash: desc }, { index: desc }]
+      limit: $limit
+      offset: $offset
+    ) {
+      height
+      transactionHash: transaction_hash
+      message {
+        type
+      }
+      transaction {
+        success
+        block {
+          timestamp
+        }
+      }
+    }
+  }
+`;
+
 export const AVERAGE_BLOCK_TIME_QUERY = `
   query AverageBlockTime {
     averageBlockTime: average_block_time_per_hour(limit: 1, order_by: { height: desc }) {

@@ -16,6 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
+import {
+  AccountActivityTabs,
+  type AccountActivityTab,
+} from "@/components/account-activity-tabs";
+import { AccountMessagesCard } from "@/components/account-messages-card";
+import { AccountTransactionsCard } from "@/components/account-transactions-card";
 import { DetailBackButton } from "@/components/detail-back-button";
 import {
   formatCoinTotal,
@@ -27,6 +33,8 @@ import { bech32 } from "bech32";
 import { buildPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination-constants";
+import type { AccountMessage, TransactionSummary } from "@cosmos-explorer/core";
 
 export async function generateMetadata({
   params,
@@ -44,6 +52,19 @@ export async function generateMetadata({
   });
 }
 
+const DEFAULT_TX_PAGE_SIZE = 10;
+// Caps the OFFSET the page can generate: deep offsets are O(offset) on the
+// lookup table (page 100,000 of a hot address measured at ~2.3s).
+const MAX_ACTIVITY_PAGE = 1000;
+
+function parsePositiveInt(
+  value: string | string[] | undefined,
+  fallback: number,
+): number {
+  const num = typeof value === "string" ? Number(value) : NaN;
+  return Number.isInteger(num) && num >= 1 ? num : fallback;
+}
+
 function toAccountAddress(address: string, prefix: string): string {
   try {
     const decoded = bech32.decode(address);
@@ -58,8 +79,10 @@ function toAccountAddress(address: string, prefix: string): string {
 
 export default async function AccountDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ address: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const config = getChainConfig();
   const { address: rawAddress } = await params;
@@ -69,10 +92,50 @@ export default async function AccountDetailPage({
     redirect(`/account/${encodeURIComponent(address)}`);
   }
 
+  const query = await searchParams;
+  const activeTab: AccountActivityTab =
+    query.tab === "messages" ? "messages" : "transactions";
+  const currentPage = Math.min(
+    parsePositiveInt(query.page, 1),
+    MAX_ACTIVITY_PAGE,
+  );
+  const rawSize = parsePositiveInt(query.pageSize, DEFAULT_TX_PAGE_SIZE);
+  const pageSize = (PAGE_SIZE_OPTIONS as readonly number[]).includes(rawSize)
+    ? rawSize
+    : DEFAULT_TX_PAGE_SIZE;
+  const offset = (currentPage - 1) * pageSize;
+
   const primaryToken = config.network.primaryToken;
   const stakingToken = config.network.stakingToken;
   const { accountService } = getServices();
-  const account = await accountService.getAccountByAddress(address);
+
+  let transactions: TransactionSummary[] = [];
+  let messages: AccountMessage[] = [];
+  let hasNextPage = false;
+  let activityError = false;
+
+  const fetchActivity =
+    activeTab === "messages"
+      ? accountService
+          .getAccountMessages(address, { limit: pageSize + 1, offset })
+          .then((rows) => {
+            hasNextPage = rows.length > pageSize;
+            messages = hasNextPage ? rows.slice(0, pageSize) : rows;
+          })
+      : accountService
+          .getAccountTransactions(address, { limit: pageSize + 1, offset })
+          .then((rows) => {
+            hasNextPage = rows.length > pageSize;
+            transactions = hasNextPage ? rows.slice(0, pageSize) : rows;
+          });
+
+  const [account] = await Promise.all([
+    accountService.getAccountByAddress(address),
+    fetchActivity.catch(() => {
+      activityError = true;
+    }),
+  ]);
+
   const rewardTotal = formatCoinTotal(
     account.rewards.map((reward) => reward.amount),
     primaryToken,
@@ -255,6 +318,29 @@ export default async function AccountDetailPage({
         </CardContent>
       </Card>
 
+      <AccountActivityTabs
+        basePath={`/account/${encodeURIComponent(address)}`}
+        active={activeTab}
+      />
+      {activeTab === "messages" ? (
+        <AccountMessagesCard
+          messages={messages}
+          error={activityError}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          hasNextPage={hasNextPage}
+          basePath={`/account/${encodeURIComponent(address)}?tab=messages`}
+        />
+      ) : (
+        <AccountTransactionsCard
+          transactions={transactions}
+          error={activityError}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          hasNextPage={hasNextPage}
+          basePath={`/account/${encodeURIComponent(address)}?tab=transactions`}
+        />
+      )}
     </div>
   );
 }

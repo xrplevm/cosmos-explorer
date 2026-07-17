@@ -40,6 +40,7 @@ export {
 export {
   type AccountBalance,
   type AccountDelegation,
+  type AccountMessage,
   type AccountReward,
   type AccountOverview,
   type IAccountService,

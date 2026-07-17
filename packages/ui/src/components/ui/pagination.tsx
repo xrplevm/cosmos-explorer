@@ -61,7 +61,7 @@ function PageSizeSelect({
       <Select
         value={String(currentPageSize)}
         onValueChange={(value) => {
-          router.push(`${basePath}?page=1&pageSize=${value}`);
+          router.push(withPageParams(basePath, 1, Number(value)));
         }}
       >
         <SelectTrigger className="h-8 w-[70px] text-xs">
@@ -79,8 +79,14 @@ function PageSizeSelect({
   );
 }
 
+// basePath may already carry a query string (e.g. "/account/x?tab=messages").
+function withPageParams(basePath: string, page: number, size: number): string {
+  const separator = basePath.includes("?") ? "&" : "?";
+  return `${basePath}${separator}page=${page}&pageSize=${size}`;
+}
+
 export function Pagination({ currentPage, pageSize, hasNextPage, basePath }: PaginationProps) {
-  const href = (page: number, size: number) => `${basePath}?page=${page}&pageSize=${size}`;
+  const href = (page: number, size: number) => withPageParams(basePath, page, size);
 
   return (
     <nav className="flex items-center justify-between" aria-label="Pagination">

@@ -1,4 +1,5 @@
 import type { TokenAmount } from './price';
+import type { TransactionSummary } from './transaction';
 
 export type AccountBalance = TokenAmount;
 
@@ -22,6 +23,22 @@ export interface AccountOverview {
   withdrawalAddress: string | null;
 }
 
+export interface AccountMessage {
+  type: string;
+  transactionHash: string;
+  height: number;
+  success: boolean;
+  timestamp: string;
+}
+
 export interface IAccountService {
   getAccountByAddress(address: string): Promise<AccountOverview>;
+  getAccountTransactions(
+    address: string,
+    params?: { limit?: number; offset?: number },
+  ): Promise<TransactionSummary[]>;
+  getAccountMessages(
+    address: string,
+    params?: { limit?: number; offset?: number },
+  ): Promise<AccountMessage[]>;
 }

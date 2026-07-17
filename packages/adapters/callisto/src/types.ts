@@ -292,6 +292,28 @@ export interface AccountWithdrawalAddressResponse {
   } | null;
 }
 
+export interface AccountTransactionsResponse {
+  rows: {
+    transaction: LatestTransactionsResponse['transactions'][number] | null;
+  }[];
+}
+
+export interface AccountMessagesResponse {
+  rows: {
+    height: Scalar;
+    transactionHash: string;
+    message: {
+      type: string;
+    } | null;
+    transaction: {
+      success: boolean;
+      block: {
+        timestamp: Scalar;
+      };
+    } | null;
+  }[];
+}
+
 export type DailyStatsResponse = Record<
   string,
   {

@@ -94,22 +94,42 @@ CREATE INDEX message_transaction_hash_index ON message (transaction_hash);
 CREATE INDEX message_type_index ON message (type);
 CREATE INDEX message_involved_accounts_index ON message USING GIN(involved_accounts_addresses);
 
-/**
- * This function is used to find all the utils that involve any of the given addresses and have
- * type that is one of the specified types.
+/*
+ * Per-address activity lookup (see migrate/v7): the GIN index on the
+ * involved_accounts_addresses TEXT[] cannot return rows in height order, so
+ * this unrolls it into btree-ordered rows per (address, message), kept in sync
+ * by the INSERT-only trigger below. Message UPDATE (re-parse) and DELETE (prune)
+ * are not reflected here — safe under forward-only indexing with pruning disabled.
+ * One table serves both views: messages directly, transactions via
+ * DISTINCT ON (height, transaction_hash).
  */
-CREATE FUNCTION messages_by_address(
-    addresses TEXT[],
-    types TEXT[],
-    "limit" BIGINT = 100,
-    "offset" BIGINT = 0)
-    RETURNS SETOF message AS
+CREATE TABLE message_by_involved_address
+(
+    address          TEXT   NOT NULL,
+    height           BIGINT NOT NULL,
+    transaction_hash TEXT   NOT NULL,
+    index            BIGINT NOT NULL,
+    partition_id     BIGINT NOT NULL,
+    PRIMARY KEY (address, height, transaction_hash, index)
+);
+
+CREATE FUNCTION sync_message_by_involved_address() RETURNS trigger AS
 $$
-SELECT * FROM message
-WHERE (cardinality(types) = 0 OR type = ANY (types))
-  AND addresses && involved_accounts_addresses
-ORDER BY height DESC LIMIT "limit" OFFSET "offset"
-$$ LANGUAGE sql STABLE;
+BEGIN
+    -- ON CONFLICT collapses duplicate addresses within a message; empty-string
+    -- artifacts are never queried, so they are skipped.
+    INSERT INTO message_by_involved_address (address, height, transaction_hash, index, partition_id)
+    SELECT addr, NEW.height, NEW.transaction_hash, NEW.index, NEW.partition_id
+    FROM unnest(NEW.involved_accounts_addresses) AS addr
+    WHERE addr <> ''
+    ON CONFLICT DO NOTHING;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER message_address_lookup_sync
+    AFTER INSERT ON message
+    FOR EACH ROW EXECUTE FUNCTION sync_message_by_involved_address();
 
 CREATE FUNCTION messages_by_type(
   types text [],

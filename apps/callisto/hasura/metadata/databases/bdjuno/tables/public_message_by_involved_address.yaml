@@ -1,0 +1,37 @@
+table:
+  name: message_by_involved_address
+  schema: public
+object_relationships:
+- name: message
+  using:
+    manual_configuration:
+      remote_table:
+        schema: public
+        name: message
+      insertion_order:
+      column_mapping:
+        transaction_hash: transaction_hash
+        index: index
+- name: transaction
+  using:
+    manual_configuration:
+      remote_table:
+        schema: public
+        name: transaction
+      insertion_order:
+      column_mapping:
+        transaction_hash: hash
+select_permissions:
+- permission:
+    allow_aggregations: false
+    columns:
+    - address
+    - height
+    - transaction_hash
+    - index
+    - partition_id
+    filter: {}
+    # One above the max UI page size (100): pages probe pageSize+1 rows to
+    # detect whether a next page exists.
+    limit: 101
+  role: anonymous

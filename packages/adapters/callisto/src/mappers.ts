@@ -1,5 +1,6 @@
 import type {
   AccountDelegation,
+  AccountMessage,
   AccountOverview,
   AccountReward,
   Block,
@@ -21,7 +22,9 @@ import type {
 
 import type {
   AccountDelegationsResponse,
+  AccountMessagesResponse,
   AccountRewardsResponse,
+  AccountTransactionsResponse,
   AccountWithdrawalAddressResponse,
   AverageBlockTimeResponse,
   BlockDetailsResponse,
@@ -599,6 +602,27 @@ export function mapWithdrawalAddress(
   response: AccountWithdrawalAddressResponse,
 ): string | null {
   return response.withdrawalAddress?.address ?? null;
+}
+
+export function mapAccountTransactions(
+  response: AccountTransactionsResponse,
+): TransactionSummary[] {
+  return response.rows
+    .map((row) => row.transaction)
+    .filter((tx): tx is NonNullable<typeof tx> => tx != null)
+    .map(mapTransactionRow);
+}
+
+export function mapAccountMessages(
+  response: AccountMessagesResponse,
+): AccountMessage[] {
+  return response.rows.map((row) => ({
+    type: formatMessageType(row.message?.type ?? ""),
+    transactionHash: row.transactionHash,
+    height: toNumber(row.height),
+    success: row.transaction?.success ?? false,
+    timestamp: toUtcTimestamp(row.transaction?.block.timestamp) ?? "",
+  }));
 }
 
 export function mapProposalEligibleVoters(
