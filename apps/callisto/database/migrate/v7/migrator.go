@@ -9,6 +9,7 @@ import (
 
 var _ database.Migrator = &Migrator{}
 
+// Migrator represents the database migrator that should be used to migrate from v6 to v7
 type Migrator struct {
 	SQL *sqlx.DB
 }

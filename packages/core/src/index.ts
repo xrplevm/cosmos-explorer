@@ -38,10 +38,9 @@ export {
   type IProposalService,
 } from './proposal';
 export {
-  ACCOUNT_ACTIVITY_COUNT_CAP,
   type AccountBalance,
   type AccountDelegation,
-  type AccountMessageSummary,
+  type AccountMessage,
   type AccountReward,
   type AccountOverview,
   type IAccountService,

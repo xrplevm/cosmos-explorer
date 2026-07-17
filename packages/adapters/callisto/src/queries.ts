@@ -410,57 +410,6 @@ export const PROPOSAL_ELIGIBLE_VOTERS_QUERY = `
   }
 `;
 
-export const ACCOUNT_MESSAGES_QUERY = `
-  query AccountMessages($address: _text!, $types: _text!, $limit: bigint!, $offset: bigint!) {
-    messages_by_address(
-      args: { addresses: $address, types: $types, limit: $limit, offset: $offset }
-    ) {
-      type
-      index
-      transaction {
-        hash
-        height
-        success
-        block {
-          timestamp
-        }
-      }
-    }
-  }
-`;
-
-export const ACCOUNT_MESSAGES_COUNT_QUERY = `
-  query AccountMessagesCount($address: _text!, $types: _text!) {
-    messages_by_address_count(args: { addresses: $address, types: $types }) {
-      count
-    }
-  }
-`;
-
-export const ACCOUNT_TRANSACTIONS_QUERY = `
-  query AccountTransactions($address: _text!, $limit: bigint!, $offset: bigint!) {
-    transactions: transactions_by_address(
-      args: { addresses: $address, limit: $limit, offset: $offset }
-    ) {
-      height
-      hash
-      success
-      block {
-        timestamp
-      }
-      messages
-    }
-  }
-`;
-
-export const ACCOUNT_TRANSACTIONS_COUNT_QUERY = `
-  query AccountTransactionsCount($address: _text!) {
-    transactions_by_address_count(args: { addresses: $address }) {
-      count
-    }
-  }
-`;
-
 export const ACCOUNT_BALANCES_QUERY = `
   query AccountBalances($address: String!) {
     accountBalances: action_account_balance(address: $address) {
@@ -517,6 +466,51 @@ export const ACCOUNT_WITHDRAWAL_ADDRESS_QUERY = `
   query AccountWithdrawalAddress($address: String!) {
     withdrawalAddress: action_delegator_withdraw_address(address: $address) {
       address
+    }
+  }
+`;
+
+export const ACCOUNT_TRANSACTIONS_QUERY = `
+  query AccountTransactions($address: String!, $limit: Int!, $offset: Int!) {
+    rows: message_by_involved_address(
+      where: { address: { _eq: $address } }
+      distinct_on: [height, transaction_hash]
+      order_by: [{ height: desc }, { transaction_hash: desc }]
+      limit: $limit
+      offset: $offset
+    ) {
+      transaction {
+        height
+        hash
+        success
+        block {
+          timestamp
+        }
+        messages
+      }
+    }
+  }
+`;
+
+export const ACCOUNT_MESSAGES_QUERY = `
+  query AccountMessages($address: String!, $limit: Int!, $offset: Int!) {
+    rows: message_by_involved_address(
+      where: { address: { _eq: $address } }
+      order_by: [{ height: desc }, { transaction_hash: desc }, { index: desc }]
+      limit: $limit
+      offset: $offset
+    ) {
+      height
+      transactionHash: transaction_hash
+      message {
+        type
+      }
+      transaction {
+        success
+        block {
+          timestamp
+        }
+      }
     }
   }
 `;

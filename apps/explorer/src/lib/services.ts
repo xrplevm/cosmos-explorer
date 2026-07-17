@@ -10,7 +10,6 @@ import {
   CallistoValidatorService,
 } from "@cosmos-explorer/callisto";
 import type {
-  AccountOverview,
   IAccountService,
   IBlockService,
   IChainStatsService,
@@ -91,18 +90,4 @@ export const getCachedGovParams = unstable_cache(
   },
   ["gov-params"],
   { revalidate: 60 },
-);
-
-/**
- * The overview doesn't depend on the pager's page, so caching it keeps a page
- * navigation to just the active tab's list + count. Counts are bounded and
- * cheap, so they're fetched inline (no cache) and always agree with the list.
- */
-export const getCachedAccountOverview = unstable_cache(
-  async (address: string): Promise<AccountOverview> => {
-    const { accountService } = getServices();
-    return accountService.getAccountByAddress(address);
-  },
-  ["account-overview"],
-  { revalidate: 15 },
 );

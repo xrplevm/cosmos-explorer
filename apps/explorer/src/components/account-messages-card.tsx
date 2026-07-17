@@ -1,59 +1,129 @@
-import type { AccountMessageSummary } from "@cosmos-explorer/core";
-import { AccountActivityList } from "@/components/account-activity-list";
+import { Badge } from "@cosmos-explorer/ui/badge";
+import { IconCurrencyEthereum } from "@tabler/icons-react";
 import {
-  activityPageCount,
-  formatActivityCount,
-} from "@/components/account-activity";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@cosmos-explorer/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@cosmos-explorer/ui/table";
+import { Pagination } from "@cosmos-explorer/ui/pagination";
+import Link from "next/link";
+import { CopyButton } from "@cosmos-explorer/ui/copy-button";
+import { StatusBadge } from "@/components/status-badge";
+import { formatHash } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
+import type { AccountMessage } from "@cosmos-explorer/core";
 
-export async function AccountMessagesCard({
-  messagesPromise,
-  countPromise,
-  page,
+export function AccountMessagesCard({
+  messages,
+  error,
+  currentPage,
+  pageSize,
+  hasNextPage,
+  basePath,
 }: {
-  messagesPromise: Promise<AccountMessageSummary[]>;
-  countPromise: Promise<number>;
-  page: number;
+  messages: AccountMessage[];
+  error: boolean;
+  currentPage: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  basePath: string;
 }) {
-  // A failed count degrades the pager but never discards loaded messages.
-  const [messages, count] = await Promise.all([
-    messagesPromise.catch(() => null),
-    countPromise.catch(() => null),
-  ]);
-
-  if (!messages) {
-    return (
-      <p className="py-8 text-center text-sm text-destructive">
-        Couldn&apos;t load messages for this account. Please try again later.
-      </p>
-    );
-  }
-
-  const rows = messages.map((message) => ({
-    // One row per message, so the tx hash alone isn't a unique key.
-    key: `${message.hash}-${String(message.index)}`,
-    hash: message.hash,
-    type: message.type,
-    isEthereum: message.type === "EthereumTx",
-    success: message.success,
-    height: message.height,
-    timestamp: message.timestamp,
-  }));
-
   return (
-    <>
-      {count !== null && (
-        <p className="mb-3 text-sm text-muted-foreground">
-          {formatActivityCount(count, "message")}
-        </p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Messages</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error ? (
+            <p className="py-8 text-center text-sm text-destructive">
+              Failed to load messages. Please try again later.
+            </p>
+          ) : messages.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No messages found.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Tx Hash</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Block</TableHead>
+                    <TableHead className="text-right">Time</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {messages.map((message, index) => (
+                    <TableRow key={`${message.transactionHash}-${index}`}>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {message.type === "EthereumTx" && (
+                            <IconCurrencyEthereum className="h-3.5 w-3.5" />
+                          )}
+                          {message.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Link
+                            href={`/transactions/${message.transactionHash}`}
+                            className="font-mono text-sm text-primary-soft hover:text-primary transition-colors"
+                          >
+                            {formatHash(message.transactionHash)}
+                          </Link>
+                          <CopyButton
+                            value={message.transactionHash}
+                            label="tx hash"
+                            size="xs"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge
+                          status={message.success ? "Success" : "Failed"}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        <Link
+                          href={`/blocks/${String(message.height)}`}
+                          className="text-primary-soft hover:text-primary transition-colors"
+                        >
+                          #{message.height.toLocaleString()}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        <Timestamp value={message.timestamp} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Keep pagination on errors too so deep pages retain a Previous link. */}
+      {(messages.length > 0 || currentPage > 1) && (
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          hasNextPage={hasNextPage}
+          basePath={basePath}
+        />
       )}
-      <AccountActivityList
-        rows={rows}
-        page={page}
-        pageCount={count === null ? null : activityPageCount(count)}
-        pageParam="msgPage"
-        emptyLabel="No messages found."
-        paginationLabel="Messages pagination"
-      />
-    </>
+    </div>
   );
 }

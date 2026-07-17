@@ -11,6 +11,7 @@ import (
 	v7db "github.com/forbole/callisto/v4/database/migrate/v7"
 )
 
+// RunMigration runs the migrations to v7
 func RunMigration(parseConfig *parse.Config) error {
 	cfg, err := GetConfig()
 	if err != nil {

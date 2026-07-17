@@ -95,10 +95,13 @@ CREATE INDEX message_type_index ON message (type);
 CREATE INDEX message_involved_accounts_index ON message USING GIN(involved_accounts_addresses);
 
 /*
- * Per-address lookup tables (see migrate/v7): the GIN index on the
- * involved_accounts_addresses TEXT[] can't return rows in height order, so
- * these unroll it into btree-ordered rows per (address, message) and per
- * deduplicated (address, transaction), kept in sync by the trigger below.
+ * Per-address activity lookup (see migrate/v7): the GIN index on the
+ * involved_accounts_addresses TEXT[] cannot return rows in height order, so
+ * this unrolls it into btree-ordered rows per (address, message), kept in sync
+ * by the INSERT-only trigger below. Message UPDATE (re-parse) and DELETE (prune)
+ * are not reflected here — safe under forward-only indexing with pruning disabled.
+ * One table serves both views: messages directly, transactions via
+ * DISTINCT ON (height, transaction_hash).
  */
 CREATE TABLE message_by_involved_address
 (
@@ -106,149 +109,27 @@ CREATE TABLE message_by_involved_address
     height           BIGINT NOT NULL,
     transaction_hash TEXT   NOT NULL,
     index            BIGINT NOT NULL,
-    type             TEXT   NOT NULL,
     partition_id     BIGINT NOT NULL,
     PRIMARY KEY (address, height, transaction_hash, index)
 );
 
-CREATE TABLE transaction_by_involved_address
-(
-    address          TEXT   NOT NULL,
-    height           BIGINT NOT NULL,
-    transaction_hash TEXT   NOT NULL,
-    partition_id     BIGINT NOT NULL,
-    PRIMARY KEY (address, height, transaction_hash)
-);
-
-/* Single-column carrier type so Hasura can track the bounded count functions. */
-CREATE TABLE address_query_count
-(
-    count BIGINT NOT NULL
-);
-
-CREATE FUNCTION sync_address_lookups() RETURNS trigger AS
+CREATE FUNCTION sync_message_by_involved_address() RETURNS trigger AS
 $$
 BEGIN
-    IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
-        DELETE FROM message_by_involved_address
-        WHERE address = ANY (OLD.involved_accounts_addresses)
-          AND height = OLD.height
-          AND transaction_hash = OLD.transaction_hash
-          AND index = OLD.index;
-
-        -- Drop the (address, tx) row only when no surviving message of the tx
-        -- still involves the address (AFTER the write, so NOT EXISTS sees
-        -- only survivors).
-        DELETE FROM transaction_by_involved_address t
-        WHERE t.address = ANY (OLD.involved_accounts_addresses)
-          AND t.height = OLD.height
-          AND t.transaction_hash = OLD.transaction_hash
-          AND t.partition_id = OLD.partition_id
-          AND NOT EXISTS (
-              SELECT 1 FROM message m
-              WHERE m.transaction_hash = OLD.transaction_hash
-                AND m.partition_id = OLD.partition_id
-                AND t.address = ANY (m.involved_accounts_addresses)
-          );
-    END IF;
-
-    IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
-        INSERT INTO message_by_involved_address (address, height, transaction_hash, index, type, partition_id)
-        SELECT addr, NEW.height, NEW.transaction_hash, NEW.index, NEW.type, NEW.partition_id
-        FROM unnest(NEW.involved_accounts_addresses) AS addr
-        ON CONFLICT DO NOTHING;
-
-        INSERT INTO transaction_by_involved_address (address, height, transaction_hash, partition_id)
-        SELECT DISTINCT addr, NEW.height, NEW.transaction_hash, NEW.partition_id
-        FROM unnest(NEW.involved_accounts_addresses) AS addr
-        ON CONFLICT DO NOTHING;
-    END IF;
-
+    -- ON CONFLICT collapses duplicate addresses within a message; empty-string
+    -- artifacts are never queried, so they are skipped.
+    INSERT INTO message_by_involved_address (address, height, transaction_hash, index, partition_id)
+    SELECT addr, NEW.height, NEW.transaction_hash, NEW.index, NEW.partition_id
+    FROM unnest(NEW.involved_accounts_addresses) AS addr
+    WHERE addr <> ''
+    ON CONFLICT DO NOTHING;
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER message_address_lookup_sync
-    AFTER INSERT OR UPDATE OR DELETE ON message
-    FOR EACH ROW EXECUTE FUNCTION sync_address_lookups();
-
-/* Messages involving addresses[1], newest first. Scalar equality (not = ANY)
- * keeps the scan index-ordered; callers pass a single-element array. */
-CREATE FUNCTION messages_by_address(
-    addresses TEXT[],
-    types TEXT[],
-    "limit" BIGINT = 100,
-    "offset" BIGINT = 0)
-    RETURNS SETOF message AS
-$$
--- Slice the lookup first (backward PK scan, no sort), then join only the page,
--- so a deep OFFSET walks the index without joining every skipped row.
-SELECT m.*
-FROM (
-    SELECT transaction_hash, index, partition_id, height
-    FROM message_by_involved_address a
-    WHERE a.address = addresses[1]
-      AND (cardinality(types) = 0 OR a.type = ANY (types))
-    ORDER BY a.height DESC, a.transaction_hash DESC, a.index DESC
-    LIMIT "limit" OFFSET "offset"
-) a
-JOIN message m
-  ON m.transaction_hash = a.transaction_hash
- AND m.index = a.index
- AND m.partition_id = a.partition_id
-ORDER BY a.height DESC, a.transaction_hash DESC, a.index DESC
-$$ LANGUAGE sql STABLE;
-
-/* Bounded count (caps at 1000001 -> UI shows "1,000,000+"); no sort. */
-CREATE FUNCTION messages_by_address_count(
-    addresses TEXT[],
-    types TEXT[])
-    RETURNS SETOF address_query_count AS
-$$
-SELECT count(*)::BIGINT
-FROM (
-    SELECT 1
-    FROM message_by_involved_address a
-    WHERE a.address = addresses[1]
-      AND (cardinality(types) = 0 OR a.type = ANY (types))
-    LIMIT 1000001
-) t
-$$ LANGUAGE sql STABLE;
-
-/* Distinct transactions involving the address, newest first. */
-CREATE FUNCTION transactions_by_address(
-    addresses TEXT[],
-    "limit" BIGINT = 100,
-    "offset" BIGINT = 0)
-    RETURNS SETOF transaction AS
-$$
-SELECT tx.*
-FROM (
-    SELECT transaction_hash, partition_id, height
-    FROM transaction_by_involved_address a
-    WHERE a.address = addresses[1]
-    ORDER BY a.height DESC, a.transaction_hash DESC
-    LIMIT "limit" OFFSET "offset"
-) a
-JOIN transaction tx
-  ON tx.hash = a.transaction_hash
- AND tx.partition_id = a.partition_id
-ORDER BY a.height DESC, a.transaction_hash DESC
-$$ LANGUAGE sql STABLE;
-
-/* Bounded count (caps at 1000001 -> UI shows "1,000,000+"); no sort. */
-CREATE FUNCTION transactions_by_address_count(
-    addresses TEXT[])
-    RETURNS SETOF address_query_count AS
-$$
-SELECT count(*)::BIGINT
-FROM (
-    SELECT 1
-    FROM transaction_by_involved_address a
-    WHERE a.address = addresses[1]
-    LIMIT 1000001
-) t
-$$ LANGUAGE sql STABLE;
+    AFTER INSERT ON message
+    FOR EACH ROW EXECUTE FUNCTION sync_message_by_involved_address();
 
 CREATE FUNCTION messages_by_type(
   types text [],

@@ -1,6 +1,6 @@
 import type {
   AccountDelegation,
-  AccountMessageSummary,
+  AccountMessage,
   AccountOverview,
   AccountReward,
   Block,
@@ -24,6 +24,7 @@ import type {
   AccountDelegationsResponse,
   AccountMessagesResponse,
   AccountRewardsResponse,
+  AccountTransactionsResponse,
   AccountWithdrawalAddressResponse,
   AverageBlockTimeResponse,
   BlockDetailsResponse,
@@ -574,27 +575,6 @@ export function mapProposalDetail(
   };
 }
 
-export function mapAccountMessages(
-  response: AccountMessagesResponse,
-): AccountMessageSummary[] {
-  const messages: AccountMessageSummary[] = [];
-  for (const message of response.messages_by_address) {
-    const transaction = message.transaction;
-    if (!transaction) {
-      continue;
-    }
-    messages.push({
-      hash: transaction.hash,
-      index: message.index,
-      height: toNumber(transaction.height),
-      type: formatMessageType(message.type),
-      success: transaction.success,
-      timestamp: toUtcTimestamp(transaction.block.timestamp) ?? "",
-    });
-  }
-  return messages;
-}
-
 export function mapAccountRewards(
   response: AccountRewardsResponse,
   primaryDenom: string,
@@ -622,6 +602,27 @@ export function mapWithdrawalAddress(
   response: AccountWithdrawalAddressResponse,
 ): string | null {
   return response.withdrawalAddress?.address ?? null;
+}
+
+export function mapAccountTransactions(
+  response: AccountTransactionsResponse,
+): TransactionSummary[] {
+  return response.rows
+    .map((row) => row.transaction)
+    .filter((tx): tx is NonNullable<typeof tx> => tx != null)
+    .map(mapTransactionRow);
+}
+
+export function mapAccountMessages(
+  response: AccountMessagesResponse,
+): AccountMessage[] {
+  return response.rows.map((row) => ({
+    type: formatMessageType(row.message?.type ?? ""),
+    transactionHash: row.transactionHash,
+    height: toNumber(row.height),
+    success: row.transaction?.success ?? false,
+    timestamp: toUtcTimestamp(row.transaction?.block.timestamp) ?? "",
+  }));
 }
 
 export function mapProposalEligibleVoters(

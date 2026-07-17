@@ -1,57 +1,133 @@
-import type { TransactionSummary } from "@cosmos-explorer/core";
-import { AccountActivityList } from "@/components/account-activity-list";
+import { Badge } from "@cosmos-explorer/ui/badge";
+import { IconCurrencyEthereum } from "@tabler/icons-react";
 import {
-  activityPageCount,
-  formatActivityCount,
-} from "@/components/account-activity";
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@cosmos-explorer/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@cosmos-explorer/ui/table";
+import { Pagination } from "@cosmos-explorer/ui/pagination";
+import Link from "next/link";
+import { CopyButton } from "@cosmos-explorer/ui/copy-button";
+import { StatusBadge } from "@/components/status-badge";
+import { formatHash } from "@/lib/formatters";
+import { Timestamp } from "@/components/timestamp";
+import type { TransactionSummary } from "@cosmos-explorer/core";
 
-export async function AccountTransactionsCard({
-  transactionsPromise,
-  countPromise,
-  page,
+export function AccountTransactionsCard({
+  transactions,
+  error,
+  currentPage,
+  pageSize,
+  hasNextPage,
+  basePath,
 }: {
-  transactionsPromise: Promise<TransactionSummary[]>;
-  countPromise: Promise<number>;
-  page: number;
+  transactions: TransactionSummary[];
+  error: boolean;
+  currentPage: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  basePath: string;
 }) {
-  const [transactions, count] = await Promise.all([
-    transactionsPromise.catch(() => null),
-    countPromise.catch(() => null),
-  ]);
-
-  if (!transactions) {
-    return (
-      <p className="py-8 text-center text-sm text-destructive">
-        Couldn&apos;t load transactions for this account. Please try again later.
-      </p>
-    );
-  }
-
-  const rows = transactions.map((tx) => ({
-    key: tx.hash,
-    hash: tx.hash,
-    type: tx.type,
-    isEthereum: tx.type === "EthereumTx",
-    success: tx.success,
-    height: tx.height,
-    timestamp: tx.timestamp,
-  }));
-
   return (
-    <>
-      {count !== null && (
-        <p className="mb-3 text-sm text-muted-foreground">
-          {formatActivityCount(count, "transaction")}
-        </p>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Transactions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error ? (
+            <p className="py-8 text-center text-sm text-destructive">
+              Failed to load transactions. Please try again later.
+            </p>
+          ) : transactions.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No transactions found.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tx Hash</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Messages</TableHead>
+                    <TableHead className="text-right">Block</TableHead>
+                    <TableHead className="text-right">Time</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((tx) => (
+                    <TableRow key={tx.hash}>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Link
+                            href={`/transactions/${tx.hash}`}
+                            className="font-mono text-sm text-primary-soft hover:text-primary transition-colors"
+                          >
+                            {formatHash(tx.hash)}
+                          </Link>
+                          <CopyButton
+                            value={tx.hash}
+                            label="tx hash"
+                            size="xs"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {tx.type === "EthereumTx" && (
+                            <IconCurrencyEthereum className="h-3.5 w-3.5" />
+                          )}
+                          {tx.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge
+                          status={tx.success ? "Success" : "Failed"}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        {tx.messageCount}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm">
+                        <Link
+                          href={`/blocks/${String(tx.height)}`}
+                          className="text-primary-soft hover:text-primary transition-colors"
+                        >
+                          #{tx.height.toLocaleString()}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground">
+                        <Timestamp value={tx.timestamp} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Keep pagination on errors too so deep pages retain a Previous link. */}
+      {(transactions.length > 0 || currentPage > 1) && (
+        <Pagination
+          currentPage={currentPage}
+          pageSize={pageSize}
+          hasNextPage={hasNextPage}
+          basePath={basePath}
+        />
       )}
-      <AccountActivityList
-        rows={rows}
-        page={page}
-        pageCount={count === null ? null : activityPageCount(count)}
-        pageParam="txPage"
-        emptyLabel="No transactions found."
-        paginationLabel="Transactions pagination"
-      />
-    </>
+    </div>
   );
 }

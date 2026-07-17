@@ -16,54 +16,25 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
+import {
+  AccountActivityTabs,
+  type AccountActivityTab,
+} from "@/components/account-activity-tabs";
+import { AccountMessagesCard } from "@/components/account-messages-card";
+import { AccountTransactionsCard } from "@/components/account-transactions-card";
 import { DetailBackButton } from "@/components/detail-back-button";
 import {
   formatCoinTotal,
   formatTokenAmount,
 } from "@/lib/formatters";
 import { getChainConfig } from "@/lib/config";
-import {
-  getCachedAccountOverview,
-  getServices,
-} from "@/lib/services";
+import { getServices } from "@/lib/services";
 import { bech32 } from "bech32";
 import { buildPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Suspense } from "react";
-import { ACCOUNT_ACTIVITY_PAGE_SIZE } from "@/components/account-activity";
-import { AccountActivitySkeleton } from "@/components/account-activity-list";
-import { AccountMessagesCard } from "@/components/account-messages-card";
-import { AccountTransactionsCard } from "@/components/account-transactions-card";
-import {
-  AccountActivityTabs,
-  type AccountTab,
-} from "@/components/account-activity-tabs";
-
-// A sane upper bound; the count-based pager caps reachable pages well below it.
-const MAX_PAGE = 100_000_000;
-
-function parsePage(value: string | string[] | undefined): number {
-  const page = Number(Array.isArray(value) ? value[0] : value);
-  if (!Number.isInteger(page) || page < 1) {
-    return 1;
-  }
-  return Math.min(page, MAX_PAGE);
-}
-
-function buildQuery(
-  searchParams: Record<string, string | string[] | undefined>,
-): string {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(searchParams)) {
-    const first = Array.isArray(value) ? value[0] : value;
-    if (typeof first === "string") {
-      params.set(key, first);
-    }
-  }
-  const query = params.toString();
-  return query ? `?${query}` : "";
-}
+import { PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination-constants";
+import type { AccountMessage, TransactionSummary } from "@cosmos-explorer/core";
 
 export async function generateMetadata({
   params,
@@ -81,11 +52,25 @@ export async function generateMetadata({
   });
 }
 
+const DEFAULT_TX_PAGE_SIZE = 10;
+// Caps the OFFSET the page can generate: deep offsets are O(offset) on the
+// lookup table (page 100,000 of a hot address measured at ~2.3s).
+const MAX_ACTIVITY_PAGE = 1000;
+
+function parsePositiveInt(
+  value: string | string[] | undefined,
+  fallback: number,
+): number {
+  const num = typeof value === "string" ? Number(value) : NaN;
+  return Number.isInteger(num) && num >= 1 ? num : fallback;
+}
+
 function toAccountAddress(address: string, prefix: string): string {
   try {
-    // Re-encoding also lowercases: bech32 accepts an all-uppercase address,
-    // whose prefix decodes as lowercase and so already looks canonical.
-    return bech32.encode(prefix, bech32.decode(address).words);
+    const decoded = bech32.decode(address);
+    if (decoded.prefix !== prefix) {
+      return bech32.encode(prefix, decoded.words);
+    }
   } catch {
     // not a valid bech32 address, return as-is
   }
@@ -102,48 +87,54 @@ export default async function AccountDetailPage({
   const config = getChainConfig();
   const { address: rawAddress } = await params;
   const address = toAccountAddress(rawAddress, config.network.bech32Prefix);
-  const sp = await searchParams;
 
   if (address !== rawAddress) {
-    redirect(`/account/${encodeURIComponent(address)}${buildQuery(sp)}`);
+    redirect(`/account/${encodeURIComponent(address)}`);
   }
 
-  const activeTab: AccountTab =
-    sp.tab === "transactions" ? "transactions" : "messages";
-  const activePage = parsePage(
-    activeTab === "messages" ? sp.msgPage : sp.txPage,
+  const query = await searchParams;
+  const activeTab: AccountActivityTab =
+    query.tab === "messages" ? "messages" : "transactions";
+  const currentPage = Math.min(
+    parsePositiveInt(query.page, 1),
+    MAX_ACTIVITY_PAGE,
   );
-  const offset = (activePage - 1) * ACCOUNT_ACTIVITY_PAGE_SIZE;
+  const rawSize = parsePositiveInt(query.pageSize, DEFAULT_TX_PAGE_SIZE);
+  const pageSize = (PAGE_SIZE_OPTIONS as readonly number[]).includes(rawSize)
+    ? rawSize
+    : DEFAULT_TX_PAGE_SIZE;
+  const offset = (currentPage - 1) * pageSize;
 
   const primaryToken = config.network.primaryToken;
   const stakingToken = config.network.stakingToken;
   const { accountService } = getServices();
 
-  // Only the active tab is fetched, before the account await for concurrency;
-  // the bounded count is fetched inline.
-  const messagesPromise =
+  let transactions: TransactionSummary[] = [];
+  let messages: AccountMessage[] = [];
+  let hasNextPage = false;
+  let activityError = false;
+
+  const fetchActivity =
     activeTab === "messages"
-      ? accountService.getAccountMessages(address, {
-          limit: ACCOUNT_ACTIVITY_PAGE_SIZE,
-          offset,
-        })
-      : undefined;
-  const transactionsPromise =
-    activeTab === "transactions"
-      ? accountService.getAccountTransactions(address, {
-          limit: ACCOUNT_ACTIVITY_PAGE_SIZE,
-          offset,
-        })
-      : undefined;
-  const countPromise =
-    activeTab === "messages"
-      ? accountService.getAccountMessageCount(address)
-      : accountService.getAccountTransactionCount(address);
-  // Prevents an unhandled-rejection warning if the account fetch below fails first.
-  messagesPromise?.catch(() => undefined);
-  transactionsPromise?.catch(() => undefined);
-  countPromise.catch(() => undefined);
-  const account = await getCachedAccountOverview(address);
+      ? accountService
+          .getAccountMessages(address, { limit: pageSize + 1, offset })
+          .then((rows) => {
+            hasNextPage = rows.length > pageSize;
+            messages = hasNextPage ? rows.slice(0, pageSize) : rows;
+          })
+      : accountService
+          .getAccountTransactions(address, { limit: pageSize + 1, offset })
+          .then((rows) => {
+            hasNextPage = rows.length > pageSize;
+            transactions = hasNextPage ? rows.slice(0, pageSize) : rows;
+          });
+
+  const [account] = await Promise.all([
+    accountService.getAccountByAddress(address),
+    fetchActivity.catch(() => {
+      activityError = true;
+    }),
+  ]);
 
   const rewardTotal = formatCoinTotal(
     account.rewards.map((reward) => reward.amount),
@@ -232,36 +223,6 @@ export default async function AccountDetailPage({
               {formatTokenAmount(account.unbondingBalance, stakingToken)}
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <AccountActivityTabs
-            activeTab={activeTab}
-            basePath={`/account/${encodeURIComponent(address)}`}
-          />
-        </CardHeader>
-        <CardContent>
-          {/* Keyed on tab+page so each navigation re-shows the skeleton. */}
-          <Suspense
-            key={`${activeTab}-${String(activePage)}`}
-            fallback={<AccountActivitySkeleton />}
-          >
-            {messagesPromise ? (
-              <AccountMessagesCard
-                messagesPromise={messagesPromise}
-                countPromise={countPromise}
-                page={activePage}
-              />
-            ) : transactionsPromise ? (
-              <AccountTransactionsCard
-                transactionsPromise={transactionsPromise}
-                countPromise={countPromise}
-                page={activePage}
-              />
-            ) : null}
-          </Suspense>
         </CardContent>
       </Card>
 
@@ -357,6 +318,29 @@ export default async function AccountDetailPage({
         </CardContent>
       </Card>
 
+      <AccountActivityTabs
+        basePath={`/account/${encodeURIComponent(address)}`}
+        active={activeTab}
+      />
+      {activeTab === "messages" ? (
+        <AccountMessagesCard
+          messages={messages}
+          error={activityError}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          hasNextPage={hasNextPage}
+          basePath={`/account/${encodeURIComponent(address)}?tab=messages`}
+        />
+      ) : (
+        <AccountTransactionsCard
+          transactions={transactions}
+          error={activityError}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          hasNextPage={hasNextPage}
+          basePath={`/account/${encodeURIComponent(address)}?tab=transactions`}
+        />
+      )}
     </div>
   );
 }

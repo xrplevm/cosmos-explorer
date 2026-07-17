@@ -1,5 +1,4 @@
 - "!include public_account.yaml"
-- "!include public_address_query_count.yaml"
 - "!include public_average_block_time_from_genesis.yaml"
 - "!include public_average_block_time_per_day.yaml"
 - "!include public_average_block_time_per_hour.yaml"
@@ -14,6 +13,7 @@
 - "!include public_gov_params.yaml"
 - "!include public_inflation.yaml"
 - "!include public_message.yaml"
+- "!include public_message_by_involved_address.yaml"
 - "!include public_mint_params.yaml"
 - "!include public_modules.yaml"
 - "!include public_pre_commit.yaml"

@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// GetConfig returns the configuration reading it from the config.yaml file present inside the home directory
 func GetConfig() (config.Config, error) {
 	file := path.Join(config.HomePath, "config.yaml")
 

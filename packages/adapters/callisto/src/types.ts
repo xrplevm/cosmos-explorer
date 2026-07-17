@@ -292,30 +292,25 @@ export interface AccountWithdrawalAddressResponse {
   } | null;
 }
 
+export interface AccountTransactionsResponse {
+  rows: {
+    transaction: LatestTransactionsResponse['transactions'][number] | null;
+  }[];
+}
+
 export interface AccountMessagesResponse {
-  messages_by_address: {
-    type: string;
-    index: number;
+  rows: {
+    height: Scalar;
+    transactionHash: string;
+    message: {
+      type: string;
+    } | null;
     transaction: {
-      hash: string;
-      height: number;
       success: boolean;
       block: {
-        timestamp: string;
+        timestamp: Scalar;
       };
     } | null;
-  }[];
-}
-
-export interface AccountMessagesCountResponse {
-  messages_by_address_count: {
-    count: Scalar;
-  }[];
-}
-
-export interface AccountTransactionsCountResponse {
-  transactions_by_address_count: {
-    count: Scalar;
   }[];
 }
 
