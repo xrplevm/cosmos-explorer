@@ -5,6 +5,12 @@ export {
   type IBlockService,
 } from './block';
 export {
+  type ConsensusValidatorVote,
+  type ConsensusTransactionType,
+  type ConsensusBlock,
+  type IConsensusService,
+} from './consensus';
+export {
   type Message,
   type TransactionSummary,
   type TransactionDetail,

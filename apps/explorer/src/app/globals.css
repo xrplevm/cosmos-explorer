@@ -8,3 +8,16 @@
 @theme {
   --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Consensus page tokens — encode consensus semantics (proposer/precommit/miss
+   cells, signed-rate health), fixed across light/dark. `inline` so the
+   var() references resolve against the default palette (emitted in :root). */
+@theme inline {
+  --color-consensus-proposed: var(--color-green-700);
+  --color-consensus-voted: var(--color-green-400);
+  --color-consensus-absent: var(--color-red-400);
+
+  --color-consensus-healthy: var(--color-green-500);
+  --color-consensus-warning: var(--color-amber-500);
+  --color-consensus-poor: var(--color-red-500);
+}

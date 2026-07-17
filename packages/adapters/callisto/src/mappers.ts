@@ -4,6 +4,9 @@ import type {
   AccountReward,
   Block,
   BlockDetail,
+  ConsensusBlock,
+  ConsensusTransactionType,
+  ConsensusValidatorVote,
   ProposalDetail,
   ProposalEligibleVoter,
   ProposalStatus,
@@ -22,6 +25,9 @@ import type {
 import type {
   AccountDelegationsResponse,
   AccountRewardsResponse,
+  ConsensusBlocksResponse,
+  ConsensusValidatorRef,
+  ConsensusValidatorRow,
   AccountWithdrawalAddressResponse,
   AverageBlockTimeResponse,
   BlockDetailsResponse,
@@ -142,6 +148,145 @@ export function mapTransactions(
   response: LatestTransactionsResponse,
 ): TransactionSummary[] {
   return response.transactions.map(mapTransactionRow);
+}
+
+/**
+ * A vote carrying raw fields resolved later: the keybase identity (→ avatar)
+ * and the validator's missed-block count (→ uptime, using the slashing window).
+ */
+export type RawConsensusVote = Omit<
+  ConsensusValidatorVote,
+  "avatarUrl" | "uptimePercent"
+> & {
+  _identity: string | null;
+  _missedBlocks: number | null;
+};
+
+function toValidatorVote(
+  consensusAddress: string,
+  ref: ConsensusValidatorRef | null | undefined,
+  votedAt: string | null,
+): RawConsensusVote {
+  const missed = ref?.validatorSigningInfos?.[0]?.missedBlocksCounter;
+  return {
+    consensusAddress,
+    operatorAddress: ref?.validatorInfo?.operatorAddress ?? "",
+    moniker: ref?.validatorDescriptions?.[0]?.moniker ?? null,
+    _identity: ref?.validatorDescriptions?.[0]?.identity ?? null,
+    _missedBlocks: missed != null ? toNumber(missed) : null,
+    votedAt,
+  };
+}
+
+function countTransactionTypes(
+  transactions: { messages: unknown }[],
+): ConsensusTransactionType[] {
+  const counts = new Map<string, number>();
+  for (const tx of transactions) {
+    const label = summarizeMessageTypes(getMessageTypes(tx.messages));
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([type, count]) => ({ type, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
+export type RawConsensusBlock = Omit<
+  ConsensusBlock,
+  "proposer" | "votes" | "missed"
+> & {
+  proposer: Omit<ConsensusBlock["proposer"], "avatarUrl"> & {
+    _identity: string | null;
+  };
+  votes: RawConsensusVote[];
+  missed: RawConsensusVote[];
+};
+
+export function mapConsensusBlocks(response: {
+  block: ConsensusBlocksResponse["block"];
+  validators: ConsensusValidatorRow[];
+}): RawConsensusBlock[] {
+  // Validators are fetched once at the query root, so resolve by address
+  // instead of re-selecting the same validator under every precommit row.
+  const byAddress = new Map<string, ConsensusValidatorRow>();
+  for (const v of response.validators) byAddress.set(v.consensusAddress, v);
+
+  const blocks = response.block.map((block) => {
+    const height = toNumber(block.height);
+    // A missing proposer address is a known indexer data gap; key it per-block
+    // rather than a shared "" so those blocks don't collapse into one fake row.
+    const proposerKey = block.proposerAddress ?? `unknown-proposer-${height}`;
+    const proposer = byAddress.get(proposerKey);
+    return {
+      height,
+      hash: block.hash,
+      timestamp: toUtcTimestamp(block.timestamp) ?? "",
+      proposer: {
+        consensusAddress: proposerKey,
+        operatorAddress: proposer?.validatorInfo?.operatorAddress ?? "",
+        moniker: proposer?.validatorDescriptions?.[0]?.moniker ?? null,
+        _identity: proposer?.validatorDescriptions?.[0]?.identity ?? null,
+      },
+      totalGas: toNumber(block.totalGas),
+      txCount: toNumber(block.numTxs),
+      txTypes: countTransactionTypes(block.transactions),
+      // `pre_commits` is already ordered by timestamp asc in the query.
+      votes: block.preCommits.map((pc) =>
+        toValidatorVote(
+          pc.validatorAddress,
+          byAddress.get(pc.validatorAddress),
+          toUtcTimestamp(pc.timestamp),
+        ),
+      ),
+    };
+  });
+
+  // A validator down the whole window never appears in block.votes, so the
+  // active (bonded) set is the primary reference, unioned with observed voters
+  // as a fallback for stale/missing status rows.
+  const reference = new Map<string, RawConsensusVote>();
+  const activeAddresses = new Set<string>();
+  for (const v of response.validators) {
+    if (toNumber(v.validatorStatuses?.[0]?.status ?? 0) !== 3) continue;
+    reference.set(v.consensusAddress, toValidatorVote(v.consensusAddress, v, null));
+    activeAddresses.add(v.consensusAddress);
+  }
+  for (const block of blocks) {
+    for (const vote of block.votes) {
+      if (!reference.has(vote.consensusAddress)) {
+        reference.set(vote.consensusAddress, vote);
+      }
+    }
+  }
+
+  // Restricts fallback (non-active-confirmed) validators to their observed
+  // span, since bonded status is a snapshot, not per-height history — active
+  // validators skip this restriction (see the filter below).
+  const votedHeightSpan = new Map<string, { min: number; max: number }>();
+  for (const block of blocks) {
+    for (const vote of block.votes) {
+      const span = votedHeightSpan.get(vote.consensusAddress);
+      if (!span) {
+        votedHeightSpan.set(vote.consensusAddress, { min: block.height, max: block.height });
+      } else {
+        span.min = Math.min(span.min, block.height);
+        span.max = Math.max(span.max, block.height);
+      }
+    }
+  }
+
+  return blocks.map((block) => {
+    const signed = new Set(block.votes.map((v) => v.consensusAddress));
+    const missed = [...reference.values()]
+      .filter((v) => !signed.has(v.consensusAddress))
+      .filter((v) => {
+        if (activeAddresses.has(v.consensusAddress)) return true;
+        const span = votedHeightSpan.get(v.consensusAddress);
+        return !span || (block.height >= span.min && block.height <= span.max);
+      })
+      .map((v) => ({ ...v, votedAt: null }));
+    return { ...block, missed };
+  });
 }
 
 export function mapBlockDetail(

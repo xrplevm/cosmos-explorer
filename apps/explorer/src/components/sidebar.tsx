@@ -9,6 +9,7 @@ import {
   IconBox as Box,
   IconShieldCheck as ShieldCheck,
   IconFileText as Vote,
+  IconChecklist as Checklist,
   IconMenu2 as Menu,
   IconX as X,
 } from "@tabler/icons-react";
@@ -19,6 +20,7 @@ import { Button } from "@cosmos-explorer/ui/button";
 const nav = [
   { name: "Overview", href: "/", icon: LayoutDashboard },
   { name: "Blocks", href: "/blocks", icon: Box },
+  { name: "Consensus", href: "/consensus", icon: Checklist },
   { name: "Transactions", href: "/transactions", icon: ArrowLeftRight },
   { name: "Validators", href: "/validators", icon: ShieldCheck },
   { name: "Proposals", href: "/proposals", icon: Vote },

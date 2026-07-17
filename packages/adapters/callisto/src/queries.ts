@@ -1,3 +1,50 @@
+export const CONSENSUS_BLOCKS_QUERY = `
+  query ConsensusBlocks($limit: Int!) {
+    block(limit: $limit, order_by: { height: desc }) {
+      height
+      hash
+      timestamp
+      numTxs: num_txs
+      totalGas: total_gas
+      proposerAddress: proposer_address
+      transactions {
+        messages
+      }
+      preCommits: pre_commits(order_by: { timestamp: asc }) {
+        timestamp
+        validatorAddress: validator_address
+      }
+    }
+  }
+`;
+
+// Fetched separately from CONSENSUS_BLOCKS_QUERY and cached (see
+// CallistoConsensusService) — the validator set changes far less often than
+// blocks, so there's no need to re-fetch it on every poll tick.
+export const CONSENSUS_VALIDATOR_CONTEXT_QUERY = `
+  query ConsensusValidatorContext {
+    validators: validator {
+      consensusAddress: consensus_address
+      validatorInfo: validator_info {
+        operatorAddress: operator_address
+      }
+      validatorDescriptions: validator_descriptions(order_by: { height: desc }, limit: 1) {
+        moniker
+        identity
+      }
+      validatorSigningInfos: validator_signing_infos(order_by: { height: desc }, limit: 1) {
+        missedBlocksCounter: missed_blocks_counter
+      }
+      validatorStatuses: validator_statuses(order_by: { height: desc }, limit: 1) {
+        status
+      }
+    }
+    slashingParams: slashing_params(order_by: { height: desc }, limit: 1) {
+      params
+    }
+  }
+`;
+
 export const LATEST_BLOCKS_QUERY = `
   query LatestBlocks($limit: Int = 7) {
     blocks: block(limit: $limit, order_by: { height: desc }) {

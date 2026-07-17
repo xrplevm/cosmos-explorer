@@ -30,6 +30,55 @@ export interface BlockDetailsResponse {
   }[];
 }
 
+export interface ConsensusValidatorRef {
+  validatorInfo?: {
+    operatorAddress: string;
+  } | null;
+  validatorDescriptions?: {
+    moniker?: string | null;
+    identity?: string | null;
+  }[] | null;
+  validatorSigningInfos?: {
+    missedBlocksCounter?: Scalar | null;
+  }[] | null;
+  validatorStatuses?: {
+    status?: Scalar | null;
+  }[] | null;
+}
+
+/** A validator fetched once at the query root, keyed by consensus address. */
+export interface ConsensusValidatorRow extends ConsensusValidatorRef {
+  consensusAddress: string;
+}
+
+export interface ConsensusBlocksResponse {
+  block: {
+    height: Scalar;
+    hash: string;
+    timestamp: Scalar;
+    numTxs?: number | null;
+    totalGas?: number | null;
+    proposerAddress?: string | null;
+    transactions: {
+      messages: unknown;
+    }[];
+    preCommits: {
+      timestamp: Scalar;
+      validatorAddress: string;
+    }[];
+  }[];
+}
+
+/** Response shape for CONSENSUS_VALIDATOR_CONTEXT_QUERY. */
+export interface ConsensusValidatorContextResponse {
+  validators: ConsensusValidatorRow[];
+  slashingParams?: {
+    params?: {
+      signed_blocks_window?: Scalar | null;
+    } | null;
+  }[] | null;
+}
+
 export interface LatestTransactionsResponse {
   transactions: {
     height: Scalar;
