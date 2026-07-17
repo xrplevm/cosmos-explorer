@@ -1,11 +1,11 @@
-// Caches the in-flight promise rather than the resolved value, so concurrent callers for
-// one identity share a single request. Failures expire and are retried; successes do not.
 interface CacheEntry {
   value: Promise<string | null>;
   expiresAt: number;
+  refreshing: boolean;
 }
 
 const cache = new Map<string, CacheEntry>();
+const SUCCESS_TTL_MS = 6 * 60 * 60 * 1000;
 const FAILURE_TTL_MS = 60_000;
 
 async function lookup(identity: string): Promise<string | null> {
@@ -16,10 +16,16 @@ async function lookup(identity: string): Promise<string | null> {
 
   if (!res.ok) throw new Error(`keybase lookup failed: ${res.status}`);
 
-  const data: unknown = await res.json();
-  const them = (data as { them?: { pictures?: { primary?: { url?: string } } }[] } | undefined)?.them;
+  const data = (await res.json()) as
+    | { status?: { code?: number }; them?: { pictures?: { primary?: { url?: string } } }[] }
+    | undefined;
 
-  return them?.[0]?.pictures?.primary?.url ?? null;
+  // Keybase soft-errors as HTTP 200 + non-zero status.code; treat as failure, don't cache null.
+  if (data?.status?.code !== 0) {
+    throw new Error(`keybase lookup soft error: ${data?.status?.code ?? "unknown"}`);
+  }
+
+  return data.them?.[0]?.pictures?.primary?.url ?? null;
 }
 
 export function resolveKeybaseAvatar(
@@ -30,12 +36,39 @@ export function resolveKeybaseAvatar(
   const cached = cache.get(identity);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
 
-  const entry: CacheEntry = { value: Promise.resolve(null), expiresAt: Infinity };
+  if (cached) {
+    // Stale: serve the last value now, revalidate in the background (single-flight).
+    if (!cached.refreshing) {
+      cached.refreshing = true;
+      void lookup(identity)
+        .then(
+          (url) => {
+            cached.value = Promise.resolve(url);
+            cached.expiresAt = Date.now() + SUCCESS_TTL_MS;
+          },
+          () => {
+            cached.expiresAt = Date.now() + FAILURE_TTL_MS;
+          }
+        )
+        .finally(() => {
+          cached.refreshing = false;
+        });
+    }
+    return cached.value;
+  }
 
-  entry.value = lookup(identity).catch(() => {
-    entry.expiresAt = Date.now() + FAILURE_TTL_MS;
-    return null;
-  });
+  const entry: CacheEntry = { value: Promise.resolve(null), expiresAt: Infinity, refreshing: false };
+
+  entry.value = lookup(identity).then(
+    (url) => {
+      entry.expiresAt = Date.now() + SUCCESS_TTL_MS;
+      return url;
+    },
+    () => {
+      entry.expiresAt = Date.now() + FAILURE_TTL_MS;
+      return null;
+    }
+  );
 
   cache.set(identity, entry);
   return entry.value;
