@@ -14,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
-import { Pagination } from "@cosmos-explorer/ui/pagination";
 import Link from "next/link";
 import { CopyButton } from "@cosmos-explorer/ui/copy-button";
 import { StatusBadge } from "@/components/status-badge";
@@ -25,105 +24,85 @@ import type { AccountMessage } from "@cosmos-explorer/core";
 export function AccountMessagesCard({
   messages,
   error,
-  currentPage,
-  pageSize,
-  hasNextPage,
-  basePath,
 }: {
   messages: AccountMessage[];
   error: boolean;
-  currentPage: number;
-  pageSize: number;
-  hasNextPage: boolean;
-  basePath: string;
 }) {
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Messages</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {error ? (
-            <p className="py-8 text-center text-sm text-destructive">
-              Failed to load messages. Please try again later.
-            </p>
-          ) : messages.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              No messages found.
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Tx Hash</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Block</TableHead>
-                    <TableHead className="text-right">Time</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {messages.map((message, index) => (
-                    <TableRow key={`${message.transactionHash}-${index}`}>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {message.type === "EthereumTx" && (
-                            <IconCurrencyEthereum className="h-3.5 w-3.5" />
-                          )}
-                          {message.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Link
-                            href={`/transactions/${message.transactionHash}`}
-                            className="font-mono text-sm text-primary-soft hover:text-primary transition-colors"
-                          >
-                            {formatHash(message.transactionHash)}
-                          </Link>
-                          <CopyButton
-                            value={message.transactionHash}
-                            label="tx hash"
-                            size="xs"
-                          />
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          status={message.success ? "Success" : "Failed"}
-                        />
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-sm">
+    <Card>
+      <CardHeader>
+        <CardTitle>Messages</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {error ? (
+          <p className="py-8 text-center text-sm text-destructive">
+            Failed to load messages. Please try again later.
+          </p>
+        ) : messages.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No messages found.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Tx Hash</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Block</TableHead>
+                  <TableHead className="text-right">Time</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {messages.map((message, index) => (
+                  <TableRow key={`${message.transactionHash}-${index}`}>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {message.type === "EthereumTx" && (
+                          <IconCurrencyEthereum className="h-3.5 w-3.5" />
+                        )}
+                        {message.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
                         <Link
-                          href={`/blocks/${String(message.height)}`}
-                          className="text-primary-soft hover:text-primary transition-colors"
+                          href={`/transactions/${message.transactionHash}`}
+                          className="font-mono text-sm text-primary-soft hover:text-primary transition-colors"
                         >
-                          #{message.height.toLocaleString()}
+                          {formatHash(message.transactionHash)}
                         </Link>
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        <Timestamp value={message.timestamp} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Keep pagination on errors too so deep pages retain a Previous link. */}
-      {(messages.length > 0 || currentPage > 1) && (
-        <Pagination
-          currentPage={currentPage}
-          pageSize={pageSize}
-          hasNextPage={hasNextPage}
-          basePath={basePath}
-        />
-      )}
-    </div>
+                        <CopyButton
+                          value={message.transactionHash}
+                          label="tx hash"
+                          size="xs"
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        status={message.success ? "Success" : "Failed"}
+                      />
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-sm">
+                      <Link
+                        href={`/blocks/${String(message.height)}`}
+                        className="text-primary-soft hover:text-primary transition-colors"
+                      >
+                        #{message.height.toLocaleString()}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-right text-muted-foreground">
+                      <Timestamp value={message.timestamp} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

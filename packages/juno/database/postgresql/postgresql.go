@@ -289,16 +289,33 @@ func (db *Database) SaveMessage(height int64, txHash string, msg types.Message, 
 	return db.saveMessageInsidePartition(height, txHash, addresses, msg, partitionID)
 }
 
-// saveMessageInsidePartition stores the given message inside the partition having the provided id
+// saveMessageInsidePartition stores the given message inside the partition having the provided id.
+// The same statement unrolls involved_accounts_addresses into the
+// message_by_involved_address lookup table (see callisto migrate/v7), in the same
+// transaction. The lookup is keyed by (address, transaction_hash, index) with
+// height mirrored on conflict, so a tx re-included at a new height updates its rows
+// instead of duplicating them; SELECT DISTINCT keeps DO UPDATE from hitting a key
+// twice and ORDER BY gives a deterministic lock order.
 func (db *Database) saveMessageInsidePartition(height int64, txHash string, addresses []string, msg types.Message, partitionID int64) error {
 	stmt := `
-INSERT INTO message(transaction_hash, index, type, value, involved_accounts_addresses, height, partition_id) 
-VALUES ($1, $2, $3, $4, $5, $6, $7) 
-ON CONFLICT (transaction_hash, index, partition_id) DO UPDATE 
-	SET height = excluded.height, 
-		type = excluded.type,
-		value = excluded.value,
-		involved_accounts_addresses = excluded.involved_accounts_addresses`
+WITH m AS (
+	INSERT INTO message(transaction_hash, index, type, value, involved_accounts_addresses, height, partition_id)
+	VALUES ($1, $2, $3, $4, $5, $6, $7)
+	ON CONFLICT (transaction_hash, index, partition_id) DO UPDATE
+		SET height = excluded.height,
+			type = excluded.type,
+			value = excluded.value,
+			involved_accounts_addresses = excluded.involved_accounts_addresses
+	RETURNING height, transaction_hash, index, involved_accounts_addresses
+)
+INSERT INTO message_by_involved_address (address, height, transaction_hash, index)
+SELECT DISTINCT addr, m.height, m.transaction_hash, m.index
+FROM m, unnest(m.involved_accounts_addresses) AS addr
+WHERE addr <> ''
+ORDER BY addr
+ON CONFLICT (address, transaction_hash, index) DO UPDATE
+	SET height = excluded.height
+	WHERE message_by_involved_address.height IS DISTINCT FROM excluded.height`
 
 	_, err := db.SQL.Exec(stmt, txHash, msg.GetIndex(), msg.GetType(), msg.GetBytes(), pq.Array(addresses), height, partitionID)
 	return err
@@ -332,17 +349,31 @@ func (db *Database) StoreLastPruned(height int64) error {
 	return err
 }
 
-// Prune implements database.PruningDb
+// Prune implements database.PruningDb.
+// One transaction so a crash mid-prune can't leave partial deletes.
 func (db *Database) Prune(height int64) error {
-	_, err := db.SQL.Exec(`DELETE FROM pre_commit WHERE height = $1`, height)
+	tx, err := db.SQL.Beginx()
 	if err != nil {
 		return err
 	}
+	defer func() { _ = tx.Rollback() }() // no-op once committed
 
-	_, err = db.SQL.Exec(`
-DELETE FROM message 
-USING transaction 
+	if _, err := tx.Exec(`DELETE FROM pre_commit WHERE height = $1`, height); err != nil {
+		return err
+	}
+
+	// The lookup stores the block height directly, so prune it by height.
+	if _, err := tx.Exec(`DELETE FROM message_by_involved_address WHERE height = $1`, height); err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(`
+DELETE FROM message
+USING transaction
 WHERE message.transaction_hash = transaction.hash AND transaction.height = $1
-`, height)
-	return err
+`, height); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }

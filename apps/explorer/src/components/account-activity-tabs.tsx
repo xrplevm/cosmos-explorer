@@ -1,26 +1,30 @@
-import Link from "next/link";
+"use client";
 
-export type AccountActivityTab = "transactions" | "messages";
+import type { AccountActivityTab } from "@/lib/account-activity";
 
 const TABS: { key: AccountActivityTab; label: string }[] = [
   { key: "transactions", label: "Transactions" },
   { key: "messages", label: "Messages" },
 ];
 
-/** URL-driven tabs (server-rendered) so each tab keeps its own paginated URL. */
+/** Controlled tabs — selecting a tab swaps the section in place, no navigation. */
 export function AccountActivityTabs({
-  basePath,
   active,
+  onSelect,
 }: {
-  basePath: string;
   active: AccountActivityTab;
+  onSelect: (tab: AccountActivityTab) => void;
 }) {
   return (
     <div className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground">
       {TABS.map((tab) => (
-        <Link
+        <button
           key={tab.key}
-          href={`${basePath}?tab=${tab.key}`}
+          type="button"
+          onClick={() => {
+            onSelect(tab.key);
+          }}
+          aria-pressed={tab.key === active}
           className={`inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium transition-all ${
             tab.key === active
               ? "bg-background text-foreground shadow"
@@ -28,7 +32,7 @@ export function AccountActivityTabs({
           }`}
         >
           {tab.label}
-        </Link>
+        </button>
       ))}
     </div>
   );

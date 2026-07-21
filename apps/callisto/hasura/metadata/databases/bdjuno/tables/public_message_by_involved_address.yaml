@@ -12,6 +12,7 @@ object_relationships:
       column_mapping:
         transaction_hash: transaction_hash
         index: index
+        height: height
 - name: transaction
   using:
     manual_configuration:
@@ -21,6 +22,7 @@ object_relationships:
       insertion_order:
       column_mapping:
         transaction_hash: hash
+        height: height
 select_permissions:
 - permission:
     allow_aggregations: false
@@ -29,7 +31,6 @@ select_permissions:
     - height
     - transaction_hash
     - index
-    - partition_id
     filter: {}
     # One above the max UI page size (100): pages probe pageSize+1 rows to
     # detect whether a next page exists.

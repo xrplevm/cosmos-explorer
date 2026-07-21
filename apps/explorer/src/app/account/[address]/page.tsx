@@ -16,24 +16,22 @@ import {
   TableHeader,
   TableRow,
 } from "@cosmos-explorer/ui/table";
-import {
-  AccountActivityTabs,
-  type AccountActivityTab,
-} from "@/components/account-activity-tabs";
-import { AccountMessagesCard } from "@/components/account-messages-card";
-import { AccountTransactionsCard } from "@/components/account-transactions-card";
+import { AccountActivity } from "@/components/account-activity";
 import { DetailBackButton } from "@/components/detail-back-button";
 import {
   formatCoinTotal,
   formatTokenAmount,
 } from "@/lib/formatters";
+import {
+  type AccountActivityData,
+  normalizeActivityParams,
+} from "@/lib/account-activity";
 import { getChainConfig } from "@/lib/config";
 import { getServices } from "@/lib/services";
 import { bech32 } from "bech32";
 import { buildPageMetadata } from "@/lib/metadata";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { PAGE_SIZE_OPTIONS } from "@cosmos-explorer/ui/pagination-constants";
 import type { AccountMessage, TransactionSummary } from "@cosmos-explorer/core";
 
 export async function generateMetadata({
@@ -50,19 +48,6 @@ export async function generateMetadata({
     description: `Account details and transaction history for ${address} on the XRPL EVM Sidechain.`,
     path: `/account/${address}`,
   });
-}
-
-const DEFAULT_TX_PAGE_SIZE = 10;
-// Caps the OFFSET the page can generate: deep offsets are O(offset) on the
-// lookup table (page 100,000 of a hot address measured at ~2.3s).
-const MAX_ACTIVITY_PAGE = 1000;
-
-function parsePositiveInt(
-  value: string | string[] | undefined,
-  fallback: number,
-): number {
-  const num = typeof value === "string" ? Number(value) : NaN;
-  return Number.isInteger(num) && num >= 1 ? num : fallback;
 }
 
 function toAccountAddress(address: string, prefix: string): string {
@@ -93,17 +78,16 @@ export default async function AccountDetailPage({
   }
 
   const query = await searchParams;
-  const activeTab: AccountActivityTab =
-    query.tab === "messages" ? "messages" : "transactions";
-  const currentPage = Math.min(
-    parsePositiveInt(query.page, 1),
-    MAX_ACTIVITY_PAGE,
-  );
-  const rawSize = parsePositiveInt(query.pageSize, DEFAULT_TX_PAGE_SIZE);
-  const pageSize = (PAGE_SIZE_OPTIONS as readonly number[]).includes(rawSize)
-    ? rawSize
-    : DEFAULT_TX_PAGE_SIZE;
-  const offset = (currentPage - 1) * pageSize;
+  const {
+    tab: activeTab,
+    page: currentPage,
+    pageSize,
+    offset,
+  } = normalizeActivityParams({
+    tab: query.tab,
+    page: query.page,
+    pageSize: query.pageSize,
+  });
 
   const primaryToken = config.network.primaryToken;
   const stakingToken = config.network.stakingToken;
@@ -140,6 +124,16 @@ export default async function AccountDetailPage({
     account.rewards.map((reward) => reward.amount),
     primaryToken,
   );
+
+  const initialActivity: AccountActivityData = {
+    tab: activeTab,
+    page: currentPage,
+    pageSize,
+    hasNextPage,
+    transactions,
+    messages,
+    error: activityError,
+  };
 
   return (
     <div className="space-y-6">
@@ -225,6 +219,8 @@ export default async function AccountDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      <AccountActivity address={address} initial={initialActivity} />
 
       <Card>
         <CardHeader>
@@ -317,30 +313,6 @@ export default async function AccountDetailPage({
           )}
         </CardContent>
       </Card>
-
-      <AccountActivityTabs
-        basePath={`/account/${encodeURIComponent(address)}`}
-        active={activeTab}
-      />
-      {activeTab === "messages" ? (
-        <AccountMessagesCard
-          messages={messages}
-          error={activityError}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          hasNextPage={hasNextPage}
-          basePath={`/account/${encodeURIComponent(address)}?tab=messages`}
-        />
-      ) : (
-        <AccountTransactionsCard
-          transactions={transactions}
-          error={activityError}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          hasNextPage={hasNextPage}
-          basePath={`/account/${encodeURIComponent(address)}?tab=transactions`}
-        />
-      )}
     </div>
   );
 }
