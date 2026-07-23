@@ -4,7 +4,7 @@ import {
   type ValidatorDetail,
   type ValidatorSet,
 } from '@cosmos-explorer/core';
-import { type Fetcher, resolveKeybaseAvatars } from '@cosmos-explorer/utils';
+import { type Fetcher } from '@cosmos-explorer/utils';
 
 import {
   mapValidatorCount,
@@ -22,17 +22,12 @@ import type {
   ValidatorDetailsResponse,
   ValidatorsResponse,
 } from '../types';
+import { withResolvedAvatars } from './avatars';
 
 async function resolveSetAvatars(raw: RawValidatorSet): Promise<ValidatorSet> {
-  const identities = raw.items.map((v) => v._identity);
-  const avatarMap = await resolveKeybaseAvatars(identities);
-
   return {
     ...raw,
-    items: raw.items.map(({ _identity, ...v }) => ({
-      ...v,
-      avatarUrl: _identity ? avatarMap.get(_identity) ?? null : null,
-    })),
+    items: await withResolvedAvatars(raw.items),
   };
 }
 
@@ -81,13 +76,7 @@ export class CallistoValidatorService implements IValidatorService {
     const rawDetail = mapValidatorDetail(detailResponse, rawSet);
     if (!rawDetail) return null;
 
-    const identities = [rawDetail._identity];
-    const avatarMap = await resolveKeybaseAvatars(identities);
-    const { _identity, ...detail } = rawDetail;
-
-    return {
-      ...detail,
-      avatarUrl: _identity ? avatarMap.get(_identity) ?? null : null,
-    };
+    const [detail] = await withResolvedAvatars([rawDetail]);
+    return detail;
   }
 }
