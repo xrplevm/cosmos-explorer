@@ -11,6 +11,7 @@ import { VotingCount } from "@cosmos-explorer/ui/voting-count";
 import { ProposalVotesTable } from "@/components/proposal-votes-table";
 import type { ProposalVote, VoteOption } from "@cosmos-explorer/core";
 import type { SerializableValidator } from "@/components/proposal-votes-card";
+import { cn } from "@cosmos-explorer/ui/lib/utils";
 import {
   IconThumbUp,
   IconThumbDown,
@@ -40,35 +41,57 @@ const PAGE_SIZE = 10;
 
 interface ProposalVotesContentProps {
   votes: ProposalVote[];
-  total: number;
   validatorMap: Record<string, SerializableValidator>;
   didNotVote: SerializableValidator[];
 }
 
 export function ProposalVotesContent({
   votes,
-  total,
   validatorMap,
   didNotVote,
 }: ProposalVotesContentProps) {
   const [filter, setFilter] = useState<FilterValue>("all");
+  const [showAllVotes, setShowAllVotes] = useState(false);
   const [page, setPage] = useState(1);
 
-  const voteCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: total + didNotVote.length, didNotVote: didNotVote.length };
+  // All raw votes sorted newest to oldest.
+  const allVotes = useMemo(
+    () => [...votes].sort((a, b) => b.height - a.height),
+    [votes],
+  );
+
+  // Only the last vote per validator (highest block), newest to oldest.
+  const latestVotes = useMemo(() => {
+    const latestByVoter = new Map<string, ProposalVote>();
     for (const v of votes) {
+      const existing = latestByVoter.get(v.voterAddress);
+      if (!existing || v.height > existing.height) {
+        latestByVoter.set(v.voterAddress, v);
+      }
+    }
+    return [...latestByVoter.values()].sort((a, b) => b.height - a.height);
+  }, [votes]);
+
+  const displayVotes = showAllVotes ? allVotes : latestVotes;
+
+  const voteCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: displayVotes.length,
+      didNotVote: didNotVote.length,
+    };
+    for (const v of displayVotes) {
       counts[v.option] = (counts[v.option] ?? 0) + 1;
     }
     return counts;
-  }, [votes, total, didNotVote]);
+  }, [displayVotes, didNotVote]);
 
   const filtered = useMemo(() => {
     if (filter === "didNotVote") return [];
-    if (filter === "all") return votes;
-    return votes.filter((v) => v.option === filter);
-  }, [votes, filter]);
+    if (filter === "all") return displayVotes;
+    return displayVotes.filter((v) => v.option === filter);
+  }, [displayVotes, filter]);
 
-  const showDidNotVote = filter === "all" || filter === "didNotVote";
+  const showDidNotVote = filter === "didNotVote";
   const allItems = [...filtered, ...(showDidNotVote ? didNotVote : [])];
   const totalPages = Math.ceil(allItems.length / PAGE_SIZE);
   const startIdx = (page - 1) * PAGE_SIZE;
@@ -88,17 +111,41 @@ export function ProposalVotesContent({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          Votes
-          <span className="ml-2 text-sm font-normal text-muted-foreground">
-            ({filter === "didNotVote"
-              ? `${didNotVote.length.toLocaleString()} did not vote`
-              : filter === "all"
-                ? `${total.toLocaleString()} total`
-                : `${filtered.length.toLocaleString()} of ${total.toLocaleString()}`
-            })
-          </span>
-        </CardTitle>
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle>
+            Votes
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({filter === "didNotVote"
+                ? `${didNotVote.length.toLocaleString()} did not vote`
+                : filter === "all"
+                  ? `${displayVotes.length.toLocaleString()} total`
+                  : `${filtered.length.toLocaleString()} of ${displayVotes.length.toLocaleString()}`
+              })
+            </span>
+          </CardTitle>
+          <button
+            type="button"
+            onClick={() => { setShowAllVotes((s) => !s); setPage(1); }}
+            role="switch"
+            aria-checked={showAllVotes}
+            className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <span
+              className={cn(
+                "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border transition-colors",
+                showAllVotes ? "bg-primary border-primary" : "bg-muted border-border",
+              )}
+            >
+              <span
+                className={cn(
+                  "inline-block h-3.5 w-3.5 rounded-full bg-foreground transition-transform",
+                  showAllVotes ? "translate-x-[18px]" : "translate-x-[3px]",
+                )}
+              />
+            </span>
+            Include revotes
+          </button>
+        </div>
         <VotingCount
           filters={VOTE_FILTERS}
           active={filter}
