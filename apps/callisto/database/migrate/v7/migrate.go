@@ -8,8 +8,8 @@ import (
 
 // EnsureLookupTable creates message_by_involved_address and its height index if
 // absent. database.Builder runs it whenever the DB is opened, so the inline sync
-// in saveMessageInsidePartition always has a target. Idempotent; backfilling
-// existing messages is Migrate()'s job.
+// in Db.SaveMessage always has a target. Idempotent; backfilling existing
+// messages is Migrate()'s job.
 func EnsureLookupTable(db *sqlx.DB) error {
 	for i, stmt := range []string{lookupTable, lookupHeightIndex} {
 		if _, err := db.Exec(stmt); err != nil {

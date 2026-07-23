@@ -160,7 +160,9 @@ export function Pagination({
       <div className="flex items-center gap-1">
         {controlled ? (
           <PaginationButton
-            onClick={() => onPageChange(currentPage - 1)}
+            onClick={() => {
+              onPageChange(currentPage - 1);
+            }}
             disabled={currentPage <= 1 || isPending}
           >
             {PrevIcon}
@@ -182,7 +184,9 @@ export function Pagination({
 
         {controlled ? (
           <PaginationButton
-            onClick={() => onPageChange(currentPage + 1)}
+            onClick={() => {
+              onPageChange(currentPage + 1);
+            }}
             disabled={!hasNextPage || isPending}
           >
             Next

@@ -220,7 +220,12 @@ export default async function AccountDetailPage({
         </CardContent>
       </Card>
 
-      <AccountActivity address={address} initial={initialActivity} />
+      {/* key: the section's own tab/page/error state must not carry to another account */}
+      <AccountActivity
+        key={address}
+        address={address}
+        initial={initialActivity}
+      />
 
       <Card>
         <CardHeader>

@@ -10,6 +10,11 @@ func (db *Db) Prune(height int64) error {
 		return fmt.Errorf("error while pruning db: %s", err)
 	}
 
+	_, err = db.SQL.Exec(`DELETE FROM message_by_involved_address WHERE height = $1`, height)
+	if err != nil {
+		return fmt.Errorf("error while pruning message lookup: %s", err)
+	}
+
 	// Prune modules
 	err = db.pruneBank(height)
 	if err != nil {

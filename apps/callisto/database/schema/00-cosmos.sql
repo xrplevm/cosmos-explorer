@@ -95,12 +95,10 @@ CREATE INDEX message_type_index ON message (type);
 CREATE INDEX message_involved_accounts_index ON message USING GIN(involved_accounts_addresses);
 
 /*
- * Per-address activity lookup (see migrate/v7): btree-ordered unroll of the
- * GIN-only involved_accounts_addresses TEXT[]. Populated inline with the message
- * insert (juno saveMessageInsidePartition); keyed by (address, transaction_hash,
- * index) with height as a mirrored column, so a tx re-included at a new height
- * updates one row instead of duplicating. The height index serves the ordered
- * scans; transactions dedup via DISTINCT ON (height, transaction_hash).
+ * Per-address activity lookup: btree-ordered unroll of the GIN-only
+ * involved_accounts_addresses TEXT[], populated inline with the message insert
+ * (Db.SaveMessage). Height is a mirrored column rather than part of the key, so
+ * a tx re-included at a new height updates one row instead of duplicating.
  */
 CREATE TABLE message_by_involved_address
 (

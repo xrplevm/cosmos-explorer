@@ -44,9 +44,23 @@ export function AccountActivity({
     window.history.replaceState(null, "", `?${params.toString()}`);
 
     startTransition(async () => {
-      const result = await fetchAccountActivity({ address, ...next });
-      if (id === requestId.current) {
-        setData(result);
+      try {
+        const result = await fetchAccountActivity({ address, ...next });
+        if (id === requestId.current) {
+          setData(result);
+        }
+      } catch {
+        // The action handles service failures itself; this catches the request
+        // never completing, which would otherwise reach the page error boundary.
+        if (id === requestId.current) {
+          setData({
+            ...next,
+            hasNextPage: false,
+            transactions: [],
+            messages: [],
+            error: true,
+          });
+        }
       }
     });
   }
