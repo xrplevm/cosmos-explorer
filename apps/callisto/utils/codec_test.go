@@ -17,3 +17,15 @@ func TestUnpackMessage(t *testing.T) {
 		Option:     govtypesv1beta1.OptionYes,
 	}, cosmosMsg)
 }
+
+func TestCodecRegistersChainModuleMsgs(t *testing.T) {
+	reg := GetCodec().InterfaceRegistry()
+	for _, typeURL := range []string{
+		"/ibc.applications.interchain_accounts.host.v1.MsgUpdateParams",
+		"/ibc.applications.transfer.v1.MsgUpdateParams",
+		"/ratelimit.v1.MsgAddRateLimit",
+	} {
+		_, err := reg.Resolve(typeURL)
+		require.NoError(t, err, typeURL)
+	}
+}

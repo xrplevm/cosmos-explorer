@@ -35,6 +35,9 @@ import (
 	"github.com/cosmos/evm/x/feemarket"
 	"github.com/cosmos/evm/x/vm"
 	"github.com/cosmos/gogoproto/proto"
+	ratelimit "github.com/cosmos/ibc-apps/modules/rate-limiting/v10"
+	ica "github.com/cosmos/ibc-go/v10/modules/apps/27-interchain-accounts"
+	ibctransfer "github.com/cosmos/ibc-go/v10/modules/apps/transfer"
 	ibc "github.com/cosmos/ibc-go/v10/modules/core"
 	ibctm "github.com/cosmos/ibc-go/v10/modules/light-clients/07-tendermint"
 	"github.com/xrplevm/node/v9/x/poa"
@@ -85,6 +88,9 @@ func getBasicManagers() module.BasicManager {
 		erc20.AppModuleBasic{},
 		ibc.AppModuleBasic{},
 		ibctm.AppModuleBasic{},
+		ica.AppModuleBasic{},
+		ibctransfer.AppModuleBasic{},
+		ratelimit.AppModuleBasic{},
 	)
 }
 
