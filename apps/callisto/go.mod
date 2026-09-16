@@ -52,7 +52,10 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/cosmos/ibc-go/v10 v10.3.0
+require (
+	github.com/cosmos/ibc-apps/modules/rate-limiting/v10 v10.1.0
+	github.com/cosmos/ibc-go/v10 v10.3.0
+)
 
 require (
 	4d63.com/gocheckcompilerdirectives v1.2.1 // indirect
