@@ -5,19 +5,21 @@ services:
         restart: always
         environment:
             HASURA_GRAPHQL_DATABASE_URL: postgres://user:password@database:5432/database
-            HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
-            HASURA_GRAPHQL_DEV_MODE: "true"
+            HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET:?Set HASURA_GRAPHQL_ADMIN_SECRET in apps/callisto/.env}
+            HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+            HASURA_GRAPHQL_ENABLE_CONSOLE: ${HASURA_GRAPHQL_ENABLE_CONSOLE:-false}
+            HASURA_GRAPHQL_DEV_MODE: ${HASURA_GRAPHQL_DEV_MODE:-false}
             HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
             ACTION_BASE_URL: http://host.docker.internal:3000
         volumes:
             - ./hasura/metadata:/hasura-metadata
         ports:
-            - "8080:8080"
+            - "127.0.0.1:8080:8080"
 
     database:
         image: postgres:17
         ports:
-            - "5432:5432"
+            - "127.0.0.1:5432:5432"
         environment:
             POSTGRES_USER: user
             POSTGRES_PASSWORD: password

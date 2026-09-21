@@ -55,13 +55,20 @@ cp configs/testnet-config.yaml ~/.callisto/config.yaml
 ### 4. Start Indexing
 
 ```bash
-# 1. Start PostgreSQL and Hasura
+# 1. Generate the ignored local environment file and Hasura admin secret
+make setup-env
+
+# 2. Start PostgreSQL and Hasura
 docker compose up -d
 
-# 2. Build and start the indexer
+# 3. Build and start the indexer
 make build
 ./build/callisto start
 ```
+
+Hasura requires `HASURA_GRAPHQL_ADMIN_SECRET`. The generated `.env` is ignored
+by Git and is only for local development; never expose the secret to the
+explorer or commit it.
 
 ### 5. Start with Make Targets
 
@@ -121,6 +128,10 @@ Use `make db-schema-reset` when you need a fresh database without tearing down t
 | Hasura Console & GraphQL API | http://localhost:8080 | GraphQL management console and endpoint |
 | Callisto Actions | http://localhost:3000 | HTTP server for Hasura actions |
 | PostgreSQL | localhost:5432 | Database connection |
+
+Both published service ports bind to `127.0.0.1`. The Hasura console and
+development mode are disabled by default; `make setup-env` enables them in the
+ignored local environment only.
 
 Default database credentials (from docker-compose.yml):
 - User: `user`

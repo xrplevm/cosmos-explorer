@@ -178,14 +178,18 @@ migrate:
 ###############################################################################
 
 setup-env:
-	@ARCH=$$(uname -m); \
+	@command -v openssl >/dev/null 2>&1 || { echo "Error: openssl is required"; exit 1; }; \
+	ARCH=$$(uname -m); \
 	if [ "$$ARCH" = "arm64" ] || [ "$$ARCH" = "aarch64" ]; then \
-		echo "HASURA_IMAGE_SUFFIX=.ubuntu.arm64" > .env; \
+		HASURA_IMAGE_SUFFIX=.ubuntu.arm64; \
 		echo "Detected ARM architecture"; \
 	else \
-		echo "HASURA_IMAGE_SUFFIX=" > .env; \
+		HASURA_IMAGE_SUFFIX=; \
 		echo "Detected x86 architecture"; \
-	fi
+	fi; \
+	printf 'HASURA_IMAGE_SUFFIX=%s\nHASURA_GRAPHQL_ADMIN_SECRET=%s\nHASURA_GRAPHQL_ENABLE_CONSOLE=true\nHASURA_GRAPHQL_DEV_MODE=true\n' \
+		"$$HASURA_IMAGE_SUFFIX" "$$(openssl rand -hex 32)" > .env; \
+	echo "Generated apps/callisto/.env for local development"
 .PHONY: setup-env
 
 start: setup-env update-config build
