@@ -17,7 +17,6 @@
     "test:packages": "npx turbo run test --filter=\"./packages/**/*\" && echo '🧪 Test packages completed'",
     "lint": "npx turbo run lint && echo '🧹 Lint completed'",
     "lint:packages": "npx turbo run lint --filter=\"./packages/**/*\" && echo '🧹 Lint packages completed'",
-    "security-check": "turbo run security-check",
     "typecheck": "npx turbo run typecheck && echo '🔎 Check types completed'",
     "typecheck:packages": "npx turbo run typecheck --filter=\"./packages/**/*\" && echo '🔎 Check types packages completed'"
   },

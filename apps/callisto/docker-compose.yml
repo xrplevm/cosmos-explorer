@@ -10,16 +10,16 @@ services:
             HASURA_GRAPHQL_ENABLE_CONSOLE: ${HASURA_GRAPHQL_ENABLE_CONSOLE:-false}
             HASURA_GRAPHQL_DEV_MODE: ${HASURA_GRAPHQL_DEV_MODE:-false}
             HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-            ACTION_BASE_URL: ${ACTION_BASE_URL:-http://host.docker.internal:3000}
+            ACTION_BASE_URL: http://host.docker.internal:3000
         volumes:
             - ./hasura/metadata:/hasura-metadata
         ports:
-            - "127.0.0.1:${HASURA_PORT:-8080}:8080"
+            - "127.0.0.1:8080:8080"
 
     database:
         image: postgres:17
         ports:
-            - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+            - "127.0.0.1:5432:5432"
         environment:
             POSTGRES_USER: user
             POSTGRES_PASSWORD: password

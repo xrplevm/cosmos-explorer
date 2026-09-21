@@ -55,8 +55,7 @@ cp configs/testnet-config.yaml ~/.callisto/config.yaml
 ### 4. Start Indexing
 
 ```bash
-# 1. Create/update the ignored local environment file. This generates a
-# local-only Hasura admin secret without printing it.
+# 1. Generate the ignored local environment file and Hasura admin secret
 make setup-env
 
 # 2. Start PostgreSQL and Hasura
@@ -67,10 +66,9 @@ make build
 ./build/callisto start
 ```
 
-Hasura refuses to start when `HASURA_GRAPHQL_ADMIN_SECRET` is missing or empty.
-Unauthenticated explorer requests use the metadata-constrained `anonymous`
-role. The generated `.env` is ignored by Git; never copy its secret into chain
-configuration, frontend code, images, or committed files.
+Hasura requires `HASURA_GRAPHQL_ADMIN_SECRET`. The generated `.env` is ignored
+by Git and is only for local development; never expose the secret to the
+explorer or commit it.
 
 ### 5. Start with Make Targets
 
@@ -131,12 +129,9 @@ Use `make db-schema-reset` when you need a fresh database without tearing down t
 | Callisto Actions | http://localhost:3000 | HTTP server for Hasura actions |
 | PostgreSQL | localhost:5432 | Database connection |
 
-Both published service ports bind to `127.0.0.1` for local development. The
-Hasura console and development mode are disabled by default in Compose;
-`make setup-env` enables them only in the ignored local `.env` file.
-`HASURA_PORT`, `POSTGRES_PORT`, and `ACTION_BASE_URL` can override the local
-host ports and Hasura-to-Callisto action URL when the defaults are already in
-use; the container ports and secure loopback bindings remain unchanged.
+Both published service ports bind to `127.0.0.1`. The Hasura console and
+development mode are disabled by default; `make setup-env` enables them in the
+ignored local environment only.
 
 Default database credentials (from docker-compose.yml):
 - User: `user`
@@ -206,20 +201,6 @@ make test-unit
 # Stop test database
 make stop-docker-test
 ```
-
-Run the static Hasura security checks without starting containers:
-
-```bash
-pnpm --filter @cosmos-explorer/callisto-app security-check
-```
-
-This verifies that the local runtime requires an externally supplied admin
-secret, maps unauthenticated requests to `anonymous`, keeps administrative
-modes off by default, binds local services to loopback, and contains no
-anonymous table write-permission blocks. It also checks the explorer's reviewed
-table, column, relationship, aggregation, and action requirements against the
-anonymous metadata. Changes to the explorer query sources require an explicit
-re-audit and manifest hash update.
 
 ### Linting and Formatting
 

@@ -178,39 +178,18 @@ migrate:
 ###############################################################################
 
 setup-env:
-	@ARCH=$$(uname -m); \
+	@command -v openssl >/dev/null 2>&1 || { echo "Error: openssl is required"; exit 1; }; \
+	ARCH=$$(uname -m); \
 	if [ "$$ARCH" = "arm64" ] || [ "$$ARCH" = "aarch64" ]; then \
-		HASURA_IMAGE_SUFFIX_VALUE=.ubuntu.arm64; \
+		HASURA_IMAGE_SUFFIX=.ubuntu.arm64; \
 		echo "Detected ARM architecture"; \
 	else \
-		HASURA_IMAGE_SUFFIX_VALUE=; \
+		HASURA_IMAGE_SUFFIX=; \
 		echo "Detected x86 architecture"; \
 	fi; \
-	touch .env; \
-	if grep -q '^HASURA_IMAGE_SUFFIX=' .env; then \
-		sed -i.bak "s|^HASURA_IMAGE_SUFFIX=.*|HASURA_IMAGE_SUFFIX=$$HASURA_IMAGE_SUFFIX_VALUE|" .env; \
-		rm -f .env.bak; \
-	else \
-		printf 'HASURA_IMAGE_SUFFIX=%s\n' "$$HASURA_IMAGE_SUFFIX_VALUE" >> .env; \
-	fi
-	@if grep -q '^HASURA_GRAPHQL_ADMIN_SECRET=.' .env; then \
-		echo "Using the existing local Hasura admin secret"; \
-	elif grep -q '^HASURA_GRAPHQL_ADMIN_SECRET=' .env; then \
-		echo "Error: HASURA_GRAPHQL_ADMIN_SECRET is empty in apps/callisto/.env"; \
-		exit 1; \
-	elif command -v openssl >/dev/null 2>&1; then \
-		printf 'HASURA_GRAPHQL_ADMIN_SECRET=%s\n' "$$(openssl rand -hex 32)" >> .env; \
-		echo "Generated a local Hasura admin secret in apps/callisto/.env"; \
-	else \
-		echo "Error: openssl is required to generate the local Hasura admin secret"; \
-		exit 1; \
-	fi
-	@if ! grep -q '^HASURA_GRAPHQL_ENABLE_CONSOLE=' .env; then \
-		echo 'HASURA_GRAPHQL_ENABLE_CONSOLE=true' >> .env; \
-	fi
-	@if ! grep -q '^HASURA_GRAPHQL_DEV_MODE=' .env; then \
-		echo 'HASURA_GRAPHQL_DEV_MODE=true' >> .env; \
-	fi
+	printf 'HASURA_IMAGE_SUFFIX=%s\nHASURA_GRAPHQL_ADMIN_SECRET=%s\nHASURA_GRAPHQL_ENABLE_CONSOLE=true\nHASURA_GRAPHQL_DEV_MODE=true\n' \
+		"$$HASURA_IMAGE_SUFFIX" "$$(openssl rand -hex 32)" > .env; \
+	echo "Generated apps/callisto/.env for local development"
 .PHONY: setup-env
 
 start: setup-env update-config build
