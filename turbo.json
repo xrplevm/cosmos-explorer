@@ -17,6 +17,7 @@
       ]
     },
     "lint": {},
+    "security-check": {},
     "@cosmos-explorer/juno#lint": {
       "dependsOn": ["@cosmos-explorer/callisto-app#lint"]
     },

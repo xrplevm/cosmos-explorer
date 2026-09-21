@@ -1,0 +1,12 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "security-check": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/adapters/callisto/src/queries.ts",
+        "$TURBO_ROOT$/apps/explorer/src/lib/hasura-subscription.ts"
+      ]
+    }
+  }
+}

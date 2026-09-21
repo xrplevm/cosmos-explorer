@@ -8,6 +8,7 @@
     "start": "./build/callisto start",
     "migrate": "./build/callisto migrate",
     "lint": "make lint",
+    "security-check": "node ./scripts/check-hasura-security.mjs",
     "typecheck": "make typecheck",
     "test": "make test-unit stop-docker-test",
     "clean": "make clean"

@@ -28,6 +28,9 @@ jobs:
       - name: Lint
         run: pnpm turbo run lint --filter='!@cosmos-explorer/juno' --filter='!@cosmos-explorer/callisto-app'
 
+      - name: Check Hasura security configuration
+        run: pnpm security-check
+
   go-lint:
     name: Go lint
     runs-on: ubuntu-latest

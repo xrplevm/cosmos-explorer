@@ -1,0 +1,111 @@
+{
+  "sourceFiles": {
+    "packages/adapters/callisto/src/queries.ts": "4d24e14c59de0d4395848787fe179ea3be65309d40766fdc6227fcac13ed1b06",
+    "apps/explorer/src/lib/hasura-subscription.ts": "5b0e4d209a8824d3718495b3bf76749c67aebdb8991c8d252ae80ba89b029f4e"
+  },
+  "tables": {
+    "average_block_time_per_hour": {
+      "columns": ["average_time", "height"]
+    },
+    "block": {
+      "columns": ["hash", "height", "num_txs", "proposer_address", "timestamp", "total_gas"],
+      "relationships": ["pre_commits", "transactions", "validator"],
+      "aggregations": true
+    },
+    "pre_commit": {
+      "columns": ["height", "timestamp", "validator_address"],
+      "relationships": ["validator"]
+    },
+    "proposal": {
+      "columns": [
+        "content",
+        "deposit_end_time",
+        "description",
+        "id",
+        "metadata",
+        "proposer_address",
+        "status",
+        "submit_time",
+        "title",
+        "voting_end_time",
+        "voting_start_time"
+      ]
+    },
+    "proposal_deposit": {
+      "columns": ["amount", "depositor_address", "height", "proposal_id", "timestamp"]
+    },
+    "proposal_staking_pool_snapshot": {
+      "columns": ["bonded_tokens", "proposal_id"]
+    },
+    "proposal_tally_result": {
+      "columns": ["abstain", "no", "no_with_veto", "proposal_id", "yes"]
+    },
+    "proposal_validator_status_snapshot": {
+      "columns": ["proposal_id", "status"],
+      "relationships": ["validator"]
+    },
+    "proposal_vote": {
+      "columns": ["height", "option", "proposal_id", "timestamp", "voter_address", "weight"],
+      "aggregations": true
+    },
+    "slashing_params": {
+      "columns": ["height", "params"]
+    },
+    "staking_pool": {
+      "columns": ["bonded_tokens", "height"]
+    },
+    "transaction": {
+      "columns": [
+        "fee",
+        "gas_used",
+        "gas_wanted",
+        "hash",
+        "height",
+        "logs",
+        "memo",
+        "messages",
+        "raw_log",
+        "success"
+      ],
+      "relationships": ["block"]
+    },
+    "validator": {
+      "columns": ["consensus_address"],
+      "relationships": [
+        "validator_commissions",
+        "validator_descriptions",
+        "validator_info",
+        "validator_signing_infos",
+        "validator_statuses",
+        "validator_voting_powers"
+      ]
+    },
+    "validator_commission": {
+      "columns": ["commission", "height"]
+    },
+    "validator_description": {
+      "columns": ["details", "height", "identity", "moniker", "website"]
+    },
+    "validator_info": {
+      "columns": ["max_rate", "operator_address", "self_delegate_address"]
+    },
+    "validator_signing_info": {
+      "columns": ["height", "missed_blocks_counter", "tombstoned"]
+    },
+    "validator_status": {
+      "columns": ["height", "jailed", "removed", "status"],
+      "aggregations": true
+    },
+    "validator_voting_power": {
+      "columns": ["height", "voting_power"]
+    }
+  },
+  "actions": [
+    "action_account_balance",
+    "action_delegation",
+    "action_delegation_reward",
+    "action_delegation_total",
+    "action_delegator_withdraw_address",
+    "action_unbonding_delegation_total"
+  ]
+}

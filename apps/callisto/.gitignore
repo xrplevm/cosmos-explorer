@@ -5,6 +5,8 @@ vendor/
 # Configuration
 *.toml
 *.json
+!turbo.json
+!hasura/explorer-anonymous-access.json
 config.yaml
 .env
 
