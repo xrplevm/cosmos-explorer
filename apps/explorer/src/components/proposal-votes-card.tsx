@@ -20,7 +20,7 @@ export interface SerializableValidator {
 export async function ProposalVotesCard({ proposalId }: ProposalVotesCardProps) {
   const { proposalService } = getServices();
 
-  const [{ votes }, eligibleVoters] = await Promise.all([
+  const [votes, eligibleVoters] = await Promise.all([
     proposalService.getProposalVotes(proposalId, { limit: 1000, offset: 0 }),
     proposalService.getProposalEligibleVoters(proposalId),
   ]);

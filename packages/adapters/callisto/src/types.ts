@@ -281,11 +281,6 @@ export interface ProposalVotesResponse {
     timestamp?: string | null;
     weight: string;
   }[];
-  proposal_vote_aggregate: {
-    aggregate?: {
-      count?: number | null;
-    } | null;
-  };
 }
 
 export interface ProposalEligibleVotersResponse {

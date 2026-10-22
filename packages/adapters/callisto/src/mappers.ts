@@ -784,18 +784,14 @@ function mapVoteOption(value: string): VoteOption {
 
 export function mapProposalVotes(
   response: ProposalVotesResponse,
-): { votes: ProposalVote[]; total: number } {
-  const votes: ProposalVote[] = response.proposal_vote.map((row) => ({
+): ProposalVote[] {
+  return response.proposal_vote.map((row) => ({
     voterAddress: row.voter_address,
     option: mapVoteOption(row.option),
     weight: row.weight,
     height: toNumber(row.height),
     timestamp: toUtcTimestamp(row.timestamp),
   }));
-
-  const total = response.proposal_vote_aggregate.aggregate?.count ?? 0;
-
-  return { votes, total };
 }
 
 export function buildAccountOverview(params: {

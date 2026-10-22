@@ -402,11 +402,6 @@ export const PROPOSAL_VOTES_QUERY = `
       timestamp
       weight
     }
-    proposal_vote_aggregate(where: { proposal_id: { _eq: $proposalId } }) {
-      aggregate {
-        count
-      }
-    }
   }
 `;
 
@@ -426,14 +421,6 @@ export const PROPOSAL_VOTES_FILTERED_QUERY = `
       height
       timestamp
       weight
-    }
-    proposal_vote_aggregate(where: {
-      proposal_id: { _eq: $proposalId }
-      option: { _eq: $option }
-    }) {
-      aggregate {
-        count
-      }
     }
   }
 `;

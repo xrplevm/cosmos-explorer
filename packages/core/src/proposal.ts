@@ -73,7 +73,7 @@ export interface IProposalService {
   getProposalVotes(
     proposalId: number,
     params?: { limit?: number; offset?: number; option?: VoteOption | null }
-  ): Promise<{ votes: ProposalVote[]; total: number }>;
+  ): Promise<ProposalVote[]>;
   getProposalDeposits(proposalId: number): Promise<ProposalDeposit[]>;
   getProposalEligibleVoters(proposalId: number): Promise<ProposalEligibleVoter[]>;
   getGovParams(): Promise<GovParams | null>;

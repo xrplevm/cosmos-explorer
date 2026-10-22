@@ -125,7 +125,7 @@ export class CallistoProposalService implements IProposalService {
   async getProposalVotes(
     proposalId: number,
     params?: { limit?: number; offset?: number; option?: string | null }
-  ): Promise<{ votes: ProposalVote[]; total: number }> {
+  ): Promise<ProposalVote[]> {
     const optionMap: Record<string, string> = {
       yes: 'VOTE_OPTION_YES',
       no: 'VOTE_OPTION_NO',
