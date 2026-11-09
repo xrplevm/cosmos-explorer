@@ -26,5 +26,10 @@
   },
   "dependencies": {
     "@tabler/icons-react": "^3.49.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@typescript-eslint/typescript-estree>minimatch": "^11.0.1"
+    }
   }
 }

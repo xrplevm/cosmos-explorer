@@ -16,16 +16,16 @@ export const ChainConfigSchema = z.object({
     primaryToken: TokenSchema,
     stakingToken: TokenSchema,
     endpoints: z.object({
-      graphqlHttp: z.string().url(),
-      graphqlWs: z.string().url().optional(),
+      graphqlHttp: z.url(),
+      graphqlWs: z.url().optional(),
       /** Base URL for the EVM block explorer (e.g. `https://explorer.testnet.xrplevm.org`). */
-      evmExplorer: z.string().url().optional(),
+      evmExplorer: z.url().optional(),
       /** Base URL for the Cosmos RPC endpoint (e.g. `https://cosmos-rpc.testnet.xrplevm.org`). */
-      cosmosRpc: z.string().url().optional(),
+      cosmosRpc: z.url().optional(),
     }),
   }),
   price: z.object({
-    baseUrl: z.string().url(),
+    baseUrl: z.url(),
     assetsByDenom: z.record(z.string(), z.string()),
   }),
   branding: z.object({
@@ -36,10 +36,10 @@ export const ChainConfigSchema = z.object({
   }),
   links: z
     .object({
-      github: z.string().url().optional(),
-      discord: z.string().url().optional(),
-      website: z.string().url().optional(),
-      issues: z.string().url().optional(),
+      github: z.url().optional(),
+      discord: z.url().optional(),
+      website: z.url().optional(),
+      issues: z.url().optional(),
     })
     .optional(),
   features: z.object({
@@ -48,7 +48,7 @@ export const ChainConfigSchema = z.object({
     evmSearch: z.boolean().default(false),
   }),
   explorerUrls: z
-    .record(z.enum(["mainnet", "testnet", "devnet"]), z.string().url())
+    .partialRecord(z.enum(["mainnet", "testnet", "devnet"]), z.url())
     .optional(),
 });
 
