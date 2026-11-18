@@ -13,6 +13,15 @@ Hasura or a database, and nothing it does can change the chain. This skill
 does not cover the indexer (`apps/callisto`, `packages/juno`): a change
 there is verified by its Go tests and a local Callisto run.
 
+It proves what the deployed backend can show. A change that reads data the
+deployed backend does not have yet (a new field or table, a changed Hasura
+action, usually because the same pull request changes Callisto) cannot be
+proven here: drive it anyway, and report the journeys that need the new
+backend as not verified, with the reason, never as passed. What this run
+does prove for such a change is the rollout: every other journey still
+passes, and the new feature shows a handled state rather than `Something
+went wrong` while the deployed backend is still the old one.
+
 Everything below is a script in `scripts/`. Run each one from the repo root
 as written.
 
