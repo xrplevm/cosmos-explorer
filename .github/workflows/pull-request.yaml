@@ -4,6 +4,11 @@ on:
   # Default activity types: opened, synchronize and reopened.
   pull_request:
 
+# Least privilege by default: every job gets a read-only token unless it
+# asks for more below.
+permissions:
+  contents: read
+
 jobs:
   changes:
     name: Detect changes
@@ -149,6 +154,12 @@ jobs:
         run: make test-unit stop-docker-test
 
   build-base:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [ts-lint, ts-build, go-lint, go-test]
     # Run when every check passed or was skipped (the Go jobs skip when no Go
     # changed); a job that only `needs` skipped jobs would be skipped itself.
@@ -163,6 +174,12 @@ jobs:
       cancel-in-progress: true
 
   build-callisto:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [build-base]
     uses: ./.github/workflows/build-callisto.yaml
     secrets: inherit
@@ -175,6 +192,12 @@ jobs:
       cancel-in-progress: true
 
   build-explorer:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [build-base]
     uses: ./.github/workflows/build-explorer.yaml
     secrets: inherit
