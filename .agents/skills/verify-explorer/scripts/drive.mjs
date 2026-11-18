@@ -47,6 +47,15 @@ async function search(page, query, urlGlob) {
 }
 const heading = (page, name) => page.getByRole("heading", { name }).first();
 const text = (page, pattern) => page.getByText(pattern).first();
+/** The account page past its loading.tsx skeleton: its address and data cards render. */
+async function accountLoaded(page, address) {
+  const loaded = text(page, "Unclaimed delegation rewards");
+  const failed = text(page, "Something went wrong");
+  await loaded.or(failed).waitFor();
+  assert(!(await failed.count()), "the account page shows the error boundary");
+  await page.locator("main").getByText(address).first().waitFor();
+  await page.waitForFunction(() => !document.querySelector("main .animate-pulse"));
+}
 
 const journeys = {
   async overview(page, shot) {
@@ -102,7 +111,9 @@ const journeys = {
     const link = page.locator('a[href^="/account/"]').first();
     const address = (await link.getAttribute("href")).split("/").pop();
     await follow(page, link, `**/account/${address}`);
-    await text(page, "Balances").waitFor();
+    // loading.tsx already renders these headings; wait for what only the
+    // loaded page shows, or the screenshot can be a skeleton.
+    await accountLoaded(page, address);
     await text(page, "Delegations").waitFor();
     assert(!(await page.getByText("Something went wrong").count()), "the account page shows the error boundary");
     await shot("detail");
@@ -143,7 +154,7 @@ const journeys = {
     await follow(page, page.locator('a[href^="/validators/"]').first(), "**/validators/*");
     const address = (await page.locator('a[href^="/account/"]').first().getAttribute("href")).split("/").pop();
     await search(page, address, `**/account/${address}`);
-    await text(page, "Balances").waitFor();
+    await accountLoaded(page, address);
     await shot("by-address");
   },
 

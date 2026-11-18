@@ -16,12 +16,16 @@ the header search.
 ## Driving it with drive.mjs
 
 `accounts`: from `/validators`, open the first validator, click its
-self-delegate address, and wait for `Balances` and `Delegations`. The
-journey fails if the page shows the error boundary (`Something went
+self-delegate address, and wait for what only the loaded page shows: the
+address, `Unclaimed delegation rewards`, and no skeleton left in `main`.
+The journey fails if the page shows the error boundary (`Something went
 wrong`).
 
 ## Gotchas
 
+- `loading.tsx` draws the same headings (`Balances`, `Delegated`,
+  `Rewards`) over skeletons, so a check that waits for a heading passes on
+  the loading state and photographs a skeleton. Wait for data.
 - A malformed address (a bad bech32 checksum) gets the generic error
   boundary, `Something went wrong`, from a 502 the GraphQL action raises,
   not an "invalid address" state. Drive real addresses taken from links;
@@ -29,4 +33,4 @@ wrong`).
 - Transaction pages link EVM-style `0x…` accounts as well as `ethm1…`.
 - The loading skeleton (`loading.tsx`) draws a `Recent Transactions` card
   the finished page never renders, so a section appears and then goes.
-  Read the page after `Balances` shows, not while it loads.
+  Read the page once its data shows, not while it loads.

@@ -67,13 +67,22 @@ const report = (dir) => {
 // --- A fixture explorer -----------------------------------------------------
 // Just enough of each page for one journey, with a switch per breakage.
 const page = (body) => `<!doctype html><html><body><nav><a href="/blocks">Blocks</a></nav><main>${body}</main></body></html>`;
-function fixture({ overviewLinks = true, accountError = false, serverErrorOn, logFile } = {}) {
+const ACCOUNT_LOADED =
+  "<h1>Account</h1><p>acc1</p><h2>Balances</h2><p>Unclaimed delegation rewards</p><h2>Delegations</h2>";
+// What loading.tsx renders: the same headings over skeletons, no data.
+const ACCOUNT_SKELETON =
+  '<h1>Account</h1><div class="animate-pulse"></div><h2>Balances</h2><h2>Delegations</h2>';
+function fixture({ overviewLinks = true, accountError = false, accountStuck = false, serverErrorOn, logFile } = {}) {
   const pages = {
     "/": page(`<h1>Overview</h1>${overviewLinks ? '<a href="/blocks/7">7</a><a href="/transactions/AB">AB</a>' : ""}`),
     "/validators": page('<h1>Validators</h1><a href="/validators/val1">val1</a>'),
     "/validators/val1": page('<p>Operator Address</p><p>val1</p><a href="/account/acc1">acc1</a>'),
     "/account/acc1": page(
-      accountError ? "<h2>Balances</h2><h2>Delegations</h2><p>Something went wrong</p>" : "<h2>Balances</h2><h2>Delegations</h2>",
+      accountError
+        ? "<h2>Balances</h2><h2>Delegations</h2><p>Something went wrong</p>"
+        : accountStuck
+          ? ACCOUNT_SKELETON
+          : ACCOUNT_LOADED,
     ),
     "/consensus": page("<h1>XRPL EVM Sidechain consensus signing matrix</h1>"),
   };
@@ -222,6 +231,14 @@ describe("drive", () => {
     const { code, out } = await run("drive.mjs", ["accounts"], { VERIFY_EXPLORER_DIR: dir });
     assert.equal(code, 1);
     assert.match(out, /FAIL {2}accounts .*error boundary/);
+  });
+
+  test("accounts fails when the page never leaves its loading skeleton", async () => {
+    const port = await serve({ accountStuck: true });
+    const dir = stateFor(port);
+    const { code, out } = await run("drive.mjs", ["accounts"], { VERIFY_EXPLORER_DIR: dir });
+    assert.equal(code, 1);
+    assert.match(out, /FAIL {2}accounts .*Timeout/);
   });
 
   test("a journey fails on a server error even when the page looks right", async () => {
