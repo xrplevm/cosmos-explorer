@@ -70,7 +70,7 @@ The transaction detail page renders a **dedicated component per Cosmos message t
 
 Prerequisites:
 
-- Node.js 22+
+- Node.js 24+
 - pnpm 9+
 - Go 1.23+ (for Go packages)
 - golangci-lint (for Go linting)

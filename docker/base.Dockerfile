@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM node:20.9.0 AS base
+FROM node:24.22.3 AS base
 ARG PNPM_VERSION=9.7.0
 ARG TURBO_TEAM=peersyst
 ENV TURBO_TEAM=$TURBO_TEAM

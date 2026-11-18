@@ -5,8 +5,19 @@ on:
     branches:
       - main
 
+# Least privilege by default: every job gets a read-only token unless it
+# asks for more below.
+permissions:
+  contents: read
+
 jobs:
   build-base:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     uses: ./.github/workflows/build-base.yaml
     secrets: inherit
     with:
@@ -17,6 +28,12 @@ jobs:
       cancel-in-progress: true
 
   build-callisto:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [build-base]
     uses: ./.github/workflows/build-callisto.yaml
     secrets: inherit
@@ -29,6 +46,12 @@ jobs:
       cancel-in-progress: true
 
   build-explorer-mainnet:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [build-base]
     uses: ./.github/workflows/build-explorer.yaml
     secrets: inherit
@@ -42,6 +65,12 @@ jobs:
       cancel-in-progress: true
 
   build-explorer-testnet:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [build-base]
     uses: ./.github/workflows/build-explorer.yaml
     secrets: inherit
@@ -55,6 +84,12 @@ jobs:
       cancel-in-progress: true
 
   build-explorer-devnet:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [build-base]
     uses: ./.github/workflows/build-explorer.yaml
     secrets: inherit

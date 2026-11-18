@@ -21,7 +21,7 @@ RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
 RUN --mount=type=secret,id=turbo_token,env=TURBO_TOKEN \
     npx turbo run build --filter=@cosmos-explorer/explorer
 
-FROM node:20.9.0-alpine AS release
+FROM node:24.22.3-alpine AS release
 WORKDIR /app
 
 ENV NODE_ENV=production
