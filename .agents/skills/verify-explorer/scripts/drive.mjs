@@ -20,12 +20,13 @@ const root = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   cwd: import.meta.dirname,
   encoding: "utf8",
 }).trim();
-const runDir = join(root, ".verify-explorer", "run");
+const state = process.env.VERIFY_EXPLORER_DIR ?? join(root, ".verify-explorer");
+const runDir = join(state, "run");
 const port = readFileSync(join(runDir, "port"), "utf8").trim();
 const network = readFileSync(join(runDir, "network"), "utf8").trim();
 const base = `http://127.0.0.1:${port}`;
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-const evidence = join(root, ".verify-explorer", "evidence", `${stamp}-${network}`);
+const evidence = join(state, "evidence", `${stamp}-${network}`);
 mkdirSync(evidence, { recursive: true });
 
 const SEARCH = "Search block, tx, address...";
@@ -36,13 +37,13 @@ const assert = (cond, msg) => {
 
 /** Click a link and wait for the client-side navigation it starts. */
 async function follow(page, locator, urlGlob) {
-  await Promise.all([page.waitForURL(urlGlob, { timeout: 30_000 }), locator.click()]);
+  await Promise.all([page.waitForURL(urlGlob), locator.click()]);
 }
 async function search(page, query, urlGlob) {
   await page.goto(`${base}/`);
   const box = page.getByPlaceholder(SEARCH);
   await box.fill(query);
-  await Promise.all([page.waitForURL(urlGlob, { timeout: 30_000 }), box.press("Enter")]);
+  await Promise.all([page.waitForURL(urlGlob), box.press("Enter")]);
 }
 const heading = (page, name) => page.getByRole("heading", { name }).first();
 const text = (page, pattern) => page.getByText(pattern).first();
@@ -167,6 +168,8 @@ const browser = await chromium.launch();
 const results = [];
 for (const name of names) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  // A slow live network wants the 30s default; the evals' fixture server, less.
+  page.setDefaultTimeout(Number(process.env.VERIFY_EXPLORER_TIMEOUT_MS ?? 30_000));
   const pageErrors = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
   const logBefore = serverLog().length;

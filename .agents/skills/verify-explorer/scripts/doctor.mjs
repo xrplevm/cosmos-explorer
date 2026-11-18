@@ -14,7 +14,8 @@ const root = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   cwd: import.meta.dirname,
   encoding: "utf8",
 }).trim();
-const run = join(root, ".verify-explorer", "run");
+const state = process.env.VERIFY_EXPLORER_DIR ?? join(root, ".verify-explorer");
+const run = join(state, "run");
 const read = (name) =>
   existsSync(join(run, name)) ? readFileSync(join(run, name), "utf8").trim() : undefined;
 
@@ -31,14 +32,14 @@ const pid = read("pid");
 const network = read("network");
 const port = read("port");
 if (!pid || !network || !port) {
-  fail("no instance recorded in .verify-explorer/run/; run scripts/launch.sh first");
+  fail(`no instance recorded in ${run}; run scripts/launch.sh first`);
   process.exit(1);
 }
 try {
   process.kill(Number(pid), 0);
   ok(`server pid ${pid} is alive (${network} on :${port})`);
 } catch {
-  fail(`server pid ${pid} is gone; see .verify-explorer/run/server.log`);
+  fail(`server pid ${pid} is gone; see ${join(run, "server.log")}`);
 }
 
 // 2. The build serves the network the run says it does.
@@ -85,7 +86,7 @@ try {
 // 5. Server-side errors since launch.
 const log = read("server.log") ?? "";
 const errors = log.split("\n").filter((line) => line.startsWith("⨯"));
-if (errors.length) warn(`${errors.length} server error(s) in .verify-explorer/run/server.log; latest: ${errors.at(-1).slice(0, 160)}`);
+if (errors.length) warn(`${errors.length} server error(s) in ${join(run, "server.log")}; latest: ${errors.at(-1).slice(0, 160)}`);
 else ok("no server errors logged since launch");
 
 // 6. The driver's browser.
