@@ -119,3 +119,17 @@ Node 24 and pnpm as in the repo's `README.md`, network access to
 dependency; if `doctor.mjs` says it does not resolve, install it with
 `npm i -g playwright && npx playwright install --with-deps chromium`, or
 point `NODE_PATH` at an existing install.
+
+## Changing this skill
+
+Run its evals after any change here:
+
+```bash
+node --test .agents/skills/verify-explorer/evals/scripts.test.mjs
+```
+
+They drive the scripts against fixture servers in a few seconds and show
+each check failing for its own reason beside a control that passes.
+`VERIFY_EXPLORER_E2E=1` adds one real run on testnet. `evals/evals.json`
+holds realistic requests with expectations, for comparing agents with and
+without the skill (the `skill-creator` skill runs them).
