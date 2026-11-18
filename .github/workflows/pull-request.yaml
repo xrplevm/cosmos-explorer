@@ -35,22 +35,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for Go changes
+        id: go-changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          changes=$(git diff --name-only "$BASE_SHA" HEAD -- '*.go' '*.mod' '*.sum' 'go.work')
+          if [[ -n "$changes" ]]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Setup Go
+        if: steps.go-changes.outputs.changed == 'true'
         uses: actions/setup-go@v5
         with:
           go-version: "1.23"
 
-      - name: Compute diff
-        uses: technote-space/get-diff-action@v6.1.2
-        with:
-          SUFFIX_FILTER: |
-            .go
-            .mod
-            .sum
-
       - name: Lint juno
-        if: env.GIT_DIFF != ''
+        if: steps.go-changes.outputs.changed == 'true'
         uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.3
@@ -58,7 +63,7 @@ jobs:
           args: --timeout=10m
 
       - name: Lint callisto
-        if: env.GIT_DIFF != ''
+        if: steps.go-changes.outputs.changed == 'true'
         uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.3
@@ -100,32 +105,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for Go changes
+        id: go-changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          changes=$(git diff --name-only "$BASE_SHA" HEAD -- '*.go' '*.mod' '*.sum' 'go.work')
+          if [[ -n "$changes" ]]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Setup Go
+        if: steps.go-changes.outputs.changed == 'true'
         uses: actions/setup-go@v5
         with:
           go-version: "1.23"
 
-      - name: Compute diff
-        uses: technote-space/get-diff-action@v6.1.2
-        with:
-          SUFFIX_FILTER: |
-            .go
-            .mod
-            .sum
-
       - name: Build callisto
-        if: env.GIT_DIFF != ''
+        if: steps.go-changes.outputs.changed == 'true'
         working-directory: apps/callisto
         run: make build
 
       - name: Test juno
-        if: env.GIT_DIFF != ''
+        if: steps.go-changes.outputs.changed == 'true'
         working-directory: packages/juno
         run: go test ./... -coverprofile=coverage.txt -covermode=atomic
 
       - name: Test callisto
-        if: env.GIT_DIFF != ''
+        if: steps.go-changes.outputs.changed == 'true'
         working-directory: apps/callisto
         run: make test-unit stop-docker-test
 
