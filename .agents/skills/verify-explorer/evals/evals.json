@@ -1,0 +1,55 @@
+{
+  "skill_name": "verify-explorer",
+  "evals": [
+    {
+      "id": 1,
+      "name": "one-page-change-before-pr",
+      "prompt": "I changed the transactions table in the explorer (apps/explorer/src/components/transactions-table.tsx). Before I open the pull request, can you check the explorer still works?",
+      "expected_output": "The explorer is built and served as production does, health-checked, and the transactions and overview pages are driven in a browser against a real network; the answer reports each page's result with screenshots and leaves nothing running.",
+      "files": [],
+      "expectations": [
+        "It served a production build (next build and the standalone server or next start), not next dev",
+        "It ran against a real network's data and says which network",
+        "It checked the instance was healthy (right network, live data) before driving it",
+        "It drove the transactions list and a transaction's detail page in a browser",
+        "It also drove the overview page, which shows the transactions table",
+        "It saved screenshots and names where they are",
+        "The answer gives a pass or fail per page driven",
+        "No server it started is still listening when it finishes"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "named-pages-on-mainnet",
+      "prompt": "Show me that the validators and account pages work on mainnet.",
+      "expected_output": "A mainnet build is served, confirmed to be talking to mainnet (chain id xrplevm_1440000-1), and a person's path is driven: validators list, a validator, its account; screenshots of each and a clean teardown.",
+      "files": [],
+      "expectations": [
+        "It built or served the explorer for mainnet, not testnet or devnet",
+        "It confirmed it was looking at mainnet data (for example the chain id xrplevm_1440000-1)",
+        "It opened a validator from the validators list in a browser",
+        "It reached an account page by following a link, not by typing an address",
+        "It checked the account page shows balances or delegations, not an error",
+        "It saved screenshots of the validators and account pages and names where they are",
+        "No server it started is still listening when it finishes"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "whole-explorer-after-dependency-bump",
+      "prompt": "We bumped Next.js in the explorer. Verify the whole explorer end to end.",
+      "expected_output": "Every user-facing feature is driven (overview, blocks, transactions, validators, accounts, proposals, consensus, search, not-found) against a production build on a real network, with evidence per feature, a per-feature result and a clean teardown.",
+      "files": [],
+      "expectations": [
+        "It served a production build against a real network and says which",
+        "It drove every listed page: overview, blocks, transactions, validators, accounts, proposals and consensus",
+        "It exercised the header search",
+        "It checked what a missing block shows",
+        "It treats browser or server errors as failures, not only missing text",
+        "It saved screenshots and names where they are",
+        "The answer gives a pass or fail per feature",
+        "No server it started is still listening when it finishes"
+      ]
+    }
+  ]
+}

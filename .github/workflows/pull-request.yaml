@@ -1,10 +1,47 @@
 name: "Pull Request"
 
 on:
+  # Default activity types: opened, synchronize and reopened.
   pull_request:
-    types: [opened, synchronize]
+
+# Least privilege by default: every job gets a read-only token unless it
+# asks for more below.
+permissions:
+  contents: read
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Only this job reads the pull request; the build jobs below keep the
+    # permissions their reusable workflows declare.
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      go: ${{ steps.filter.outputs.go }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Filter changed paths
+        id: filter
+        # Pinned to the v4.0.3 release commit, which was reviewed: it lists the
+        # pull request's files through the GitHub API (read only) and runs git
+        # without a shell.
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            go:
+              - '**/*.go'
+              - '**/*.mod'
+              - '**/*.sum'
+              - 'go.work'
+              - '**/.golangci.yaml'
+              - 'apps/callisto/Makefile'
+              - 'packages/juno/Makefile'
+
   ts-lint:
     name: TypeScript lint
     runs-on: ubuntu-latest
@@ -30,6 +67,8 @@ jobs:
 
   go-lint:
     name: Go lint
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -39,18 +78,9 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23"
-
-      - name: Compute diff
-        uses: technote-space/get-diff-action@v6.1.2
-        with:
-          SUFFIX_FILTER: |
-            .go
-            .mod
-            .sum
+          go-version-file: apps/callisto/go.mod
 
       - name: Lint juno
-        if: env.GIT_DIFF != ''
         uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.3
@@ -58,7 +88,6 @@ jobs:
           args: --timeout=10m
 
       - name: Lint callisto
-        if: env.GIT_DIFF != ''
         uses: golangci/golangci-lint-action@v7
         with:
           version: v2.11.3
@@ -86,13 +115,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm build
+        env:
+          NETWORK: mainnet
+        run: pnpm turbo run build --filter='!@cosmos-explorer/juno' --filter='!@cosmos-explorer/callisto-app'
 
       - name: Typecheck
-        run: pnpm typecheck
+        run: pnpm turbo run typecheck --filter='!@cosmos-explorer/juno' --filter='!@cosmos-explorer/callisto-app'
 
   go-test:
     name: Go tests
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -102,33 +135,35 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23"
-
-      - name: Compute diff
-        uses: technote-space/get-diff-action@v6.1.2
-        with:
-          SUFFIX_FILTER: |
-            .go
-            .mod
-            .sum
+          go-version-file: apps/callisto/go.mod
 
       - name: Build callisto
-        if: env.GIT_DIFF != ''
         working-directory: apps/callisto
         run: make build
 
+      - name: Build juno
+        working-directory: packages/juno
+        run: make build
+
       - name: Test juno
-        if: env.GIT_DIFF != ''
         working-directory: packages/juno
         run: go test ./... -coverprofile=coverage.txt -covermode=atomic
 
       - name: Test callisto
-        if: env.GIT_DIFF != ''
         working-directory: apps/callisto
         run: make test-unit stop-docker-test
 
   build-base:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [ts-lint, ts-build, go-lint, go-test]
+    # Run when every check passed or was skipped (the Go jobs skip when no Go
+    # changed); a job that only `needs` skipped jobs would be skipped itself.
+    if: ${{ !failure() && !cancelled() }}
     uses: ./.github/workflows/build-base.yaml
     secrets: inherit
     with:
@@ -139,6 +174,12 @@ jobs:
       cancel-in-progress: true
 
   build-callisto:
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     needs: [build-base]
     uses: ./.github/workflows/build-callisto.yaml
     secrets: inherit
@@ -151,13 +192,20 @@ jobs:
       cancel-in-progress: true
 
   build-explorer:
-    needs: [ build-base ]
+    # The reusable workflow logs in to GHCR with GITHUB_TOKEN and pushes or
+    # caches images; a called workflow gets no more than its caller grants.
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    needs: [build-base]
     uses: ./.github/workflows/build-explorer.yaml
     secrets: inherit
     with:
       push: false
       target: integration
       tag: ${{ github.sha }}
+      environment: mainnet
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-build-explorer
       cancel-in-progress: true

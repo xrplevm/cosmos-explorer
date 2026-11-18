@@ -7,3 +7,6 @@ next-env.d.ts
 *.tsbuildinfo
 .env
 .env*.local
+
+# verify-explorer skill: run state and evidence
+.verify-explorer/

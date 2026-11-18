@@ -1,50 +1,25 @@
 {
   "version": 1,
   "skills": {
-    "grill-me": {
+    "grilling": {
       "source": "mattpocock/skills",
       "sourceType": "github",
-      "computedHash": "784f0dbb7403b0f00324bce9a112f715342777a0daee7bbb7385f9c6f0a170ea"
-    },
-    "next-best-practices": {
-      "source": "vercel-labs/next-skills",
-      "sourceType": "github",
-      "computedHash": "515ba75178bd44875812d9a560bdf14651f86709f89cf1d4f209638e879807f3"
-    },
-    "next-cache-components": {
-      "source": "vercel-labs/next-skills",
-      "sourceType": "github",
-      "computedHash": "a94b83ddcd2ff1c30722577f693b1bfe32f2e1a83abdd6c08c2d6cc6753b53c8"
-    },
-    "next-upgrade": {
-      "source": "vercel-labs/next-skills",
-      "sourceType": "github",
-      "computedHash": "be6bbf6ab1dc2cc6f2505cea52d497920c04f5b532c0846ee201f6029b803fb0"
-    },
-    "skill-creator": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "computedHash": "b122f4d1e91aa1d83027e050b5b37c3156203ee85458d7b1360bc48167c9e02a"
-    },
-    "template-skill": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "computedHash": "38c88f722b574a922311d334a70c2008a2a5b896f06eaa75516d716e5725b26f"
+      "computedHash": "823f08ad33368a9626991e6782f7ae14b958e39ef8503f6bdb3b98a58d237a58"
     },
     "turborepo": {
       "source": "vercel/turborepo",
       "sourceType": "github",
-      "computedHash": "414e17f6d29892ffe79f0284ec260b6dc7ab0a908c43614f46bba9b27497a7f1"
+      "computedHash": "c83a6ff75c62092f71da91408164ed3426f11749b032fd23ecc855e27c2fb538"
     },
     "vercel-composition-patterns": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
-      "computedHash": "f98931159fa9c7fed043bcd18a891a46dcf89ababa38df13a4c5b7b30dc0ce07"
+      "computedHash": "5b3564ca435f4714d5e65023351e1999e4744818603a9cfb6a6f6a61b7d84918"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
-      "computedHash": "afeca00ac2f492d88fdd010e73d91719a5b57c564bb4a73325b0bd77e11323ab"
+      "computedHash": "74f142d28d360d78e8bac4f239a84c87f0ced9015729bc72b5458d82ff45b015"
     },
     "web-design-guidelines": {
       "source": "vercel-labs/agent-skills",
