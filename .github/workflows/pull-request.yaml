@@ -86,10 +86,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm build
+        env:
+          NETWORK: mainnet
+        run: pnpm turbo run build --filter='!@cosmos-explorer/juno' --filter='!@cosmos-explorer/callisto-app'
 
       - name: Typecheck
-        run: pnpm typecheck
+        run: pnpm turbo run typecheck --filter='!@cosmos-explorer/juno' --filter='!@cosmos-explorer/callisto-app'
 
   go-test:
     name: Go tests
@@ -158,6 +160,7 @@ jobs:
       push: false
       target: integration
       tag: ${{ github.sha }}
+      environment: mainnet
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-build-explorer
       cancel-in-progress: true
