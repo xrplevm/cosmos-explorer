@@ -35,6 +35,7 @@ jobs:
               - 'go.work'
               - '**/.golangci.yaml'
               - 'apps/callisto/Makefile'
+              - 'packages/juno/Makefile'
 
   ts-lint:
     name: TypeScript lint
@@ -133,6 +134,10 @@ jobs:
 
       - name: Build callisto
         working-directory: apps/callisto
+        run: make build
+
+      - name: Build juno
+        working-directory: packages/juno
         run: make build
 
       - name: Test juno
