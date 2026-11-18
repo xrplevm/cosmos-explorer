@@ -9,11 +9,11 @@
 // for the skill itself. VERIFY_EXPLORER_E2E=1 also runs the whole skill
 // once against testnet (a build, about two minutes).
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync, appendFileSync } from "node:fs";
+import { execFileSync, spawn } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync, appendFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { after, describe, test } from "node:test";
 
 const scripts = join(import.meta.dirname, "..", "scripts");
@@ -21,8 +21,9 @@ const scripts = join(import.meta.dirname, "..", "scripts");
 // Async on purpose: the fixture servers live in this process, and a
 // spawnSync would block the event loop they answer from.
 function run(script, args = [], env = {}) {
-  const cmd = script.endsWith(".mjs") ? process.execPath : join(scripts, script);
-  const argv = script.endsWith(".mjs") ? [join(scripts, script), ...args] : args;
+  const path = resolve(scripts, script);
+  const cmd = script.endsWith(".mjs") ? process.execPath : path;
+  const argv = script.endsWith(".mjs") ? [path, ...args] : args;
   return new Promise((resolve) => {
     const child = spawn(cmd, argv, {
       env: { ...process.env, VERIFY_EXPLORER_TIMEOUT_MS: "4000", ...env },
@@ -50,6 +51,13 @@ function stateFor(port, { pid = process.pid, network = "testnet" } = {}) {
   return dir;
 }
 
+function recordIdentity(dir, pid) {
+  const identity = execFileSync("bash", [
+    "-c", 'source "$1"; process_identity "$2"', "bash", join(scripts, "process-identity.sh"), String(pid),
+  ]);
+  writeFileSync(join(dir, "run", "process-identity"), identity);
+}
+
 const sleeper = () => spawn("sleep", ["60"], { stdio: "ignore" });
 const alive = (pid) => {
   try {
@@ -72,9 +80,23 @@ const ACCOUNT_LOADED =
 // What loading.tsx renders: the same headings over skeletons, no data.
 const ACCOUNT_SKELETON =
   '<h1>Account</h1><div class="animate-pulse"></div><h2>Balances</h2><h2>Delegations</h2>';
-function fixture({ overviewLinks = true, accountError = false, accountStuck = false, serverErrorOn, logFile } = {}) {
+const SEARCH_FORM = `
+  <input placeholder="Search block, tx, address...">
+  <script>
+    document.querySelector('input').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        const value = event.target.value;
+        location.href = ({ '7': '/blocks/7', AB: '/transactions/AB', acc1: '/account/acc1' })[value];
+      }
+    });
+  </script>`;
+function fixture({ overviewLinks = true, accountError = false, accountStuck = false, searchSkeleton, serverErrorOn, logFile } = {}) {
   const pages = {
-    "/": page(`<h1>Overview</h1>${overviewLinks ? '<a href="/blocks/7">7</a><a href="/transactions/AB">AB</a>' : ""}`),
+    "/": page(`<h1>Overview</h1>${overviewLinks ? '<a href="/blocks/7">7</a><a href="/transactions/AB">AB</a>' : ""}${SEARCH_FORM}`),
+    "/blocks": page('<a href="/blocks/7">7</a>'),
+    "/blocks/7": page(searchSkeleton === "block" ? "<p>Block Hash</p>" : "<h1>Block #7</h1><p>Block Hash</p>"),
+    "/transactions": page('<a href="/transactions/AB">AB</a>'),
+    "/transactions/AB": page(searchSkeleton === "transaction" ? "<h1>Transaction Details</h1>" : "<h1>Transaction Details</h1><p>AB</p><p>Status</p>"),
     "/validators": page('<h1>Validators</h1><a href="/validators/val1">val1</a>'),
     "/validators/val1": page('<p>Operator Address</p><p>val1</p><a href="/account/acc1">acc1</a>'),
     "/account/acc1": page(
@@ -131,12 +153,43 @@ describe("refusals", () => {
     const child = sleeper();
     try {
       const dir = stateFor(3999, { pid: child.pid });
+      recordIdentity(dir, child.pid);
       const { code, out } = await run("launch.sh", ["testnet"], { VERIFY_EXPLORER_DIR: dir });
       assert.equal(code, 1);
       assert.match(out, /already running \(pid \d+, testnet on :3999\)/);
     } finally {
       child.kill();
     }
+  });
+
+  test("launch rebuilds when the cached build ID has been replaced", async () => {
+    const root = mkdtempSync(join(tmpdir(), "verify-explorer-build-"));
+    execFileSync("git", ["init", "-q", root]);
+    const scriptCopy = join(root, "scripts");
+    cpSync(scripts, scriptCopy, { recursive: true });
+    const app = join(root, "apps", "explorer");
+    const standaloneApp = join(app, ".next", "standalone", "apps", "explorer");
+    mkdirSync(join(standaloneApp, ".next"), { recursive: true });
+    mkdirSync(join(app, ".next", "static"));
+    mkdirSync(join(app, "public"));
+    writeFileSync(join(app, ".next", "BUILD_ID"), "intervening-build\n");
+    writeFileSync(join(standaloneApp, ".next", "BUILD_ID"), "intervening-build\n");
+    writeFileSync(join(standaloneApp, "server.js"), 'throw Error("wrong standalone output was reused");\n');
+    const bin = join(root, "bin");
+    mkdirSync(bin);
+    writeFileSync(join(bin, "pnpm"), "#!/bin/sh\necho rebuild-attempted\nexit 1\n", { mode: 0o755 });
+    const dir = join(root, "state");
+    mkdirSync(join(dir, "run"), { recursive: true });
+    writeFileSync(join(dir, "run", "build-network"), "testnet\n");
+    writeFileSync(join(dir, "run", "build-id"), "original-build\n");
+
+    const { code, out } = await run(join(scriptCopy, "launch.sh"), ["testnet", "--reuse"], {
+      PATH: `${bin}:${process.env.PATH}`,
+      VERIFY_EXPLORER_DIR: dir,
+      VERIFY_EXPLORER_PORT: "0",
+    });
+    assert.equal(code, 1, out);
+    assert.match(out, /rebuild-attempted/);
   });
 });
 
@@ -176,6 +229,7 @@ describe("cleanup", () => {
     const child = sleeper();
     const exited = new Promise((r) => child.on("exit", r));
     const dir = stateFor(1, { pid: child.pid });
+    recordIdentity(dir, child.pid);
     mkdirSync(join(dir, "evidence", "run-1"), { recursive: true });
     writeFileSync(join(dir, "evidence", "run-1", "report.json"), "{}");
     const { code, out } = await run("cleanup.sh", [], { VERIFY_EXPLORER_DIR: dir });
@@ -194,7 +248,22 @@ describe("cleanup", () => {
     await new Promise((r) => child.on("exit", r));
     const { code, out } = await run("cleanup.sh", [], { VERIFY_EXPLORER_DIR: stateFor(1, { pid }) });
     assert.equal(code, 0);
-    assert.match(out, new RegExp(`pid ${pid} had already exited`));
+    assert.match(out, new RegExp(`no matching process for pid ${pid}`));
+  });
+
+  test("leaves a live process alone when the recorded identity differs", async () => {
+    const child = sleeper();
+    try {
+      const dir = stateFor(1, { pid: child.pid });
+      writeFileSync(join(dir, "run", "process-identity"), "old-process\n");
+      const { code, out } = await run("cleanup.sh", [], { VERIFY_EXPLORER_DIR: dir });
+      assert.equal(code, 0, out);
+      assert.match(out, new RegExp(`no matching process for pid ${child.pid}`));
+      assert.equal(alive(child.pid), true);
+      assert.equal(existsSync(join(dir, "run", "pid")), false);
+    } finally {
+      child.kill();
+    }
   });
 });
 
@@ -203,13 +272,14 @@ describe("drive", () => {
   test("control: journeys pass against a fixture that renders them", async () => {
     const port = await serve();
     const dir = stateFor(port);
-    const { code, out } = await run("drive.mjs", ["overview", "accounts", "consensus"], { VERIFY_EXPLORER_DIR: dir });
+    const { code, out } = await run("drive.mjs", ["overview", "accounts", "consensus", "search"], { VERIFY_EXPLORER_DIR: dir });
     assert.equal(code, 0, out);
     const r = report(dir);
     assert.deepEqual(r.results.map((x) => [x.feature, x.status]), [
       ["overview", "pass"],
       ["accounts", "pass"],
       ["consensus", "pass"],
+      ["search", "pass"],
     ]);
     for (const shot of r.results.flatMap((x) => x.shots)) assert.ok(existsSync(shot), shot);
   });
@@ -240,6 +310,18 @@ describe("drive", () => {
     assert.equal(code, 1);
     assert.match(out, /FAIL {2}accounts .*Timeout/);
   });
+
+  for (const searchSkeleton of ["block", "transaction"]) {
+    test(`search fails when the ${searchSkeleton} result stays on its loading skeleton`, async () => {
+      const dir = stateFor(await serve({ searchSkeleton }));
+      const { code, out } = await run("drive.mjs", ["search"], { VERIFY_EXPLORER_DIR: dir });
+      assert.equal(code, 1, out);
+      assert.match(out, /FAIL {2}search .*Timeout/);
+      const [result] = report(dir).results;
+      const detailShot = searchSkeleton === "block" ? "by-height" : "by-tx-hash";
+      assert.ok(!result.shots.some((shot) => shot.endsWith(`search-${detailShot}.png`)));
+    });
+  }
 
   test("a journey fails on a server error even when the page looks right", async () => {
     const dir = stateFor(0);
@@ -274,13 +356,13 @@ describe("end to end", { skip: process.env.VERIFY_EXPLORER_E2E !== "1" && "set V
       assert.equal(r.code, 0, r.out);
       r = await run("doctor.mjs", [], env);
       assert.equal(r.code, 0, r.out);
-      r = await run("drive.mjs", ["overview", "blocks"], env);
+      r = await run("drive.mjs", ["overview", "blocks", "search"], env);
       assert.equal(r.code, 0, r.out);
     } finally {
       await run("cleanup.sh", [], env);
     }
     const r = report(dir);
-    assert.deepEqual(r.results.map((x) => x.status), ["pass", "pass"]);
+    assert.deepEqual(r.results.map((x) => x.status), ["pass", "pass", "pass"]);
     for (const shot of r.results.flatMap((x) => x.shots)) assert.ok(existsSync(shot), shot);
   });
 });

@@ -36,8 +36,9 @@ with turbo, copies `static/` and `public/` into the standalone output as
 `docker/explorer.Dockerfile` does, and starts `server.js` on port 3100
 (`VERIFY_EXPLORER_PORT` to change it). The network is fixed at build time,
 since pages are prerendered for it, so one build serves one network.
-`--reuse` skips the build when the last one was for the same network; never
-reuse after changing source. Ready means the overview renders its heading,
+`--reuse` skips the build when the network and Next.js build ID match the
+last successful skill build. Rebuild after changing source. Ready means
+the overview renders its heading,
 which on a cold start takes 10 to 20 seconds; the script waits up to two
 minutes and prints the server log if it gives up.
 
@@ -95,9 +96,9 @@ for a visible change.
 .agents/skills/verify-explorer/scripts/cleanup.sh
 ```
 
-Stops the server by the pid launch recorded, never by process name (the
-server renames itself `next-server`). Evidence is kept. Run it after the
-last drive, and after a failed launch too.
+Stops the server after checking that the recorded PID and process start
+time still identify the process launch started. Run it after the last drive
+or a failed launch. Cleanup keeps the evidence.
 
 ## Reporting
 

@@ -47,6 +47,19 @@ async function search(page, query, urlGlob) {
 }
 const heading = (page, name) => page.getByRole("heading", { name }).first();
 const text = (page, pattern) => page.getByText(pattern).first();
+
+async function blockLoaded(page, height) {
+  const name = `Block #${Number(height).toLocaleString("en-US")}`;
+  await page.locator("main").getByRole("heading", { name, exact: true }).waitFor();
+  await text(page, "Block Hash").waitFor();
+}
+
+async function transactionLoaded(page, hash) {
+  await heading(page, "Transaction Details").waitFor();
+  await page.locator("main").getByText(hash, { exact: true }).waitFor();
+  await text(page, /^Status$/).waitFor();
+}
+
 /** The account page past its loading.tsx skeleton: its address and data cards render. */
 async function accountLoaded(page, address) {
   const loaded = text(page, "Unclaimed delegation rewards");
@@ -74,8 +87,7 @@ const journeys = {
     const first = page.locator('a[href^="/blocks/"]').first();
     const height = (await first.getAttribute("href")).split("/").pop();
     await follow(page, first, `**/blocks/${height}`);
-    await text(page, `#${Number(height).toLocaleString("en-US")}`).waitFor();
-    await text(page, "Block Hash").waitFor();
+    await blockLoaded(page, height);
     await shot("detail");
   },
 
@@ -86,9 +98,7 @@ const journeys = {
     const first = page.locator('a[href^="/transactions/"]').first();
     const hash = (await first.getAttribute("href")).split("/").pop();
     await follow(page, first, `**/transactions/${hash}`);
-    await heading(page, "Transaction Details").waitFor();
-    await text(page, hash).waitFor();
-    await text(page, /^Status$/).waitFor();
+    await transactionLoaded(page, hash);
     await shot("detail");
   },
 
@@ -141,13 +151,13 @@ const journeys = {
     await page.goto(`${base}/blocks`);
     const height = (await page.locator('a[href^="/blocks/"]').first().getAttribute("href")).split("/").pop();
     await search(page, height, `**/blocks/${height}`);
-    await text(page, "Block Hash").waitFor();
+    await blockLoaded(page, height);
     await shot("by-height");
 
     await page.goto(`${base}/transactions`);
     const hash = (await page.locator('a[href^="/transactions/"]').first().getAttribute("href")).split("/").pop();
     await search(page, hash, `**/transactions/${hash}`);
-    await heading(page, "Transaction Details").waitFor();
+    await transactionLoaded(page, hash);
     await shot("by-tx-hash");
 
     await page.goto(`${base}/validators`);
