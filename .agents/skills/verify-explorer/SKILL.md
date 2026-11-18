@@ -132,4 +132,6 @@ They drive the scripts against fixture servers in a few seconds and show
 each check failing for its own reason beside a control that passes.
 `VERIFY_EXPLORER_E2E=1` adds one real run on testnet. `evals/evals.json`
 holds realistic requests with expectations, for comparing agents with and
-without the skill (the `skill-creator` skill runs them).
+without the skill: run each request once with the skill and once without,
+in separate worktrees on separate ports, and grade both against its
+expectations.

@@ -44,7 +44,7 @@ For Go changes, run the narrowest relevant checks in `apps/callisto` or `package
 Skills live in `.agents/skills/<name>/`; `.claude/skills/<name>` is a relative symlink to each one, so every agent finds the same files. Keep the two in step: a skill added, renamed or removed changes both, and a symlink must never point at a missing directory.
 
 - **Project skills** are written for this repo and edited here: `verify-explorer`.
-- **Vendored skills** come from other repositories and are pinned in `skills-lock.json` (source and content hash): `grill-me`, `next-best-practices`, `next-cache-components`, `next-upgrade`, `skill-creator`, `turborepo`, `vercel-composition-patterns`, `vercel-react-best-practices`, `web-design-guidelines`. Update them from their source rather than editing them in place, so the lock stays true.
+- **Vendored skills** come from other repositories and are pinned in `skills-lock.json` (source and content hash): `grill-me`, `grilling`, `next-best-practices`, `next-cache-components`, `next-upgrade`, `turborepo`, `vercel-composition-patterns`, `vercel-react-best-practices`, `web-design-guidelines`. Update them from their source rather than editing them in place, so the lock stays true.
 
 A skill with scripts carries its own evals; run them after changing it (for `verify-explorer`: `node --test .agents/skills/verify-explorer/evals/scripts.test.mjs`).
 
