@@ -12,7 +12,7 @@ This is a pnpm/Turborepo monorepo for the XRPL EVM Sidechain Cosmos explorer.
 - `packages/juno`: reusable Go indexer library
 - `packages/{config,price,ui,utils}`: shared TypeScript packages
 
-Use Node.js 22+, pnpm 9+, and Go 1.23+.
+Use Node.js 24+, pnpm 9+, and Go 1.23+.
 
 ## Working Rules
 
