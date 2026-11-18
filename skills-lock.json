@@ -1,11 +1,6 @@
 {
   "version": 1,
   "skills": {
-    "grill-me": {
-      "source": "mattpocock/skills",
-      "sourceType": "github",
-      "computedHash": "fe33aaa8e8dcd606107b1bfe3109f257b4a7e0f4907afd6506b62ccfb73cd1d3"
-    },
     "grilling": {
       "source": "mattpocock/skills",
       "sourceType": "github",
